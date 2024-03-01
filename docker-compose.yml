@@ -1,0 +1,7 @@
+version: "3.1"
+services:
+  cart:
+    image: cart
+    build: ./cart/
+    ports:
+      - "8082:8080"

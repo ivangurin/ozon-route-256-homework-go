@@ -1,0 +1,111 @@
+### check empty cart
+GET http://localhost:8082/user/31337/cart
+Content-Type: application/json
+
+{
+  "user_id": 31337
+}
+### expected {} 200 OK
+
+
+### add item to cart, normal (use sku from stocks loms/cmd/app/repositories.go)
+POST http://localhost:8082/user/31337/cart/773297411
+Content-Type: application/json
+
+{
+  "count": 10
+}
+### expected 200 OK
+
+
+### check cart again, expect 773297411 sku, check sku description, cost, total price = cost * count
+GET http://localhost:8082/user/31337/cart
+Content-Type: application/json
+
+{
+  "user_id": 31337
+}
+### expected {"items":[{"sku":773297411,"count":10,"name":"Кроссовки Nike JORDAN","price":2202}],"totalPrice":22020}
+
+
+### add another item to cart
+POST http://localhost:8082/user/31337/cart/2958025
+Content-Type: application/json
+
+{
+  "count": 1
+}
+### expected 200 OK
+
+
+### check cart again, expect several skus
+GET http://localhost:8082/user/31337/cart
+Content-Type: application/json
+
+{
+  "user_id": 31337
+}
+### expected {"items":[{"sku":2958025,"count":1,"name":"Roxy Music. Stranded. Remastered Edition","price":1028},{"sku":773297411,"count":10,"name":"Кроссовки Nike JORDAN","price":2202],"totalPrice":23050}
+
+
+POST http://localhost:8082/user/31337/cart/2958025
+Content-Type: application/json
+
+{
+  "count": 1
+}
+### expected 200 OK
+
+
+### check cart state
+GET http://localhost:8082/user/31337/cart
+Content-Type: application/json
+
+{
+  "user_id": 31337
+}
+### expected {"items":[{"sku":2958025,"count":10,"name":"Roxy Music. Stranded. Remastered Edition","price":1028},{"sku":773297411,"count":10,"name":"Кроссовки Nike JORDAN","price":2202],"totalPrice":32300}
+
+
+### remove sku from cart
+DELETE http://localhost:8082/user/31337/cart/2958025
+Content-Type: application/json
+
+### expected 204 OK
+
+
+### check cart state, expect single sku
+GET http://localhost:8082/user/31337/cart
+Content-Type: application/json
+
+{
+  "user_id": 31337
+}
+### expected {"items":[{"sku":773297411,"count":10,"name":"Кроссовки Nike JORDAN","price":2202],"totalPrice":22020}
+
+
+### clear
+DELETE http://localhost:8082/user/31337/cart
+Content-Type: application/json
+
+### expected 204 OK
+
+
+### check cart state, expect empty cart
+GET http://localhost:8082/user/31337/cart
+Content-Type: application/json
+
+### expected 404 Not Found
+
+### clear unknown cart
+DELETE http://localhost:8082/user/31337/cart
+Content-Type: application/json
+
+### expected 204 OK
+
+
+### add unknown item, expect error
+POST http://localhost:8082/user/31337/cart/404
+Content-Type: application/json
+
+### expected 400 Bad Request
