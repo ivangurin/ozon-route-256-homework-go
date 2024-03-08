@@ -1,18 +1,17 @@
-FROM golang:alpine as builder
+FROM golang as builder
 
 WORKDIR /app
 
-COPY go.mod go.mod
-COPY go.sum go.sum
+COPY go.mod go.sum ./
 
 RUN go mod download
 
 COPY . .
 
-RUN go build -o ./bin/cart .
+RUN go build -o ./bin/cart_service ./cmd/cart_service
 
-FROM alpine
+FROM ubuntu
 
-COPY --from=builder /app/bin/cart /cart
+COPY --from=builder /app/bin/cart_service /cart_service
 
-CMD [ "/cart" ]
+CMD [ "/cart_service" ]

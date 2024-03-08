@@ -3,7 +3,7 @@ package cartservice
 import (
 	"context"
 
-	productservice "route256.ozon.ru/project/cart/internal/client/product_service"
+	productservice "route256.ozon.ru/project/cart/internal/pkg/client/product_service"
 	cartstorage "route256.ozon.ru/project/cart/internal/repository/cart_storage"
 )
 

@@ -13,14 +13,14 @@ func (s *cartService) AddItem(ctx context.Context, userID int64, skuID int64, qu
 
 	_, err := s.productService.GetProductWithRetries(ctx, skuID)
 	if err != nil {
-		logger.Error("cartService.AddItem: faild to get product", err)
-		return fmt.Errorf("faild to get product: %w", err)
+		logger.Error("cartService.AddItem: failed to get product", err)
+		return fmt.Errorf("failed to get product: %w", err)
 	}
 
 	err = s.cartStorage.AddItem(ctx, userID, skuID, quantity)
 	if err != nil {
-		logger.Error("cartService.AddItem: faild to add item", err)
-		return fmt.Errorf("faild to add item: %w", err)
+		logger.Error("cartService.AddItem: failed to add item", err)
+		return fmt.Errorf("failed to add item: %w", err)
 	}
 
 	return nil

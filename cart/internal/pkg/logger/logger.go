@@ -26,6 +26,10 @@ func (l *tLogger) error(m string, err error) {
 	log.Printf("[error] %s: %s", m, err)
 }
 
+func (l *tLogger) fatal(m string, err error) {
+	log.Printf("[fatal] %s: %s", m, err)
+}
+
 func Info(m string) {
 	logger.info(m)
 }
@@ -36,4 +40,8 @@ func Warn(m string) {
 
 func Error(m string, err error) {
 	logger.error(m, err)
+}
+
+func Fatal(m string, err error) {
+	logger.fatal(m, err)
 }

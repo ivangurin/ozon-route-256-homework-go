@@ -1,7 +1,6 @@
-package app
+package cartservice
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -14,9 +13,8 @@ import (
 	cartservice "route256.ozon.ru/project/cart/internal/service/cart_service"
 )
 
-func (a *app) handleGetItemsByUserID(ctx context.Context) func(w http.ResponseWriter, r *http.Request) {
+func (a *app) handleGetItemsByUserID() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		r = r.WithContext(ctx)
 
 		logger.Info(fmt.Sprintf("handleCartGet: start handle request: %s", r.RequestURI))
 		defer logger.Info(fmt.Sprintf("handleCartGet: finish handle request: %s", r.RequestURI))
@@ -28,9 +26,9 @@ func (a *app) handleGetItemsByUserID(ctx context.Context) func(w http.ResponseWr
 			return
 		}
 
-		cart, err := a.sp.GetCartService().GetItemsByUserID(ctx, req.UserID)
+		cart, err := a.sp.GetCartService().GetItemsByUserID(r.Context(), req.UserID)
 		if err != nil {
-			logger.Error("handleCartGet: faild to get cart", err)
+			logger.Error("handleCartGet: failed to get cart", err)
 			if errors.Is(err, model.ErrNotFound) {
 				http.Error(w, fmt.Sprintf("cart for user %d not found", req.UserID), http.StatusNotFound)
 			} else {
@@ -41,7 +39,7 @@ func (a *app) handleGetItemsByUserID(ctx context.Context) func(w http.ResponseWr
 
 		err = toGetItemsByUserIDResponse(w, cart)
 		if err != nil {
-			logger.Error("faild to write response", err)
+			logger.Error("failed to write response", err)
 		}
 
 	}
@@ -65,7 +63,7 @@ func toGetItemsByUserIDRequest(r *http.Request) (*GetItemsByUserIDRequest, error
 func toGetItemsByUserIDResponse(w http.ResponseWriter, cart *cartservice.Cart) error {
 	json, err := json.Marshal(cart)
 	if err != nil {
-		logger.Error("handleCartGet: faild to marshal cart response", err)
+		logger.Error("handleCartGet: failed to marshal cart response", err)
 		http.Error(w, "interanl error", http.StatusInternalServerError)
 		return nil
 	}
@@ -75,7 +73,7 @@ func toGetItemsByUserIDResponse(w http.ResponseWriter, cart *cartservice.Cart) e
 
 	_, err = w.Write(json)
 	if err != nil {
-		logger.Error("faild to write response", err)
+		logger.Error("failed to write response", err)
 		return err
 	}
 

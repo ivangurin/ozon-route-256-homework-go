@@ -15,28 +15,28 @@ func (s *cartService) GetItemsByUserID(ctx context.Context, userID int64) (*Cart
 
 	cart, err := s.cartStorage.GetItemsByUserID(ctx, userID)
 	if err != nil {
-		logger.Error("cartService.GetItemsByUserID: faild to get items by user id", err)
-		return nil, fmt.Errorf("faild to get items by user id: %w", err)
+		logger.Error("cartService.GetItemsByUserID: failed to get items by user id", err)
+		return nil, fmt.Errorf("failed to get items by user id: %w", err)
 	}
 
 	resp, err := s.toGetCartResponse(ctx, cart)
 	if err != nil {
-		logger.Error("cartService.GetItemsByUserID: faild to make response", err)
-		return nil, fmt.Errorf("faild to make response: %w", err)
+		logger.Error("cartService.GetItemsByUserID: failed to make response", err)
+		return nil, fmt.Errorf("failed to make response: %w", err)
 	}
 
 	return resp, nil
 }
 
 func (s *cartService) toGetCartResponse(ctx context.Context, cart *cartstorage.Cart) (*Cart, error) {
-	resp := &Cart{}
+	var resp *Cart = &Cart{}
 	resp.Items = make([]*CartItem, 0, len(cart.Items))
 	for skuID, cartItem := range cart.Items {
 
 		product, err := s.productService.GetProductWithRetries(ctx, skuID)
 		if err != nil {
-			logger.Error(fmt.Sprintf("cartService.AddItem: faild to get product %d", skuID), err)
-			return nil, fmt.Errorf("faild to get product %d: %w", skuID, err)
+			logger.Error(fmt.Sprintf("cartService.AddItem: failed to get product %d", skuID), err)
+			return nil, fmt.Errorf("failed to get product %d: %w", skuID, err)
 		}
 
 		resp.Items = append(resp.Items, &CartItem{

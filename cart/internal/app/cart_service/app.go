@@ -1,4 +1,4 @@
-package app
+package cartservice
 
 import (
 	"context"
@@ -38,19 +38,19 @@ func (a *app) Run() error {
 	logger.Info("listner is createing...")
 	conn, err := net.Listen(config.AppProtocol, fmt.Sprintf(":%s", config.AppAddressPort))
 	if err != nil {
-		return fmt.Errorf("faild to create listner: %w", err)
+		return fmt.Errorf("failed to create listner: %w", err)
 	}
 	defer conn.Close()
 	logger.Info("listner is created")
 
-	http.HandleFunc(fmt.Sprintf("POST /user/{%s}/cart/{%s}", paramUserID, paramSkuID), a.handleAddItem(a.ctx))
-	http.HandleFunc(fmt.Sprintf("DELETE /user/{%s}/cart/{%s}", paramUserID, paramSkuID), a.handleDeleteItem(a.ctx))
-	http.HandleFunc(fmt.Sprintf("GET /user/{%s}/cart", paramUserID), a.handleGetItemsByUserID(a.ctx))
-	http.HandleFunc(fmt.Sprintf("DELETE /user/{%s}/cart", paramUserID), a.handleDeleteItemsByUserID(a.ctx))
+	http.HandleFunc(fmt.Sprintf("POST /user/{%s}/cart/{%s}", paramUserID, paramSkuID), a.handleAddItem())
+	http.HandleFunc(fmt.Sprintf("DELETE /user/{%s}/cart/{%s}", paramUserID, paramSkuID), a.handleDeleteItem())
+	http.HandleFunc(fmt.Sprintf("GET /user/{%s}/cart", paramUserID), a.handleGetItemsByUserID())
+	http.HandleFunc(fmt.Sprintf("DELETE /user/{%s}/cart", paramUserID), a.handleDeleteItemsByUserID())
 
 	logger.Info("srtarting http server...")
 	if err := http.Serve(conn, nil); err != nil {
-		return fmt.Errorf("faild to start http server: %w", err)
+		return fmt.Errorf("failed to start http server: %w", err)
 	}
 
 	return nil

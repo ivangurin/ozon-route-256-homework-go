@@ -1,7 +1,6 @@
-package app
+package cartservice
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -10,9 +9,8 @@ import (
 	"route256.ozon.ru/project/cart/internal/pkg/logger"
 )
 
-func (a *app) handleDeleteItemsByUserID(ctx context.Context) func(w http.ResponseWriter, r *http.Request) {
+func (a *app) handleDeleteItemsByUserID() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		r = r.WithContext(ctx)
 
 		logger.Info(fmt.Sprintf("handleDeleteItemsByUserID: start handle request: %s", r.RequestURI))
 		defer logger.Info(fmt.Sprintf("handleDeleteItemsByUserID: finish handle request: %s", r.RequestURI))
@@ -24,9 +22,9 @@ func (a *app) handleDeleteItemsByUserID(ctx context.Context) func(w http.Respons
 			return
 		}
 
-		err = a.sp.GetCartService().DeleteItemsByUserID(ctx, req.UserID)
+		err = a.sp.GetCartService().DeleteItemsByUserID(r.Context(), req.UserID)
 		if err != nil {
-			logger.Error("handleDeleteItemsByUserID: faild to delete items", err)
+			logger.Error("handleDeleteItemsByUserID: failed to delete items", err)
 			http.Error(w, "interanl error", http.StatusInternalServerError)
 			return
 		}

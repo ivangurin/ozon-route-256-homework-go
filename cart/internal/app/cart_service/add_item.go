@@ -1,7 +1,6 @@
-package app
+package cartservice
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -14,12 +13,10 @@ import (
 	"route256.ozon.ru/project/cart/internal/pkg/logger"
 )
 
-func (a *app) handleAddItem(ctx context.Context) func(w http.ResponseWriter, r *http.Request) {
+func (a *app) handleAddItem() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logger.Info(fmt.Sprintf("handleAddItem: start handle request: %s", r.RequestURI))
 		defer logger.Info(fmt.Sprintf("handleAddItem: finish handle request: %s", r.RequestURI))
-
-		r = r.WithContext(ctx)
 
 		req, err := toAddItemRequest(r)
 		if err != nil {
@@ -28,9 +25,9 @@ func (a *app) handleAddItem(ctx context.Context) func(w http.ResponseWriter, r *
 			return
 		}
 
-		err = a.sp.GetCartService().AddItem(ctx, req.UserID, req.SkuID, req.Quantity)
+		err = a.sp.GetCartService().AddItem(r.Context(), req.UserID, req.SkuID, req.Quantity)
 		if err != nil {
-			logger.Error("handleAddItem: faild to add item", err)
+			logger.Error("handleAddItem: failed to add item", err)
 			if errors.Is(err, model.ErrNotFound) {
 				http.Error(w, fmt.Sprintf("sku %d not found", req.SkuID), http.StatusNotFound)
 			} else {
@@ -53,13 +50,10 @@ func toAddItemRequest(r *http.Request) (*AddItemRequest, error) {
 		return nil, err
 	}
 
-	data := &struct {
-		Count uint16 `json:"count"`
-	}{}
-
+	data := &AddItemRequestBody{}
 	err = json.Unmarshal(body, data)
 	if err != nil {
-		logger.Error("handleAddItem: faild to unmarshal body json", err)
+		logger.Error("handleAddItem: failed to unmarshal body json", err)
 		return nil, err
 	}
 
