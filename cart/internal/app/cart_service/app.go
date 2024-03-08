@@ -27,7 +27,8 @@ func NewApp(ctx context.Context) IApp {
 }
 
 func (a *app) Run() error {
-	logger.Info("starting app...")
+	logger.Info("app is starting...")
+	defer logger.Info("app finished")
 
 	logger.Info("listner is createing...")
 	conn, err := net.Listen(config.AppProtocol, fmt.Sprintf(":%s", config.AppAddressPort))
@@ -37,7 +38,11 @@ func (a *app) Run() error {
 	defer conn.Close()
 	logger.Info("listner is created")
 
-	a.sp.GetCartAPI()
+	cartAPI := a.sp.GetCartAPI()
+	cartAPIDesc := cartAPI.GetDescription()
+	for _, handeler := range cartAPIDesc.Handlers {
+		http.HandleFunc(handeler.Pattern, handeler.Handler)
+	}
 
 	logger.Info("srtarting http server...")
 	if err := http.Serve(conn, nil); err != nil {

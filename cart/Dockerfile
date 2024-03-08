@@ -1,4 +1,5 @@
 FROM golang as builder
+LABEL stage=builder
 
 WORKDIR /app
 

@@ -2,8 +2,8 @@ package cartapi
 
 import (
 	"fmt"
-	"net/http"
 
+	"route256.ozon.ru/project/cart/internal/model"
 	cartservice "route256.ozon.ru/project/cart/internal/service/cart_service"
 )
 
@@ -14,6 +14,7 @@ const (
 )
 
 type IAPI interface {
+	GetDescription() *model.HttpAPIDescription
 }
 
 type api struct {
@@ -21,14 +22,30 @@ type api struct {
 }
 
 func NewAPI(cartService cartservice.IService) IAPI {
-	api := &api{
+	return &api{
 		cartService: cartService,
 	}
+}
 
-	http.HandleFunc(fmt.Sprintf("POST /user/{%s}/cart/{%s}", paramUserID, paramSkuID), api.AddItem())
-	http.HandleFunc(fmt.Sprintf("DELETE /user/{%s}/cart/{%s}", paramUserID, paramSkuID), api.DeleteItem())
-	http.HandleFunc(fmt.Sprintf("GET /user/{%s}/cart", paramUserID), api.GetItemsByUserID())
-	http.HandleFunc(fmt.Sprintf("DELETE /user/{%s}/cart", paramUserID), api.DeleteItemsByUserID())
-
-	return api
+func (a *api) GetDescription() *model.HttpAPIDescription {
+	return &model.HttpAPIDescription{
+		Handlers: model.HttpApiHandlers{
+			{
+				Pattern: fmt.Sprintf("POST /user/{%s}/cart/{%s}", paramUserID, paramSkuID),
+				Handler: a.AddItem(),
+			},
+			{
+				Pattern: fmt.Sprintf("DELETE /user/{%s}/cart/{%s}", paramUserID, paramSkuID),
+				Handler: a.DeleteItem(),
+			},
+			{
+				Pattern: fmt.Sprintf("GET /user/{%s}/cart", paramUserID),
+				Handler: a.GetItemsByUserID(),
+			},
+			{
+				Pattern: fmt.Sprintf("DELETE /user/{%s}/cart", paramUserID),
+				Handler: a.DeleteItemsByUserID(),
+			},
+		},
+	}
 }
