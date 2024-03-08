@@ -1,4 +1,4 @@
-package cartservice
+package cartapi
 
 import (
 	"encoding/json"
@@ -13,7 +13,7 @@ import (
 	cartservice "route256.ozon.ru/project/cart/internal/service/cart_service"
 )
 
-func (a *app) handleGetItemsByUserID() func(w http.ResponseWriter, r *http.Request) {
+func (a *api) GetItemsByUserID() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		logger.Info(fmt.Sprintf("handleCartGet: start handle request: %s", r.RequestURI))
@@ -26,7 +26,7 @@ func (a *app) handleGetItemsByUserID() func(w http.ResponseWriter, r *http.Reque
 			return
 		}
 
-		cart, err := a.sp.GetCartService().GetItemsByUserID(r.Context(), req.UserID)
+		cart, err := a.cartService.GetItemsByUserID(r.Context(), req.UserID)
 		if err != nil {
 			logger.Error("handleCartGet: failed to get cart", err)
 			if errors.Is(err, model.ErrNotFound) {

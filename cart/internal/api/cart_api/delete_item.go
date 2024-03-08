@@ -1,4 +1,4 @@
-package cartservice
+package cartapi
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"route256.ozon.ru/project/cart/internal/pkg/logger"
 )
 
-func (a *app) handleDeleteItem() func(w http.ResponseWriter, r *http.Request) {
+func (a *api) DeleteItem() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		logger.Info(fmt.Sprintf("handleDeleteItem: start handle request: %s", r.RequestURI))
@@ -22,7 +22,7 @@ func (a *app) handleDeleteItem() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = a.sp.GetCartService().DeleteItem(r.Context(), req.UserID, req.SkuID)
+		err = a.cartService.DeleteItem(r.Context(), req.UserID, req.SkuID)
 		if err != nil {
 			logger.Error("handleDeleteItem: failed to delete item", err)
 			http.Error(w, "interanl error", http.StatusInternalServerError)

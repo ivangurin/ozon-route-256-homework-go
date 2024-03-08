@@ -1,4 +1,4 @@
-package cartservice
+package cartapi
 
 import (
 	"encoding/json"
@@ -13,7 +13,7 @@ import (
 	"route256.ozon.ru/project/cart/internal/pkg/logger"
 )
 
-func (a *app) handleAddItem() func(w http.ResponseWriter, r *http.Request) {
+func (a *api) AddItem() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logger.Info(fmt.Sprintf("handleAddItem: start handle request: %s", r.RequestURI))
 		defer logger.Info(fmt.Sprintf("handleAddItem: finish handle request: %s", r.RequestURI))
@@ -25,7 +25,7 @@ func (a *app) handleAddItem() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = a.sp.GetCartService().AddItem(r.Context(), req.UserID, req.SkuID, req.Quantity)
+		err = a.cartService.AddItem(r.Context(), req.UserID, req.SkuID, req.Quantity)
 		if err != nil {
 			logger.Error("handleAddItem: failed to add item", err)
 			if errors.Is(err, model.ErrNotFound) {

@@ -1,4 +1,4 @@
-package cartservice
+package cartapi
 
 type AddItemRequest struct {
 	UserID   int64  `validate:"required|int|min:1"`
