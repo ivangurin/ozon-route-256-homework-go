@@ -27,7 +27,7 @@ func (l *tLogger) error(m string, err error) {
 }
 
 func (l *tLogger) fatal(m string, err error) {
-	log.Printf("[fatal] %s: %s", m, err)
+	log.Fatalf("[fatal] %s: %s", m, err)
 }
 
 func Info(m string) {

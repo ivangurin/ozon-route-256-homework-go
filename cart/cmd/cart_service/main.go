@@ -11,6 +11,5 @@ func main() {
 	app := cartservice.NewApp(context.Background())
 	if err := app.Run(); err != nil {
 		logger.Fatal("can't run app", err)
-		panic(err)
 	}
 }

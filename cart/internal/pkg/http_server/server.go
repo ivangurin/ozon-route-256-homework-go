@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"route256.ozon.ru/project/cart/internal/model"
 )
@@ -47,5 +48,6 @@ func (s *server) Start() error {
 }
 
 func (s *server) Stop() error {
-	return s.server.Shutdown(context.Background())
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	return s.server.Shutdown(ctx)
 }
