@@ -2,11 +2,9 @@ package cartservice
 
 import (
 	"context"
-	"fmt"
-	"net"
-	"net/http"
 
 	"route256.ozon.ru/project/cart/internal/config"
+	httpserver "route256.ozon.ru/project/cart/internal/pkg/http_server"
 	"route256.ozon.ru/project/cart/internal/pkg/logger"
 )
 
@@ -27,27 +25,27 @@ func NewApp(ctx context.Context) IApp {
 }
 
 func (a *app) Run() error {
-	logger.Info("app is starting...")
-	defer logger.Info("app finished")
+	logger.Info("cartService is starting...")
+	defer logger.Info("cartService finished")
 
-	logger.Info("listner is createing...")
-	conn, err := net.Listen(config.AppProtocol, fmt.Sprintf(":%s", config.AppAddressPort))
-	if err != nil {
-		return fmt.Errorf("failed to create listner: %w", err)
-	}
-	defer conn.Close()
-	logger.Info("listner is created")
+	closer := a.sp.GetCloser()
+	defer closer.Wait()
 
 	cartAPI := a.sp.GetCartAPI()
-	cartAPIDesc := cartAPI.GetDescription()
-	for _, handeler := range cartAPIDesc.Handlers {
-		http.HandleFunc(handeler.Pattern, handeler.Handler)
-	}
 
-	logger.Info("srtarting http server...")
-	if err := http.Serve(conn, nil); err != nil {
-		return fmt.Errorf("failed to start http server: %w", err)
-	}
+	httpServer := httpserver.NewServer(config.CartServcePort)
+	httpServer.AddHandlers(cartAPI.GetDescription().Handlers)
+	closer.Add(httpServer.Stop)
+
+	go func() {
+		logger.Info("http cartService server is starting...")
+		err := httpServer.Start()
+		if err != nil {
+			logger.Error("failed to start http server", err)
+			closer.CloseAll()
+		}
+		logger.Info("http cartService server finished")
+	}()
 
 	return nil
 }

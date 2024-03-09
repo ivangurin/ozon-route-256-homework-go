@@ -1,13 +1,18 @@
 package cartservice
 
 import (
+	"os"
+	"syscall"
+
 	cartapi "route256.ozon.ru/project/cart/internal/api/cart_api"
 	productservice "route256.ozon.ru/project/cart/internal/pkg/client/product_service"
+	"route256.ozon.ru/project/cart/internal/pkg/closer"
 	cartstorage "route256.ozon.ru/project/cart/internal/repository/cart_storage"
 	cartservice "route256.ozon.ru/project/cart/internal/service/cart_service"
 )
 
 type ServiceProvider struct {
+	closer         closer.ICloser
 	cartAPI        cartapi.IAPI
 	productService productservice.IClient
 	cartStorage    cartstorage.IStorage
@@ -21,6 +26,13 @@ func GetServiceProvider() *ServiceProvider {
 		serviceProvider = &ServiceProvider{}
 	}
 	return serviceProvider
+}
+
+func (sp *ServiceProvider) GetCloser() closer.ICloser {
+	if sp.closer == nil {
+		sp.closer = closer.NewCloser(os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	}
+	return sp.closer
 }
 
 func (sp *ServiceProvider) GetCartAPI() cartapi.IAPI {
