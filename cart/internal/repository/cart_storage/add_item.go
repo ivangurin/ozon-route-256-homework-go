@@ -8,6 +8,8 @@ func (cs *cartStorage) AddItem(
 	skuID int64,
 	quantity uint16,
 ) error {
+	cs.Lock()
+	defer cs.Unlock()
 
 	cart, exists := storage[userID]
 	if !exists {
@@ -26,5 +28,4 @@ func (cs *cartStorage) AddItem(
 	cartItem.Quantity += quantity
 
 	return nil
-
 }

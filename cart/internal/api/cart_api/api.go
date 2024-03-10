@@ -2,6 +2,7 @@ package cartapi
 
 import (
 	"fmt"
+	"net/http"
 
 	"route256.ozon.ru/project/cart/internal/model"
 	cartservice "route256.ozon.ru/project/cart/internal/service/cart_service"
@@ -31,19 +32,19 @@ func (a *api) GetDescription() *model.HttpAPIDescription {
 	return &model.HttpAPIDescription{
 		Handlers: model.HttpApiHandlers{
 			{
-				Pattern: fmt.Sprintf("POST /user/{%s}/cart/{%s}", paramUserID, paramSkuID),
+				Pattern: fmt.Sprintf("%s /user/{%s}/cart/{%s}", http.MethodPost, paramUserID, paramSkuID),
 				Handler: a.AddItem(),
 			},
 			{
-				Pattern: fmt.Sprintf("DELETE /user/{%s}/cart/{%s}", paramUserID, paramSkuID),
+				Pattern: fmt.Sprintf("%s /user/{%s}/cart/{%s}", http.MethodDelete, paramUserID, paramSkuID),
 				Handler: a.DeleteItem(),
 			},
 			{
-				Pattern: fmt.Sprintf("GET /user/{%s}/cart", paramUserID),
+				Pattern: fmt.Sprintf("%s /user/{%s}/cart", http.MethodGet, paramUserID),
 				Handler: a.GetItemsByUserID(),
 			},
 			{
-				Pattern: fmt.Sprintf("DELETE /user/{%s}/cart", paramUserID),
+				Pattern: fmt.Sprintf("%s /user/{%s}/cart", http.MethodDelete, paramUserID),
 				Handler: a.DeleteItemsByUserID(),
 			},
 		},

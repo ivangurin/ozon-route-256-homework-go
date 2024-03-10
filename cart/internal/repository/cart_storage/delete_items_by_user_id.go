@@ -11,6 +11,8 @@ func (cs *cartStorage) DeleteItemsByUserID(
 	ctx context.Context,
 	userID int64,
 ) error {
+	cs.Lock()
+	defer cs.Unlock()
 
 	logger.Info(fmt.Sprintf("cartStorage: start clear cart for userID: %d", userID))
 	defer logger.Info(fmt.Sprintf("cartStorage: finish clear cart for userID: %d", userID))
@@ -21,5 +23,4 @@ func (cs *cartStorage) DeleteItemsByUserID(
 	}
 
 	return nil
-
 }

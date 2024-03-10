@@ -23,7 +23,9 @@ type server struct {
 func NewServer(port string) IServer {
 	s := &server{
 		server: http.Server{
-			Addr: fmt.Sprintf(":%s", port),
+			Addr:              fmt.Sprintf(":%s", port),
+			ReadHeaderTimeout: 10 * time.Second,
+			ReadTimeout:       10 * time.Second,
 		},
 	}
 
@@ -48,6 +50,7 @@ func (s *server) Start() error {
 }
 
 func (s *server) Stop() error {
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 	return s.server.Shutdown(ctx)
 }
