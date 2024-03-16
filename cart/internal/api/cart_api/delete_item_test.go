@@ -19,6 +19,7 @@ func TestDeleteItem(t *testing.T) {
 		UserID     int64
 		SkuID      int64
 		StatusCode int
+		Error      error
 	}
 
 	tests := []*test{
@@ -27,24 +28,28 @@ func TestDeleteItem(t *testing.T) {
 			UserID:     0,
 			SkuID:      1,
 			StatusCode: http.StatusBadRequest,
+			Error:      nil,
 		},
 		{
 			Name:       "Не заполнен продукт",
 			UserID:     1,
 			SkuID:      0,
 			StatusCode: http.StatusBadRequest,
+			Error:      nil,
 		},
 		{
 			Name:       "Заполнен пользователь и продкут",
 			UserID:     1,
 			SkuID:      1,
 			StatusCode: http.StatusNoContent,
+			Error:      nil,
 		},
 		{
 			Name:       "Внутренняя ошибка",
 			UserID:     1,
 			SkuID:      2,
 			StatusCode: http.StatusInternalServerError,
+			Error:      errors.New("internal error"),
 		},
 	}
 
@@ -54,15 +59,12 @@ func TestDeleteItem(t *testing.T) {
 		cartService: sp.GetCartServiceMock(),
 	}
 
-	sp.GetCartServiceMock().DeleteItemMock.
-		When(ctx, 1, 1).
-		Then(nil)
-	sp.GetCartServiceMock().DeleteItemMock.
-		When(ctx, 1, 2).
-		Then(errors.New("internal error"))
-
 	for _, test := range tests {
 		test := test
+
+		sp.GetCartServiceMock().DeleteItemMock.
+			When(ctx, test.UserID, test.SkuID).
+			Then(test.Error)
 
 		t.Run(test.Name, func(t *testing.T) {
 
