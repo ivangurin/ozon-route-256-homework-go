@@ -11,28 +11,30 @@ import (
 type ICloser interface {
 	Add(f ...func() error)
 	Wait()
+	Signal()
 	CloseAll()
 }
 
 type closer struct {
 	sync.Mutex
-	once  sync.Once
-	done  chan struct{}
-	funcs []func() error
+	once     sync.Once
+	done     chan struct{}
+	funcs    []func() error
+	shutdown chan os.Signal
 }
 
 // os.Interrupt, syscall.SIGINT, syscall.SIGTERM
 func NewCloser(sig ...os.Signal) ICloser {
 	c := &closer{
-		done: make(chan struct{}),
+		done:     make(chan struct{}),
+		shutdown: make(chan os.Signal, 1),
 	}
 
 	if len(sig) > 0 {
 		go func() {
-			shutdown := make(chan os.Signal, 1)
-			signal.Notify(shutdown, sig...)
-			<-shutdown
-			signal.Stop(shutdown)
+			signal.Notify(c.shutdown, sig...)
+			<-c.shutdown
+			signal.Stop(c.shutdown)
 			c.CloseAll()
 		}()
 	}
@@ -48,6 +50,10 @@ func (c *closer) Add(f ...func() error) {
 
 func (c *closer) Wait() {
 	<-c.done
+}
+
+func (c *closer) Signal() {
+	close(c.shutdown)
 }
 
 func (c *closer) CloseAll() {

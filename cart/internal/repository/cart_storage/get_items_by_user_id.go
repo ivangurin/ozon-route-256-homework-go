@@ -12,6 +12,8 @@ func (cs *cartStorage) GetItemsByUserID(
 	ctx context.Context,
 	userID int64,
 ) (*Cart, error) {
+	cs.RLock()
+	defer cs.RUnlock()
 
 	logger.Info(fmt.Sprintf("start get cart for userID: %d", userID))
 	defer logger.Info(fmt.Sprintf("finish get cart for userID: %d", userID))
@@ -23,5 +25,4 @@ func (cs *cartStorage) GetItemsByUserID(
 	}
 
 	return cart, nil
-
 }

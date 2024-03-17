@@ -1,7 +1,8 @@
-//go:generate mockery --name=(.+)Mock --case=underscore  --with-expecter
+//go:generate mkdir -p ./mocks
+//go:generate minimock -i "ClientMock" -o ./mocks/ -s ".go" -g
 package productservice
 
-// ServiceMock ...
+// ClientMock ...
 type ClientMock interface {
 	IClient
 }

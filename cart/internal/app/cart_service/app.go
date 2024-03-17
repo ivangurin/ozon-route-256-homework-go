@@ -6,6 +6,7 @@ import (
 	"route256.ozon.ru/project/cart/internal/config"
 	httpserver "route256.ozon.ru/project/cart/internal/pkg/http_server"
 	"route256.ozon.ru/project/cart/internal/pkg/logger"
+	serviceprovider "route256.ozon.ru/project/cart/internal/pkg/service_provider"
 )
 
 type IApp interface {
@@ -14,19 +15,19 @@ type IApp interface {
 
 type app struct {
 	ctx context.Context
-	sp  *ServiceProvider
+	sp  *serviceprovider.ServiceProvider
 }
 
 func NewApp(ctx context.Context) IApp {
 	return &app{
 		ctx: ctx,
-		sp:  GetServiceProvider(),
+		sp:  serviceprovider.GetServiceProvider(),
 	}
 }
 
 func (a *app) Run() error {
-	logger.Info("cartService is starting...")
-	defer logger.Info("cartService finished")
+	logger.Info("app cartService is starting...")
+	defer logger.Info("app cartService finished")
 
 	closer := a.sp.GetCloser()
 	defer closer.Wait()

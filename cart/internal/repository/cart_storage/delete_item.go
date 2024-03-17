@@ -7,6 +7,8 @@ func (cs *cartStorage) DeleteItem(
 	userID int64,
 	skuID int64,
 ) error {
+	cs.Lock()
+	defer cs.Unlock()
 
 	cart, exists := storage[userID]
 	if !exists {
@@ -25,5 +27,4 @@ func (cs *cartStorage) DeleteItem(
 	}
 
 	return nil
-
 }

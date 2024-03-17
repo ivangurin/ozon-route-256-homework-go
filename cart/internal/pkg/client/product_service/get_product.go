@@ -37,7 +37,7 @@ func (c *client) GetProduct(ctx context.Context, skuID int64) (*GetProductRespon
 		return nil, fmt.Errorf("failed to marshal get product request: %w", err)
 	}
 
-	httpReq, err := http.NewRequest("POST", fmt.Sprintf("http://%s/get_product", config.ProductServiceAddress), bytes.NewBuffer(jsonReq))
+	httpReq, err := http.NewRequest(http.MethodPost, fmt.Sprintf("http://%s/get_product", config.ProductServiceAddress), bytes.NewBuffer(jsonReq))
 	if err != nil {
 		logger.Error("productService.getProduct: failed to create request", err)
 		return nil, fmt.Errorf("failed to create request: %w", err)
