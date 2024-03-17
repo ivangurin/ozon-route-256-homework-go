@@ -24,6 +24,7 @@ func TestGetItemsByUserID(t *testing.T) {
 		UserID     int64
 		Cart       *cartservice.Cart
 		StatusCode int
+		Error      error
 	}
 
 	tests := []*test{
@@ -36,6 +37,7 @@ func TestGetItemsByUserID(t *testing.T) {
 			Name:       "Корзина не найдена",
 			UserID:     1,
 			StatusCode: http.StatusNotFound,
+			Error:      model.ErrNotFound,
 		},
 		{
 			Name:       "Корзина найдена",
@@ -63,6 +65,7 @@ func TestGetItemsByUserID(t *testing.T) {
 			Name:       "Внутренняя ошибка",
 			UserID:     3,
 			StatusCode: http.StatusInternalServerError,
+			Error:      errors.New("internal error"),
 		},
 	}
 
@@ -72,34 +75,11 @@ func TestGetItemsByUserID(t *testing.T) {
 		cartService: sp.GetCartServiceMock(),
 	}
 
-	sp.GetCartServiceMock().GetItemsByUserIDMock.
-		When(ctx, 1).
-		Then(nil, model.ErrNotFound)
-	sp.GetCartServiceMock().GetItemsByUserIDMock.
-		When(ctx, 2).
-		Then(&cartservice.Cart{
-			Items: []*cartservice.CartItem{
-				{
-					SkuID:    1,
-					Name:     "Продукт 1",
-					Quantity: 1,
-					Price:    1,
-				},
-				{
-					SkuID:    2,
-					Name:     "Продукт 2",
-					Quantity: 2,
-					Price:    2,
-				},
-			},
-			TotalPrice: 5,
-		}, nil)
-	sp.GetCartServiceMock().GetItemsByUserIDMock.
-		When(ctx, 3).
-		Then(nil, errors.New("internal error"))
-
 	for _, test := range tests {
-		test := test
+
+		sp.GetCartServiceMock().GetItemsByUserIDMock.
+			When(ctx, test.UserID).
+			Then(test.Cart, test.Error)
 
 		t.Run(test.Name, func(t *testing.T) {
 

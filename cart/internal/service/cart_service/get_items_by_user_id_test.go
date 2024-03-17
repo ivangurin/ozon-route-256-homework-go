@@ -16,10 +16,17 @@ import (
 func TestGetItemsByUserID(t *testing.T) {
 
 	type test struct {
-		Name   string
-		UserID int64
-		Cart   *cartservice.Cart
-		Error  error
+		Name        string
+		UserID      int64
+		CartStorage *cartstorage.Cart
+		CartService *cartservice.Cart
+		Error       error
+	}
+
+	type testProduct struct {
+		ID    int64
+		Error error
+		Data  *productservice.GetProductResponse
 	}
 
 	tests := []*test{
@@ -36,7 +43,14 @@ func TestGetItemsByUserID(t *testing.T) {
 		{
 			Name:   "Корзина существует",
 			UserID: 3,
-			Cart: &cartservice.Cart{
+			CartStorage: &cartstorage.Cart{
+				Items: map[int64]*cartstorage.CartItem{
+					1: {Quantity: 1},
+					2: {Quantity: 2},
+					3: {Quantity: 3},
+				},
+			},
+			CartService: &cartservice.Cart{
 				Items: []*cartservice.CartItem{
 					{
 						SkuID:    1,
@@ -62,6 +76,34 @@ func TestGetItemsByUserID(t *testing.T) {
 		},
 	}
 
+	testProducts := []*testProduct{
+		{
+			ID: 1,
+			Data: &productservice.GetProductResponse{
+				Name:  "Product 1",
+				Price: 100,
+			},
+		},
+		{
+			ID: 2,
+			Data: &productservice.GetProductResponse{
+				Name:  "Product 2",
+				Price: 200,
+			},
+		},
+		{
+			ID: 3,
+			Data: &productservice.GetProductResponse{
+				Name:  "Product 3",
+				Price: 300,
+			},
+		},
+		{
+			ID:    4,
+			Error: model.ErrNotFound,
+		},
+	}
+
 	ctx := context.Background()
 
 	sp := suite.NewSuiteProvider(t)
@@ -71,64 +113,24 @@ func TestGetItemsByUserID(t *testing.T) {
 		sp.GetCartStorege(),
 	)
 
-	sp.GetCartStoregeMock().GetItemsByUserIDMock.
-		When(ctx, 1).
-		Then(nil, model.ErrNotFound)
-	sp.GetCartStoregeMock().GetItemsByUserIDMock.
-		When(ctx, 2).
-		Then(&cartstorage.Cart{
-			Items: cartstorage.CartItems{
-				4: &cartstorage.CartItem{
-					Quantity: 1,
-				},
-			},
-		}, nil)
-	sp.GetCartStoregeMock().GetItemsByUserIDMock.
-		When(ctx, 3).
-		Then(&cartstorage.Cart{
-			Items: cartstorage.CartItems{
-				1: &cartstorage.CartItem{
-					Quantity: 1,
-				},
-				2: &cartstorage.CartItem{
-					Quantity: 2,
-				},
-				3: &cartstorage.CartItem{
-					Quantity: 3,
-				},
-			},
-		}, nil)
-
-	sp.GetProductServiceMock().GetProductWithRetriesMock.
-		When(ctx, 1).
-		Then(&productservice.GetProductResponse{
-			Name:  "Product 1",
-			Price: 100,
-		}, nil)
-	sp.GetProductServiceMock().GetProductWithRetriesMock.
-		When(ctx, 2).
-		Then(&productservice.GetProductResponse{
-			Name:  "Product 2",
-			Price: 200,
-		}, nil)
-	sp.GetProductServiceMock().GetProductWithRetriesMock.
-		When(ctx, 3).
-		Then(&productservice.GetProductResponse{
-			Name:  "Product 3",
-			Price: 300,
-		}, nil)
-	sp.GetProductServiceMock().GetProductWithRetriesMock.
-		When(ctx, 4).
-		Then(nil, model.ErrNotFound)
+	for _, testProduct := range testProducts {
+		sp.GetProductServiceMock().GetProductWithRetriesMock.
+			When(ctx, testProduct.ID).
+			Then(testProduct.Data, testProduct.Error)
+	}
 
 	for _, test := range tests {
-		test := test
+
+		sp.GetCartStoregeMock().GetItemsByUserIDMock.
+			When(ctx, test.UserID).
+			Then(test.CartStorage, test.Error)
+
 		t.Run(test.Name, func(t *testing.T) {
 
 			cart, err := cartService.GetItemsByUserID(ctx, test.UserID)
 			require.ErrorIs(t, err, test.Error, "Должна быть ошибка")
 
-			diff := deep.Equal(cart, test.Cart)
+			diff := deep.Equal(cart, test.CartService)
 			if diff != nil {
 				t.Errorf("Корзины должны совпадать: %+v", diff)
 			}

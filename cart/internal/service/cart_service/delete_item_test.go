@@ -51,18 +51,12 @@ func TestDeleteItem(t *testing.T) {
 		sp.GetCartStorege(),
 	)
 
-	sp.GetCartStoregeMock().DeleteItemMock.
-		When(ctx, 1, 1).
-		Then(errCartNotFount)
-	sp.GetCartStoregeMock().DeleteItemMock.
-		When(ctx, 2, 1).
-		Then(errCartItemNotFound)
-	sp.GetCartStoregeMock().DeleteItemMock.
-		When(ctx, 3, 1).
-		Then(nil)
-
 	for _, test := range tests {
-		test := test
+
+		sp.GetCartStoregeMock().DeleteItemMock.
+			When(ctx, test.UserID, test.SkuID).
+			Then(test.Error)
+
 		t.Run(test.Name, func(t *testing.T) {
 
 			err := cartService.DeleteItem(ctx, test.UserID, test.SkuID)

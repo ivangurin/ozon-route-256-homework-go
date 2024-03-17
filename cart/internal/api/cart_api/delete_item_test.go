@@ -60,7 +60,6 @@ func TestDeleteItem(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		test := test
 
 		sp.GetCartServiceMock().DeleteItemMock.
 			When(ctx, test.UserID, test.SkuID).

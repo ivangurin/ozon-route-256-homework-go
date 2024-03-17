@@ -18,6 +18,7 @@ func TestDeleteItemsByUserID(t *testing.T) {
 		Name       string
 		UserID     int64
 		StatusCode int
+		Error      error
 	}
 
 	tests := []*test{
@@ -35,6 +36,7 @@ func TestDeleteItemsByUserID(t *testing.T) {
 			Name:       "Внутренняя ошибка",
 			UserID:     2,
 			StatusCode: http.StatusInternalServerError,
+			Error:      errors.New("internal error"),
 		},
 	}
 
@@ -44,15 +46,11 @@ func TestDeleteItemsByUserID(t *testing.T) {
 		cartService: sp.GetCartServiceMock(),
 	}
 
-	sp.GetCartServiceMock().DeleteItemsByUserIDMock.
-		When(ctx, 1).
-		Then(nil)
-	sp.GetCartServiceMock().DeleteItemsByUserIDMock.
-		When(ctx, 2).
-		Then(errors.New("internal error"))
-
 	for _, test := range tests {
-		test := test
+
+		sp.GetCartServiceMock().DeleteItemsByUserIDMock.
+			When(ctx, test.UserID).
+			Then(test.Error)
 
 		t.Run(test.Name, func(t *testing.T) {
 

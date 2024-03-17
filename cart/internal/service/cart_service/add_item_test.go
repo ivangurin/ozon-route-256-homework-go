@@ -15,9 +15,13 @@ import (
 func TestAddItem(t *testing.T) {
 
 	type test struct {
-		Name  string
-		SkuID int64
-		Error error
+		Name         string
+		UserID       int64
+		SkuID        int64
+		Qunatity     uint32
+		Product      *productservice.GetProductResponse
+		ProductError error
+		Error        error
 	}
 
 	var someError = fmt.Errorf("some error")
@@ -31,10 +35,18 @@ func TestAddItem(t *testing.T) {
 		{
 			Name:  "Ошика при добавлении в сторадж",
 			SkuID: 2,
+			Product: &productservice.GetProductResponse{
+				Name:  "Product 2",
+				Price: 200,
+			},
 			Error: someError,
 		},
 		{
-			Name:  "Продукт успешно добавлен",
+			Name: "Продукт успешно добавлен",
+			Product: &productservice.GetProductResponse{
+				Name:  "Product 3",
+				Price: 300,
+			},
 			SkuID: 3,
 		},
 	}
@@ -48,37 +60,19 @@ func TestAddItem(t *testing.T) {
 		sp.GetCartStorege(),
 	)
 
-	sp.GetProductServiceMock().GetProductWithRetriesMock.
-		When(ctx, 1).
-		Then(nil, model.ErrNotFound)
-
-	sp.GetProductServiceMock().GetProductWithRetriesMock.
-		When(ctx, 2).
-		Then(&productservice.GetProductResponse{
-			Name:  "Product 2",
-			Price: 200,
-		}, nil)
-
-	sp.GetProductServiceMock().GetProductWithRetriesMock.
-		When(ctx, 3).
-		Then(&productservice.GetProductResponse{
-			Name:  "Product 3",
-			Price: 300,
-		}, nil)
-
-	sp.GetCartStoregeMock().AddItemMock.
-		When(ctx, 0, 2, 0).
-		Then(someError)
-
-	sp.GetCartStoregeMock().AddItemMock.
-		When(ctx, 0, 3, 0).
-		Then(nil)
-
 	for _, test := range tests {
-		test := test
+
+		sp.GetProductServiceMock().GetProductWithRetriesMock.
+			When(ctx, test.SkuID).
+			Then(test.Product, test.Error)
+
+		sp.GetCartStoregeMock().AddItemMock.
+			When(ctx, test.UserID, test.SkuID, uint16(test.Qunatity)).
+			Then(test.Error)
+
 		t.Run(test.Name, func(t *testing.T) {
 
-			err := cartService.AddItem(ctx, 0, test.SkuID, 0)
+			err := cartService.AddItem(ctx, test.UserID, test.SkuID, uint16(test.Qunatity))
 			require.ErrorIs(t, err, test.Error, "Должна быть ошибка NotFound")
 
 		})

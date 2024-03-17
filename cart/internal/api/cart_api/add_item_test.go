@@ -26,6 +26,7 @@ func TestAddItem(t *testing.T) {
 		Quantity   uint16
 		Json       string
 		StatusCode int
+		Error      error
 	}
 
 	tests := []*test{
@@ -63,6 +64,7 @@ func TestAddItem(t *testing.T) {
 			SkuID:      1,
 			Quantity:   1,
 			StatusCode: http.StatusNotFound,
+			Error:      model.ErrNotFound,
 		},
 		{
 			Name:       "Передан существующий продукт",
@@ -77,6 +79,7 @@ func TestAddItem(t *testing.T) {
 			SkuID:      3,
 			Quantity:   1,
 			StatusCode: http.StatusInternalServerError,
+			Error:      errors.New("internal error"),
 		},
 	}
 
@@ -86,18 +89,11 @@ func TestAddItem(t *testing.T) {
 		cartService: sp.GetCartServiceMock(),
 	}
 
-	sp.GetCartServiceMock().AddItemMock.
-		When(ctx, 1, 1, 1).
-		Then(model.ErrNotFound)
-	sp.GetCartServiceMock().AddItemMock.
-		When(ctx, 1, 2, 1).
-		Then(nil)
-	sp.GetCartServiceMock().AddItemMock.
-		When(ctx, 1, 3, 1).
-		Then(errors.New("internal error"))
-
 	for _, test := range tests {
-		test := test
+
+		sp.GetCartServiceMock().AddItemMock.
+			When(ctx, test.UserID, test.SkuID, test.Quantity).
+			Then(test.Error)
 
 		t.Run(test.Name, func(t *testing.T) {
 
