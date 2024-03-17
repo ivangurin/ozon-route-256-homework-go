@@ -5,9 +5,10 @@ import (
 	"testing"
 )
 
-func BenchmarkAddItem1(b *testing.B) {
+func BenchmarkAddItemOneProductToOneUsers(b *testing.B) {
 	ctx := context.Background()
 	cartStorage := NewCartStorage()
+	b.ResetTimer()
 
 	b.Run("Добавляем один продукт одному пользователю", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
@@ -19,9 +20,10 @@ func BenchmarkAddItem1(b *testing.B) {
 	})
 }
 
-func BenchmarkAddItem2(b *testing.B) {
+func BenchmarkAddItemOneProductToMultipleUsers(b *testing.B) {
 	ctx := context.Background()
 	cartStorage := NewCartStorage()
+	b.ResetTimer()
 
 	b.Run("Добавляем один продукт разным пользователям", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
@@ -34,9 +36,10 @@ func BenchmarkAddItem2(b *testing.B) {
 
 }
 
-func BenchmarkAddItem3(b *testing.B) {
+func BenchmarkAddItemMultipleProductsToOneUser(b *testing.B) {
 	ctx := context.Background()
 	cartStorage := NewCartStorage()
+	b.ResetTimer()
 
 	cartStorage.Reset()
 	b.Run("Добавляем разные продукты одному пользователям", func(b *testing.B) {
@@ -49,9 +52,10 @@ func BenchmarkAddItem3(b *testing.B) {
 	})
 }
 
-func BenchmarkAddItem4(b *testing.B) {
+func BenchmarkAddItemMultipleProductsToMultipleUsers(b *testing.B) {
 	ctx := context.Background()
 	cartStorage := NewCartStorage()
+	b.ResetTimer()
 
 	b.Run("Добавляем разные продукты разным пользоваелям", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
