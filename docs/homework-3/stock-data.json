@@ -1,0 +1,27 @@
+[
+  {
+    "sku": 773297411,
+    "total_count": 150,
+    "reserved": 10
+  },
+  {
+    "sku": 1002,
+    "total_count": 200,
+    "reserved": 20
+  },
+  {
+    "sku": 1003,
+    "total_count": 250,
+    "reserved": 30
+  },
+  {
+    "sku": 1004,
+    "total_count": 300,
+    "reserved": 40
+  },
+  {
+    "sku": 1005,
+    "total_count": 350,
+    "reserved": 50
+  }
+]

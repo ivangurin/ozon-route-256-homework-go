@@ -5,3 +5,8 @@ services:
     build: ./cart/
     ports:
       - "8082:8080"
+  loms:
+    image: loms
+    build: ./loms/
+    ports:
+      - "8082:8082"
