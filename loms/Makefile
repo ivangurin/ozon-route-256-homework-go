@@ -20,7 +20,7 @@ lint:
 	--config=.golangci.yaml \
 	./...
 
-generate: .bin-deps .vendor-proto .proto-generate genmock
+generate: .bin-deps .vendor-proto genproto genmock
 
 genmock:
 	$(info $(shell printf "\033[34;1m▶\033[0m") go generate-mocks...)
@@ -92,8 +92,9 @@ vendor-proto/protoc-gen-openapiv2/options:
 .vendor-proto: .vendor-rm  vendor-proto/google/protobuf vendor-proto/validate vendor-proto/google/api vendor-proto/protoc-gen-openapiv2/options
 	go mod tidy
 
-PHONY: proto-generate
-proto-generate: .proto-generate
+PHONY: genproto
+genproto: .proto-generate
+	go mod tidy
 
 PHONY: .proto-generate
 .proto-generate: .order-api-generate .stock-api-generate .merge-swagger
@@ -102,7 +103,6 @@ PHONY: .order-api-generate
 .order-api-generate: 
 	rm -rf pkg/${ORDER_API_PROTO_PATH}
 	mkdir -p pkg/${ORDER_API_PROTO_PATH}
-	mkdir -p api/openapiv2 
 	protoc \
 	-I ${ORDER_API_PROTO_PATH} \
 	-I vendor-proto \
@@ -126,7 +126,6 @@ PHONY: .stock-api-generate
 .stock-api-generate: 
 	rm -rf pkg/${STOCK_API_PROTO_PATH}
 	mkdir -p pkg/${STOCK_API_PROTO_PATH}
-	mkdir -p api/openapiv2 
 	protoc \
 	-I ${STOCK_API_PROTO_PATH} \
 	-I vendor-proto \

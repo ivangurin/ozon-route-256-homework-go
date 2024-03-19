@@ -4,12 +4,12 @@ import (
 	"context"
 
 	orderstorage "route256.ozon.ru/project/loms/internal/repository/order_storage"
-	stocktorage "route256.ozon.ru/project/loms/internal/repository/stock_storage"
+	stockstorage "route256.ozon.ru/project/loms/internal/repository/stock_storage"
 )
 
 type repositories struct {
 	orderStorage orderstorage.Repository
-	stockStorage stocktorage.Repository
+	stockStorage stockstorage.Repository
 }
 
 func (sp *ServiceProvider) GetOrderStorage(ctx context.Context) orderstorage.Repository {
@@ -19,9 +19,9 @@ func (sp *ServiceProvider) GetOrderStorage(ctx context.Context) orderstorage.Rep
 	return sp.repositories.orderStorage
 }
 
-func (sp *ServiceProvider) GetStockStorage(ctx context.Context) stocktorage.Repository {
+func (sp *ServiceProvider) GetStockStorage(ctx context.Context) stockstorage.Repository {
 	if sp.repositories.stockStorage == nil {
-		sp.repositories.stockStorage = stocktorage.NewRepository(ctx)
+		sp.repositories.stockStorage = stockstorage.NewRepository(ctx)
 	}
 	return sp.repositories.stockStorage
 }

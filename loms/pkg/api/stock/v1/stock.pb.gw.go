@@ -32,12 +32,8 @@ var _ = utilities.NewDoubleArray
 var _ = metadata.Join
 
 func request_Stock_Info_0(ctx context.Context, marshaler runtime.Marshaler, client StockClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq InfoRequest
+	var protoReq StockInfoRequest
 	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
 
 	var (
 		val string
@@ -46,14 +42,14 @@ func request_Stock_Info_0(ctx context.Context, marshaler runtime.Marshaler, clie
 		_   = err
 	)
 
-	val, ok = pathParams["order_id"]
+	val, ok = pathParams["sku"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "order_id")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "sku")
 	}
 
-	protoReq.OrderId, err = runtime.Int64(val)
+	protoReq.Sku, err = runtime.Int64(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "order_id", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "sku", err)
 	}
 
 	msg, err := client.Info(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -62,12 +58,8 @@ func request_Stock_Info_0(ctx context.Context, marshaler runtime.Marshaler, clie
 }
 
 func local_request_Stock_Info_0(ctx context.Context, marshaler runtime.Marshaler, server StockServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq InfoRequest
+	var protoReq StockInfoRequest
 	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
 
 	var (
 		val string
@@ -76,14 +68,14 @@ func local_request_Stock_Info_0(ctx context.Context, marshaler runtime.Marshaler
 		_   = err
 	)
 
-	val, ok = pathParams["order_id"]
+	val, ok = pathParams["sku"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "order_id")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "sku")
 	}
 
-	protoReq.OrderId, err = runtime.Int64(val)
+	protoReq.Sku, err = runtime.Int64(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "order_id", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "sku", err)
 	}
 
 	msg, err := server.Info(ctx, &protoReq)
@@ -97,7 +89,7 @@ func local_request_Stock_Info_0(ctx context.Context, marshaler runtime.Marshaler
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterStockHandlerFromEndpoint instead.
 func RegisterStockHandlerServer(ctx context.Context, mux *runtime.ServeMux, server StockServer) error {
 
-	mux.Handle("POST", pattern_Stock_Info_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_Stock_Info_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -105,7 +97,7 @@ func RegisterStockHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/route256.ozon.ru.project.loms.pkg.api.stock.v1.Stock/Info", runtime.WithHTTPPathPattern("/v1/stock/info/{order_id}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/route256.ozon.ru.project.loms.pkg.api.stock.v1.Stock/Info", runtime.WithHTTPPathPattern("/v1/stock/info/{sku}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -163,13 +155,13 @@ func RegisterStockHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc
 // "StockClient" to call the correct interceptors.
 func RegisterStockHandlerClient(ctx context.Context, mux *runtime.ServeMux, client StockClient) error {
 
-	mux.Handle("POST", pattern_Stock_Info_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_Stock_Info_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/route256.ozon.ru.project.loms.pkg.api.stock.v1.Stock/Info", runtime.WithHTTPPathPattern("/v1/stock/info/{order_id}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/route256.ozon.ru.project.loms.pkg.api.stock.v1.Stock/Info", runtime.WithHTTPPathPattern("/v1/stock/info/{sku}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -189,7 +181,7 @@ func RegisterStockHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 }
 
 var (
-	pattern_Stock_Info_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "stock", "info", "order_id"}, ""))
+	pattern_Stock_Info_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "stock", "info", "sku"}, ""))
 )
 
 var (

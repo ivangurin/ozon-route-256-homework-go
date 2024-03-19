@@ -35,31 +35,31 @@ var (
 	_ = sort.Sort
 )
 
-// Validate checks the field values on InfoRequest with the rules defined in
-// the proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *InfoRequest) Validate() error {
+// Validate checks the field values on StockInfoRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *StockInfoRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on InfoRequest with the rules defined in
-// the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in InfoRequestMultiError, or
-// nil if none found.
-func (m *InfoRequest) ValidateAll() error {
+// ValidateAll checks the field values on StockInfoRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// StockInfoRequestMultiError, or nil if none found.
+func (m *StockInfoRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *InfoRequest) validate(all bool) error {
+func (m *StockInfoRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	if m.GetOrderId() < 0 {
-		err := InfoRequestValidationError{
-			field:  "OrderId",
+	if m.GetSku() < 0 {
+		err := StockInfoRequestValidationError{
+			field:  "Sku",
 			reason: "value must be greater than or equal to 0",
 		}
 		if !all {
@@ -69,18 +69,19 @@ func (m *InfoRequest) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return InfoRequestMultiError(errors)
+		return StockInfoRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// InfoRequestMultiError is an error wrapping multiple validation errors
-// returned by InfoRequest.ValidateAll() if the designated constraints aren't met.
-type InfoRequestMultiError []error
+// StockInfoRequestMultiError is an error wrapping multiple validation errors
+// returned by StockInfoRequest.ValidateAll() if the designated constraints
+// aren't met.
+type StockInfoRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m InfoRequestMultiError) Error() string {
+func (m StockInfoRequestMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -89,11 +90,11 @@ func (m InfoRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m InfoRequestMultiError) AllErrors() []error { return m }
+func (m StockInfoRequestMultiError) AllErrors() []error { return m }
 
-// InfoRequestValidationError is the validation error returned by
-// InfoRequest.Validate if the designated constraints aren't met.
-type InfoRequestValidationError struct {
+// StockInfoRequestValidationError is the validation error returned by
+// StockInfoRequest.Validate if the designated constraints aren't met.
+type StockInfoRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -101,22 +102,22 @@ type InfoRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e InfoRequestValidationError) Field() string { return e.field }
+func (e StockInfoRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e InfoRequestValidationError) Reason() string { return e.reason }
+func (e StockInfoRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e InfoRequestValidationError) Cause() error { return e.cause }
+func (e StockInfoRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e InfoRequestValidationError) Key() bool { return e.key }
+func (e StockInfoRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e InfoRequestValidationError) ErrorName() string { return "InfoRequestValidationError" }
+func (e StockInfoRequestValidationError) ErrorName() string { return "StockInfoRequestValidationError" }
 
 // Error satisfies the builtin error interface
-func (e InfoRequestValidationError) Error() string {
+func (e StockInfoRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -128,14 +129,14 @@ func (e InfoRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sInfoRequest.%s: %s%s",
+		"invalid %sStockInfoRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = InfoRequestValidationError{}
+var _ error = StockInfoRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -143,24 +144,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = InfoRequestValidationError{}
+} = StockInfoRequestValidationError{}
 
-// Validate checks the field values on InfoResponse with the rules defined in
-// the proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *InfoResponse) Validate() error {
+// Validate checks the field values on StockInfoResponse with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *StockInfoResponse) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on InfoResponse with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in InfoResponseMultiError, or
-// nil if none found.
-func (m *InfoResponse) ValidateAll() error {
+// ValidateAll checks the field values on StockInfoResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// StockInfoResponseMultiError, or nil if none found.
+func (m *StockInfoResponse) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *InfoResponse) validate(all bool) error {
+func (m *StockInfoResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -170,18 +171,19 @@ func (m *InfoResponse) validate(all bool) error {
 	// no validation rules for Count
 
 	if len(errors) > 0 {
-		return InfoResponseMultiError(errors)
+		return StockInfoResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// InfoResponseMultiError is an error wrapping multiple validation errors
-// returned by InfoResponse.ValidateAll() if the designated constraints aren't met.
-type InfoResponseMultiError []error
+// StockInfoResponseMultiError is an error wrapping multiple validation errors
+// returned by StockInfoResponse.ValidateAll() if the designated constraints
+// aren't met.
+type StockInfoResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m InfoResponseMultiError) Error() string {
+func (m StockInfoResponseMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -190,11 +192,11 @@ func (m InfoResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m InfoResponseMultiError) AllErrors() []error { return m }
+func (m StockInfoResponseMultiError) AllErrors() []error { return m }
 
-// InfoResponseValidationError is the validation error returned by
-// InfoResponse.Validate if the designated constraints aren't met.
-type InfoResponseValidationError struct {
+// StockInfoResponseValidationError is the validation error returned by
+// StockInfoResponse.Validate if the designated constraints aren't met.
+type StockInfoResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -202,22 +204,24 @@ type InfoResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e InfoResponseValidationError) Field() string { return e.field }
+func (e StockInfoResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e InfoResponseValidationError) Reason() string { return e.reason }
+func (e StockInfoResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e InfoResponseValidationError) Cause() error { return e.cause }
+func (e StockInfoResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e InfoResponseValidationError) Key() bool { return e.key }
+func (e StockInfoResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e InfoResponseValidationError) ErrorName() string { return "InfoResponseValidationError" }
+func (e StockInfoResponseValidationError) ErrorName() string {
+	return "StockInfoResponseValidationError"
+}
 
 // Error satisfies the builtin error interface
-func (e InfoResponseValidationError) Error() string {
+func (e StockInfoResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -229,14 +233,14 @@ func (e InfoResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sInfoResponse.%s: %s%s",
+		"invalid %sStockInfoResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = InfoResponseValidationError{}
+var _ error = StockInfoResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -244,4 +248,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = InfoResponseValidationError{}
+} = StockInfoResponseValidationError{}

@@ -23,10 +23,10 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OrderClient interface {
-	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error)
-	Info(ctx context.Context, in *InfoRequest, opts ...grpc.CallOption) (*InfoResponse, error)
-	Pay(ctx context.Context, in *PayRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	Cancel(ctx context.Context, in *CancelRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Create(ctx context.Context, in *OrderCreateRequest, opts ...grpc.CallOption) (*OrderCreateResponse, error)
+	Info(ctx context.Context, in *OrderInfoRequest, opts ...grpc.CallOption) (*OrderInfoResponse, error)
+	Pay(ctx context.Context, in *OrderPayRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Cancel(ctx context.Context, in *OrderCancelRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type orderClient struct {
@@ -37,8 +37,8 @@ func NewOrderClient(cc grpc.ClientConnInterface) OrderClient {
 	return &orderClient{cc}
 }
 
-func (c *orderClient) Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error) {
-	out := new(CreateResponse)
+func (c *orderClient) Create(ctx context.Context, in *OrderCreateRequest, opts ...grpc.CallOption) (*OrderCreateResponse, error) {
+	out := new(OrderCreateResponse)
 	err := c.cc.Invoke(ctx, "/route256.ozon.ru.project.loms.pkg.api.order.v1.Order/Create", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -46,8 +46,8 @@ func (c *orderClient) Create(ctx context.Context, in *CreateRequest, opts ...grp
 	return out, nil
 }
 
-func (c *orderClient) Info(ctx context.Context, in *InfoRequest, opts ...grpc.CallOption) (*InfoResponse, error) {
-	out := new(InfoResponse)
+func (c *orderClient) Info(ctx context.Context, in *OrderInfoRequest, opts ...grpc.CallOption) (*OrderInfoResponse, error) {
+	out := new(OrderInfoResponse)
 	err := c.cc.Invoke(ctx, "/route256.ozon.ru.project.loms.pkg.api.order.v1.Order/Info", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -55,7 +55,7 @@ func (c *orderClient) Info(ctx context.Context, in *InfoRequest, opts ...grpc.Ca
 	return out, nil
 }
 
-func (c *orderClient) Pay(ctx context.Context, in *PayRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *orderClient) Pay(ctx context.Context, in *OrderPayRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/route256.ozon.ru.project.loms.pkg.api.order.v1.Order/Pay", in, out, opts...)
 	if err != nil {
@@ -64,7 +64,7 @@ func (c *orderClient) Pay(ctx context.Context, in *PayRequest, opts ...grpc.Call
 	return out, nil
 }
 
-func (c *orderClient) Cancel(ctx context.Context, in *CancelRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *orderClient) Cancel(ctx context.Context, in *OrderCancelRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/route256.ozon.ru.project.loms.pkg.api.order.v1.Order/Cancel", in, out, opts...)
 	if err != nil {
@@ -77,10 +77,10 @@ func (c *orderClient) Cancel(ctx context.Context, in *CancelRequest, opts ...grp
 // All implementations must embed UnimplementedOrderServer
 // for forward compatibility
 type OrderServer interface {
-	Create(context.Context, *CreateRequest) (*CreateResponse, error)
-	Info(context.Context, *InfoRequest) (*InfoResponse, error)
-	Pay(context.Context, *PayRequest) (*emptypb.Empty, error)
-	Cancel(context.Context, *CancelRequest) (*emptypb.Empty, error)
+	Create(context.Context, *OrderCreateRequest) (*OrderCreateResponse, error)
+	Info(context.Context, *OrderInfoRequest) (*OrderInfoResponse, error)
+	Pay(context.Context, *OrderPayRequest) (*emptypb.Empty, error)
+	Cancel(context.Context, *OrderCancelRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedOrderServer()
 }
 
@@ -88,16 +88,16 @@ type OrderServer interface {
 type UnimplementedOrderServer struct {
 }
 
-func (UnimplementedOrderServer) Create(context.Context, *CreateRequest) (*CreateResponse, error) {
+func (UnimplementedOrderServer) Create(context.Context, *OrderCreateRequest) (*OrderCreateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (UnimplementedOrderServer) Info(context.Context, *InfoRequest) (*InfoResponse, error) {
+func (UnimplementedOrderServer) Info(context.Context, *OrderInfoRequest) (*OrderInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Info not implemented")
 }
-func (UnimplementedOrderServer) Pay(context.Context, *PayRequest) (*emptypb.Empty, error) {
+func (UnimplementedOrderServer) Pay(context.Context, *OrderPayRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Pay not implemented")
 }
-func (UnimplementedOrderServer) Cancel(context.Context, *CancelRequest) (*emptypb.Empty, error) {
+func (UnimplementedOrderServer) Cancel(context.Context, *OrderCancelRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Cancel not implemented")
 }
 func (UnimplementedOrderServer) mustEmbedUnimplementedOrderServer() {}
@@ -114,7 +114,7 @@ func RegisterOrderServer(s grpc.ServiceRegistrar, srv OrderServer) {
 }
 
 func _Order_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateRequest)
+	in := new(OrderCreateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -126,13 +126,13 @@ func _Order_Create_Handler(srv interface{}, ctx context.Context, dec func(interf
 		FullMethod: "/route256.ozon.ru.project.loms.pkg.api.order.v1.Order/Create",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServer).Create(ctx, req.(*CreateRequest))
+		return srv.(OrderServer).Create(ctx, req.(*OrderCreateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Order_Info_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(InfoRequest)
+	in := new(OrderInfoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -144,13 +144,13 @@ func _Order_Info_Handler(srv interface{}, ctx context.Context, dec func(interfac
 		FullMethod: "/route256.ozon.ru.project.loms.pkg.api.order.v1.Order/Info",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServer).Info(ctx, req.(*InfoRequest))
+		return srv.(OrderServer).Info(ctx, req.(*OrderInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Order_Pay_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PayRequest)
+	in := new(OrderPayRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -162,13 +162,13 @@ func _Order_Pay_Handler(srv interface{}, ctx context.Context, dec func(interface
 		FullMethod: "/route256.ozon.ru.project.loms.pkg.api.order.v1.Order/Pay",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServer).Pay(ctx, req.(*PayRequest))
+		return srv.(OrderServer).Pay(ctx, req.(*OrderPayRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Order_Cancel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CancelRequest)
+	in := new(OrderCancelRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -180,7 +180,7 @@ func _Order_Cancel_Handler(srv interface{}, ctx context.Context, dec func(interf
 		FullMethod: "/route256.ozon.ru.project.loms.pkg.api.order.v1.Order/Cancel",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServer).Cancel(ctx, req.(*CancelRequest))
+		return srv.(OrderServer).Cancel(ctx, req.(*OrderCancelRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

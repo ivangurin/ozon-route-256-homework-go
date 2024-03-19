@@ -30,18 +30,17 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
 };
 
 service Stock {
-    rpc Info (InfoRequest) returns (InfoResponse) {
+    rpc Info (StockInfoRequest) returns (StockInfoResponse) {
         option (google.api.http) = {
-            post: "/v1/stock/info/{order_id}"
-            body: "*"
+            get: "/v1/stock/info/{sku}"
         };
     }
 }
 
-message InfoRequest {
-    int64 order_id = 1 [json_name = "order_id", (validate.rules).int64.gte = 0];
+message StockInfoRequest {
+    int64 sku = 1 [json_name = "sku", (validate.rules).int64.gte = 0];
 }
 
-message InfoResponse {
-    int64 count = 1;
+message StockInfoResponse {
+    uint64 count = 1;
 }

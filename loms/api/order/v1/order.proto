@@ -31,27 +31,27 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
 };
 
 service Order {
-    rpc Create (CreateRequest) returns (CreateResponse) {
+    rpc Create (OrderCreateRequest) returns (OrderCreateResponse) {
         option (google.api.http) = {
             post: "/v1/order/create"
             body: "*"
         };
     }
 
-    rpc Info (InfoRequest) returns (InfoResponse) {
+    rpc Info (OrderInfoRequest) returns (OrderInfoResponse) {
         option (google.api.http) = {
             get: "/v1/order/info/{order_id}"
         };
     }
 
-    rpc Pay (PayRequest) returns (google.protobuf.Empty) {
+    rpc Pay (OrderPayRequest) returns (google.protobuf.Empty) {
         option (google.api.http) = {
             post: "/v1/order/pay"
             body: "*"
         };
     }
 
-    rpc Cancel (CancelRequest) returns (google.protobuf.Empty) {
+    rpc Cancel (OrderCancelRequest) returns (google.protobuf.Empty) {
         option (google.api.http) = {
             post: "/v1/order/cancel"
             body: "*"
@@ -59,28 +59,28 @@ service Order {
     }
 }
 
-message CreateRequest {
+message OrderCreateRequest {
     message Item{
-        int64 sku = 1 [json_name = "sku", (validate.rules).int64.gte = 0];
-        int64 count = 2 [json_name = "count", (validate.rules).int64.gte = 0];
+        int64 sku = 1 [json_name = "sku", (validate.rules).int64.gt = 0];
+        uint64 count = 2 [json_name = "count", (validate.rules).uint64.gt = 0];
     }
 
-    int64 user = 1 [json_name = "user", (validate.rules).int64.gte = 0];
+    int64 user = 1 [json_name = "user", (validate.rules).int64.gt = 0];
     repeated Item items = 2 [json_name = "items", (validate.rules).repeated = {min_items:1}];
 }
 
-message CreateResponse{
+message OrderCreateResponse{
     int64 order_id = 1 [json_name = "order_id"];
 }
 
-message InfoRequest {
-    int64 order_id = 1 [json_name = "order_id", (validate.rules).int64.gte = 0];
+message OrderInfoRequest {
+    int64 order_id = 1 [json_name = "order_id", (validate.rules).int64.gt = 0];
 }
 
-message InfoResponse {
+message OrderInfoResponse {
     message Item{
         int64 sku = 1 [json_name = "sku"];
-        int64 count = 2 [json_name = "count"];
+        uint64 count = 2 [json_name = "count"];
     }
 
     string status = 1 [json_name = "status"];
@@ -88,10 +88,10 @@ message InfoResponse {
     repeated Item items = 3 [json_name = "items"];
 }
 
-message PayRequest{
-    int64 order_id = 1 [json_name = "order_id", (validate.rules).int64.gte = 0];
+message OrderPayRequest{
+    int64 order_id = 1 [json_name = "order_id", (validate.rules).int64.gt = 0];
 }
 
-message CancelRequest{
-    int64 order_id = 1 [json_name = "order_id", (validate.rules).int64.gte = 0];
+message OrderCancelRequest{
+    int64 order_id = 1 [json_name = "order_id", (validate.rules).int64.gt = 0];
 }

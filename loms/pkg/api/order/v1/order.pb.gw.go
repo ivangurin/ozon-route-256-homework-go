@@ -32,7 +32,7 @@ var _ = utilities.NewDoubleArray
 var _ = metadata.Join
 
 func request_Order_Create_0(ctx context.Context, marshaler runtime.Marshaler, client OrderClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateRequest
+	var protoReq OrderCreateRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -45,7 +45,7 @@ func request_Order_Create_0(ctx context.Context, marshaler runtime.Marshaler, cl
 }
 
 func local_request_Order_Create_0(ctx context.Context, marshaler runtime.Marshaler, server OrderServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateRequest
+	var protoReq OrderCreateRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -58,7 +58,7 @@ func local_request_Order_Create_0(ctx context.Context, marshaler runtime.Marshal
 }
 
 func request_Order_Info_0(ctx context.Context, marshaler runtime.Marshaler, client OrderClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq InfoRequest
+	var protoReq OrderInfoRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -84,7 +84,7 @@ func request_Order_Info_0(ctx context.Context, marshaler runtime.Marshaler, clie
 }
 
 func local_request_Order_Info_0(ctx context.Context, marshaler runtime.Marshaler, server OrderServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq InfoRequest
+	var protoReq OrderInfoRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -110,7 +110,7 @@ func local_request_Order_Info_0(ctx context.Context, marshaler runtime.Marshaler
 }
 
 func request_Order_Pay_0(ctx context.Context, marshaler runtime.Marshaler, client OrderClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq PayRequest
+	var protoReq OrderPayRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -123,7 +123,7 @@ func request_Order_Pay_0(ctx context.Context, marshaler runtime.Marshaler, clien
 }
 
 func local_request_Order_Pay_0(ctx context.Context, marshaler runtime.Marshaler, server OrderServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq PayRequest
+	var protoReq OrderPayRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -136,7 +136,7 @@ func local_request_Order_Pay_0(ctx context.Context, marshaler runtime.Marshaler,
 }
 
 func request_Order_Cancel_0(ctx context.Context, marshaler runtime.Marshaler, client OrderClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CancelRequest
+	var protoReq OrderCancelRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -149,7 +149,7 @@ func request_Order_Cancel_0(ctx context.Context, marshaler runtime.Marshaler, cl
 }
 
 func local_request_Order_Cancel_0(ctx context.Context, marshaler runtime.Marshaler, server OrderServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CancelRequest
+	var protoReq OrderCancelRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {

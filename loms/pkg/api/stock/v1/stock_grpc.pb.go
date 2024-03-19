@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type StockClient interface {
-	Info(ctx context.Context, in *InfoRequest, opts ...grpc.CallOption) (*InfoResponse, error)
+	Info(ctx context.Context, in *StockInfoRequest, opts ...grpc.CallOption) (*StockInfoResponse, error)
 }
 
 type stockClient struct {
@@ -33,8 +33,8 @@ func NewStockClient(cc grpc.ClientConnInterface) StockClient {
 	return &stockClient{cc}
 }
 
-func (c *stockClient) Info(ctx context.Context, in *InfoRequest, opts ...grpc.CallOption) (*InfoResponse, error) {
-	out := new(InfoResponse)
+func (c *stockClient) Info(ctx context.Context, in *StockInfoRequest, opts ...grpc.CallOption) (*StockInfoResponse, error) {
+	out := new(StockInfoResponse)
 	err := c.cc.Invoke(ctx, "/route256.ozon.ru.project.loms.pkg.api.stock.v1.Stock/Info", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func (c *stockClient) Info(ctx context.Context, in *InfoRequest, opts ...grpc.Ca
 // All implementations must embed UnimplementedStockServer
 // for forward compatibility
 type StockServer interface {
-	Info(context.Context, *InfoRequest) (*InfoResponse, error)
+	Info(context.Context, *StockInfoRequest) (*StockInfoResponse, error)
 	mustEmbedUnimplementedStockServer()
 }
 
@@ -54,7 +54,7 @@ type StockServer interface {
 type UnimplementedStockServer struct {
 }
 
-func (UnimplementedStockServer) Info(context.Context, *InfoRequest) (*InfoResponse, error) {
+func (UnimplementedStockServer) Info(context.Context, *StockInfoRequest) (*StockInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Info not implemented")
 }
 func (UnimplementedStockServer) mustEmbedUnimplementedStockServer() {}
@@ -71,7 +71,7 @@ func RegisterStockServer(s grpc.ServiceRegistrar, srv StockServer) {
 }
 
 func _Stock_Info_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(InfoRequest)
+	in := new(StockInfoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func _Stock_Info_Handler(srv interface{}, ctx context.Context, dec func(interfac
 		FullMethod: "/route256.ozon.ru.project.loms.pkg.api.stock.v1.Stock/Info",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(StockServer).Info(ctx, req.(*InfoRequest))
+		return srv.(StockServer).Info(ctx, req.(*StockInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

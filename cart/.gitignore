@@ -1,9 +1,11 @@
-# /bin
+/bin
+/vendor
+/vendor.pb
 /vendor.protogen
+/vendor-proto
 .DS_STORE
 .DS_Store
 /.idea
 /.vscode
 coverage.html
 coverage.out
-

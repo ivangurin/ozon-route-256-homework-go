@@ -1,10 +1,13 @@
 package httpserver
 
 import (
+	"bufio"
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -25,18 +28,22 @@ type Server interface {
 
 type server struct {
 	ctx        context.Context
+	mux        *http.ServeMux
 	gwmux      *runtime.ServeMux
 	conn       *grpc.ClientConn
 	httpServer *http.Server
 }
 
 func NewServer(ctx context.Context, httpPort, grpcPort string) (Server, error) {
+
+	var err error
+
 	s := &server{
 		ctx:   ctx,
+		mux:   http.NewServeMux(),
 		gwmux: runtime.NewServeMux(),
 	}
 
-	var err error
 	s.conn, err = grpc.Dial(
 		fmt.Sprintf(":%s", grpcPort),
 		grpc.WithBlock(),
@@ -49,8 +56,15 @@ func NewServer(ctx context.Context, httpPort, grpcPort string) (Server, error) {
 
 	s.httpServer = &http.Server{
 		Addr:    fmt.Sprintf(":%s", httpPort),
-		Handler: middleware.WithHTTPLoggingMiddleware(s.gwmux),
+		Handler: middleware.WithHTTPLoggingMiddleware(s.mux),
 	}
+
+	s.mux.HandleFunc("/swagger.json", s.handleSwagger)
+
+	fs := http.FileServer(http.Dir("pkg/swagger-ui"))
+	s.mux.Handle("/docs/", http.StripPrefix("/docs/", fs))
+
+	s.mux.Handle("/", s.gwmux)
 
 	return s, nil
 }
@@ -73,4 +87,14 @@ func (s *server) Stop() error {
 
 func (s *server) RegisterAPI(api api) error {
 	return api.RegisterHttpHandler(s.ctx, s.gwmux, s.conn)
+}
+
+func (s *server) handleSwagger(w http.ResponseWriter, req *http.Request) {
+	file, err := os.Open("pkg/swagger/swagger.json")
+	if err != nil {
+		http.Error(w, "swagger not found", http.StatusNotFound)
+	}
+	defer file.Close()
+	reader := bufio.NewReader(file)
+	io.Copy(w, reader)
 }

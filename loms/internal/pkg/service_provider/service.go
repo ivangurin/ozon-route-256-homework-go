@@ -12,16 +12,23 @@ type services struct {
 	stockService stockservice.Service
 }
 
-func (sp *ServiceProvider) GetOrderService(ctx context.Context) orderservice.Service {
-	if sp.services.orderService == nil {
-		sp.services.orderService = orderservice.NewService(ctx)
-	}
-	return sp.services.orderService
-}
-
 func (sp *ServiceProvider) GetStockService(ctx context.Context) stockservice.Service {
 	if sp.services.stockService == nil {
-		sp.services.stockService = stockservice.NewService(ctx)
+		sp.services.stockService = stockservice.NewService(
+			ctx,
+			sp.GetStockStorage(ctx),
+		)
 	}
 	return sp.services.stockService
+}
+
+func (sp *ServiceProvider) GetOrderService(ctx context.Context) orderservice.Service {
+	if sp.services.orderService == nil {
+		sp.services.orderService = orderservice.NewService(
+			ctx,
+			sp.GetStockStorage(ctx),
+			sp.GetOrderStorage(ctx),
+		)
+	}
+	return sp.services.orderService
 }

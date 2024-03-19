@@ -2,7 +2,7 @@
 /vendor
 /vendor.pb
 /vendor.protogen
-# /vendor-proto
+/vendor-proto
 .DS_STORE
 .DS_Store
 /.idea
