@@ -8,5 +8,5 @@ func (s *service) Info(orderID int64) (*model.Order, error) {
 		return nil, err
 	}
 
-	return toModelOrder(order), nil
+	return ToModelOrder(order), nil
 }

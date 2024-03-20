@@ -9,8 +9,8 @@ import (
 	orderstorage_mocks "route256.ozon.ru/project/loms/internal/repository/order_storage/mocks"
 	stockstorage "route256.ozon.ru/project/loms/internal/repository/stock_storage"
 	stockstorage_mocks "route256.ozon.ru/project/loms/internal/repository/stock_storage/mocks"
-	orderservce "route256.ozon.ru/project/loms/internal/service/order_service"
-	orderservce_mocks "route256.ozon.ru/project/loms/internal/service/order_service/mocks"
+	orderservice "route256.ozon.ru/project/loms/internal/service/order_service"
+	orderservice_mocks "route256.ozon.ru/project/loms/internal/service/order_service/mocks"
 	stockservce "route256.ozon.ru/project/loms/internal/service/stock_service"
 	stockservce_mocks "route256.ozon.ru/project/loms/internal/service/stock_service/mocks"
 )
@@ -24,8 +24,8 @@ type suiteProvider struct {
 	stockServiceMock *stockservce_mocks.ServiceMockMock
 	orderStorage     orderstorage.Repository
 	orderStorageMock *orderstorage_mocks.RepositoryMockMock
-	orderService     orderservce.Service
-	orderServiceMock *orderservce_mocks.ServiceMockMock
+	orderService     orderservice.Service
+	orderServiceMock *orderservice_mocks.ServiceMockMock
 }
 
 func NewSuiteProvider(t *testing.T, ctx context.Context) *suiteProvider {
@@ -80,16 +80,16 @@ func (sp *suiteProvider) GetStockService() stockservce.Service {
 	return sp.stockService
 }
 
-func (sp *suiteProvider) GetOrderServiceMock() *orderservce_mocks.ServiceMockMock {
+func (sp *suiteProvider) GetOrderServiceMock() *orderservice_mocks.ServiceMockMock {
 	if sp.orderServiceMock == nil {
-		sp.orderServiceMock = orderservce_mocks.NewServiceMockMock(sp.mc)
+		sp.orderServiceMock = orderservice_mocks.NewServiceMockMock(sp.mc)
 	}
 	return sp.orderServiceMock
 }
 
-func (sp *suiteProvider) GetOrderService() orderservce.Service {
+func (sp *suiteProvider) GetOrderService() orderservice.Service {
 	if sp.orderService == nil {
-		sp.orderService = orderservce.NewService(
+		sp.orderService = orderservice.NewService(
 			sp.ctx,
 			sp.GetStockStorage(),
 			sp.GetOrderStorege(),

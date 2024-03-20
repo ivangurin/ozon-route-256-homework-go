@@ -22,6 +22,9 @@ func toOrderStorageItem(item *model.OrderItem) *orderstorage.OrderItem {
 }
 
 func ToStockItems(items model.OrderItems) stockstorage.ReserveItems {
+	if items == nil {
+		return nil
+	}
 	res := make(stockstorage.ReserveItems, 0, len(items))
 	for _, item := range items {
 		res = append(res, toStockItem(item))
@@ -36,7 +39,10 @@ func toStockItem(item *model.OrderItem) *stockstorage.ReserveItem {
 	}
 }
 
-func toModelOrder(order *orderstorage.Order) *model.Order {
+func ToModelOrder(order *orderstorage.Order) *model.Order {
+	if order == nil {
+		return nil
+	}
 	return &model.Order{
 		ID:     order.ID,
 		User:   order.User,

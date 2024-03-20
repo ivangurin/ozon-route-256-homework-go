@@ -8,7 +8,7 @@ func (s *service) Pay(orderID int64) error {
 		return err
 	}
 
-	order := toModelOrder(orderStorage)
+	order := ToModelOrder(orderStorage)
 
 	err = s.stockStorage.RemoveReserve(ToStockItems(order.Items))
 	if err != nil {

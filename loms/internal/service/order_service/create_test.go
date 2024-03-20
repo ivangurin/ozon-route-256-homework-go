@@ -11,10 +11,12 @@ import (
 	orderservice "route256.ozon.ru/project/loms/internal/service/order_service"
 )
 
-var err1 = errors.New("some error 1")
-var err2 = errors.New("some error 2")
-var err3 = errors.New("some error 3")
-var err4 = errors.New("some error 4")
+var (
+	err1 = errors.New("some error 1")
+	err2 = errors.New("some error 2")
+	err3 = errors.New("some error 3")
+	err4 = errors.New("some error 4")
+)
 
 func TestOrderCreate(t *testing.T) {
 
@@ -32,7 +34,7 @@ func TestOrderCreate(t *testing.T) {
 
 	tests := []*test{
 		{
-			Name:             "Ощибка при создании заказа",
+			Name:             "Ошибка при создании заказа",
 			Items:            model.OrderItems{&model.OrderItem{Sku: 1, Quantity: 1}},
 			Error:            err1,
 			CreateOrderError: err1,
@@ -91,6 +93,7 @@ func TestOrderCreate(t *testing.T) {
 				require.NotNil(t, err, "Должна быть ошибка")
 				require.ErrorIs(t, err, test.Error, "Не та ошибка")
 			} else {
+				require.Nil(t, err, "Не должно быть ошибки")
 				require.Equal(t, test.OrderID, orderID, "Не совпало количество")
 			}
 
