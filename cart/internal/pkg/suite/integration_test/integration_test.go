@@ -15,7 +15,7 @@ import (
 type Suite struct {
 	suite.Suite
 	ctx               context.Context
-	cartServiceClient cartservice.IClient
+	cartServiceClient cartservice.Client
 }
 
 func TestSuite(t *testing.T) {

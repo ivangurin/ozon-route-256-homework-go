@@ -1,7 +1,5 @@
 # Используем bin в текущей директории для установки плагинов protoc
 LOCAL_BIN:=$(CURDIR)/bin
-ORDER_API_PROTO_PATH:=api/order/v1
-STOCK_API_PROTO_PATH:=api/stock/v1
 
 # Добавляем bin в текущей директории в PATH при запуске protoc
 PROTOC = PATH="$$PATH:$(LOCAL_BIN)" protoc
@@ -20,7 +18,21 @@ lint:
 	--config=.golangci.yaml \
 	./...
 
-generate: .bin-deps .vendor-proto genproto genmock
+cover:
+	@go test ./... -coverprofile cover.out.tmp > /dev/null
+	@grep -vE "_mock.go" cover.out.tmp > cover.out
+	@rm -f cover.out.tmp
+	@go tool cover -func cover.out | fgrep total | awk '{print "Percent of coverage is: " $$3}'
+	@rm -f cover.out
+
+cover-html:
+	@go test ./... -coverprofile covertmp.out > /dev/null
+	@grep -vE "_mock.go" covertmp.out > cover.out
+	@rm -f covertmp.out
+	@go tool cover -html cover.out 
+	@rm -f cover.out
+
+generate: genproto genmock
 
 genmock:
 	$(info $(shell printf "\033[34;1m▶\033[0m") go generate-mocks...)
@@ -28,10 +40,24 @@ genmock:
 		go generate $$f; \
 	done
 
+PHONY: genproto
+genproto: .proto-generate
+	go mod tidy
+
+PHONY: .proto-generate
+.proto-generate: .bin-deps .vendor-proto  .order-api-generate .stock-api-generate .merge-swagger
+
+# Вендоринг внешних proto файлов
+.vendor-proto: .vendor-rm  vendor-proto/google/protobuf vendor-proto/validate vendor-proto/google/api vendor-proto/protoc-gen-openapiv2/options
+	go mod tidy
+
+.PHONY: .vendor-rm
+.vendor-rm:
+	rm -rf vendor-proto
+
 .PHONY: .bin-deps
 .bin-deps:
 	$(info Installing binary dependencies...)
-
 	GOBIN=$(LOCAL_BIN) go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1 && \
     GOBIN=$(LOCAL_BIN) go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2.0 && \
 	GOBIN=$(LOCAL_BIN) go install github.com/envoyproxy/protoc-gen-validate@v1.0.4 && \
@@ -84,21 +110,7 @@ vendor-proto/protoc-gen-openapiv2/options:
 	mv vendor-proto/grpc-ecosystem/protoc-gen-openapiv2/options vendor-proto/protoc-gen-openapiv2
 	rm -rf vendor-proto/grpc-ecosystem
 
-.PHONY: .vendor-rm
-.vendor-rm:
-	rm -rf vendor-proto
-
-# Вендоринг внешних proto файлов
-.vendor-proto: .vendor-rm  vendor-proto/google/protobuf vendor-proto/validate vendor-proto/google/api vendor-proto/protoc-gen-openapiv2/options
-	go mod tidy
-
-PHONY: genproto
-genproto: .proto-generate
-	go mod tidy
-
-PHONY: .proto-generate
-.proto-generate: .order-api-generate .stock-api-generate .merge-swagger
-
+ORDER_API_PROTO_PATH:=api/order/v1
 PHONY: .order-api-generate
 .order-api-generate: 
 	rm -rf pkg/${ORDER_API_PROTO_PATH}
@@ -120,8 +132,9 @@ PHONY: .order-api-generate
 	--plugin=protoc-gen-openapiv2=$(LOCAL_BIN)/protoc-gen-openapiv2 \
 	--openapiv2_out pkg/${ORDER_API_PROTO_PATH} \
 	--openapiv2_opt logtostderr=true \
-	api/order/v1/order.proto
+	${ORDER_API_PROTO_PATH}/*.proto
 
+STOCK_API_PROTO_PATH:=api/stock/v1
 PHONY: .stock-api-generate
 .stock-api-generate: 
 	rm -rf pkg/${STOCK_API_PROTO_PATH}
@@ -143,7 +156,7 @@ PHONY: .stock-api-generate
 	--plugin=protoc-gen-openapiv2=$(LOCAL_BIN)/protoc-gen-openapiv2 \
 	--openapiv2_out pkg/${STOCK_API_PROTO_PATH} \
 	--openapiv2_opt logtostderr=true \
-	api/stock/v1/stock.proto
+	${STOCK_API_PROTO_PATH}/*.proto
 
 PHONY: .merge-swagger
 .merge-swagger: 
@@ -159,7 +172,7 @@ docker-build:
 	@docker image prune -f --filter label=stage=builder
 
 docker-run: docker-build
-	@docker run -d -p 8082:8080 --rm --name loms loms
+	@docker run -d -p 8080:8080 -p 8082:8082 --rm --name loms loms
 
 docker-stop:
 	@docker stop loms || true

@@ -111,6 +111,7 @@ func TestGetItemsByUserID(t *testing.T) {
 	cartService := cartservice.NewService(
 		sp.GetProductService(),
 		sp.GetCartStorege(),
+		sp.GetLomsService(),
 	)
 
 	for _, testProduct := range testProducts {

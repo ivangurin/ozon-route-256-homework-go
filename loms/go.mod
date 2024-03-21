@@ -4,6 +4,7 @@ go 1.22
 
 require (
 	github.com/envoyproxy/protoc-gen-validate v1.0.4
+	github.com/go-test/deep v1.0.8
 	github.com/gojuno/minimock/v3 v3.0.10
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.11.2
 	github.com/stretchr/testify v1.8.0

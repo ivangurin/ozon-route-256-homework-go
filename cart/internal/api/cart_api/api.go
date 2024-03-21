@@ -19,10 +19,10 @@ type IAPI interface {
 }
 
 type api struct {
-	cartService cartservice.IService
+	cartService cartservice.Service
 }
 
-func NewAPI(cartService cartservice.IService) IAPI {
+func NewAPI(cartService cartservice.Service) IAPI {
 	return &api{
 		cartService: cartService,
 	}

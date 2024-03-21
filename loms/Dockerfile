@@ -14,5 +14,6 @@ RUN go build -o ./bin/loms_service ./cmd/loms_service
 FROM ubuntu
 
 COPY --from=builder /app/bin/loms_service /loms_service
+COPY --from=builder /app/stock-data.json /stock-data.json
 
 CMD [ "/loms_service" ]

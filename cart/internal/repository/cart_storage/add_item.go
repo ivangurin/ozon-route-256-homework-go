@@ -2,21 +2,21 @@ package cartstorage
 
 import "context"
 
-func (cs *cartStorage) AddItem(
+func (s *storage) AddItem(
 	ctx context.Context,
 	userID int64,
 	skuID int64,
 	quantity uint16,
 ) error {
-	cs.Lock()
-	defer cs.Unlock()
+	s.Lock()
+	defer s.Unlock()
 
-	cart, exists := storage[userID]
+	cart, exists := cartStorage[userID]
 	if !exists {
 		cart = &Cart{
 			Items: CartItems{},
 		}
-		storage[userID] = cart
+		cartStorage[userID] = cart
 	}
 
 	cartItem, exists := cart.Items[skuID]

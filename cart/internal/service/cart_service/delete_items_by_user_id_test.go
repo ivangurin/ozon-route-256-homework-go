@@ -38,6 +38,7 @@ func TestDeleteItemsByUserID(t *testing.T) {
 	cartService := cartservice.NewService(
 		sp.GetProductService(),
 		sp.GetCartStorege(),
+		sp.GetLomsService(),
 	)
 
 	for _, test := range tests {
