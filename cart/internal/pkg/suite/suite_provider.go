@@ -47,16 +47,16 @@ func (sp *suiteProvider) GetProductService() productservice.Client {
 	return sp.productService
 }
 
-func (sp *suiteProvider) GetCartStoregeMock() *cartstorage_mocks.StorageMockMock {
+func (sp *suiteProvider) GetCartStorageMock() *cartstorage_mocks.StorageMockMock {
 	if sp.cartStorageMock == nil {
 		sp.cartStorageMock = cartstorage_mocks.NewStorageMockMock(sp.mc)
 	}
 	return sp.cartStorageMock
 }
 
-func (sp *suiteProvider) GetCartStorege() cartstorage.Storage {
+func (sp *suiteProvider) GetCartStorage() cartstorage.Storage {
 	if sp.cartStorage == nil {
-		sp.cartStorage = sp.GetCartStoregeMock()
+		sp.cartStorage = sp.GetCartStorageMock()
 	}
 	return sp.cartStorage
 }
@@ -72,7 +72,7 @@ func (sp *suiteProvider) GetCartService() cartservice.Service {
 	if sp.cartService == nil {
 		sp.cartService = cartservice.NewService(
 			sp.GetProductService(),
-			sp.GetCartStorege(),
+			sp.GetCartStorage(),
 			sp.GetLomsService(),
 		)
 	}

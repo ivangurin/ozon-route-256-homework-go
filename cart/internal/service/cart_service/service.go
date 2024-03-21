@@ -13,6 +13,7 @@ type Service interface {
 	DeleteItem(ctx context.Context, userID int64, skuID int64) error
 	GetItemsByUserID(ctx context.Context, userID int64) (*Cart, error)
 	DeleteItemsByUserID(ctx context.Context, userID int64) error
+	Checkout(ctx context.Context, userID int64) (int64, error)
 }
 
 type service struct {

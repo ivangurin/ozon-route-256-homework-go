@@ -14,7 +14,7 @@ const (
 	paramCount  string = "count"
 )
 
-type IAPI interface {
+type API interface {
 	GetDescription() *model.HttpAPIDescription
 }
 
@@ -22,7 +22,7 @@ type api struct {
 	cartService cartservice.Service
 }
 
-func NewAPI(cartService cartservice.Service) IAPI {
+func NewAPI(cartService cartservice.Service) API {
 	return &api{
 		cartService: cartService,
 	}
@@ -46,6 +46,10 @@ func (a *api) GetDescription() *model.HttpAPIDescription {
 			{
 				Pattern: fmt.Sprintf("%s /user/{%s}/cart", http.MethodDelete, paramUserID),
 				Handler: a.DeleteItemsByUserID(),
+			},
+			{
+				Pattern: fmt.Sprintf("%s /cart/checkout", http.MethodPost),
+				Handler: a.Checkout(),
 			},
 		},
 	}

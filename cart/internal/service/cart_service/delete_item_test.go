@@ -48,13 +48,13 @@ func TestDeleteItem(t *testing.T) {
 
 	cartService := cartservice.NewService(
 		sp.GetProductService(),
-		sp.GetCartStorege(),
+		sp.GetCartStorage(),
 		sp.GetLomsService(),
 	)
 
 	for _, test := range tests {
 
-		sp.GetCartStoregeMock().DeleteItemMock.
+		sp.GetCartStorageMock().DeleteItemMock.
 			When(ctx, test.UserID, test.SkuID).
 			Then(test.Error)
 

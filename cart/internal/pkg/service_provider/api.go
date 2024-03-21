@@ -5,10 +5,10 @@ import (
 )
 
 type api struct {
-	cartAPI cartapi.IAPI
+	cartAPI cartapi.API
 }
 
-func (sp *ServiceProvider) GetCartAPI() cartapi.IAPI {
+func (sp *ServiceProvider) GetCartAPI() cartapi.API {
 	if sp.api.cartAPI == nil {
 		sp.api.cartAPI = cartapi.NewAPI(
 			sp.GetCartService(),

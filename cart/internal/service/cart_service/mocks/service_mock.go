@@ -22,6 +22,12 @@ type ServiceMockMock struct {
 	beforeAddItemCounter uint64
 	AddItemMock          mServiceMockMockAddItem
 
+	funcCheckout          func(ctx context.Context, userID int64) (i1 int64, err error)
+	inspectFuncCheckout   func(ctx context.Context, userID int64)
+	afterCheckoutCounter  uint64
+	beforeCheckoutCounter uint64
+	CheckoutMock          mServiceMockMockCheckout
+
 	funcDeleteItem          func(ctx context.Context, userID int64, skuID int64) (err error)
 	inspectFuncDeleteItem   func(ctx context.Context, userID int64, skuID int64)
 	afterDeleteItemCounter  uint64
@@ -50,6 +56,9 @@ func NewServiceMockMock(t minimock.Tester) *ServiceMockMock {
 
 	m.AddItemMock = mServiceMockMockAddItem{mock: m}
 	m.AddItemMock.callArgs = []*ServiceMockMockAddItemParams{}
+
+	m.CheckoutMock = mServiceMockMockCheckout{mock: m}
+	m.CheckoutMock.callArgs = []*ServiceMockMockCheckoutParams{}
 
 	m.DeleteItemMock = mServiceMockMockDeleteItem{mock: m}
 	m.DeleteItemMock.callArgs = []*ServiceMockMockDeleteItemParams{}
@@ -278,6 +287,223 @@ func (m *ServiceMockMock) MinimockAddItemInspect() {
 	// if func was set then invocations count should be greater than zero
 	if m.funcAddItem != nil && mm_atomic.LoadUint64(&m.afterAddItemCounter) < 1 {
 		m.t.Error("Expected call to ServiceMockMock.AddItem")
+	}
+}
+
+type mServiceMockMockCheckout struct {
+	mock               *ServiceMockMock
+	defaultExpectation *ServiceMockMockCheckoutExpectation
+	expectations       []*ServiceMockMockCheckoutExpectation
+
+	callArgs []*ServiceMockMockCheckoutParams
+	mutex    sync.RWMutex
+}
+
+// ServiceMockMockCheckoutExpectation specifies expectation struct of the ServiceMock.Checkout
+type ServiceMockMockCheckoutExpectation struct {
+	mock    *ServiceMockMock
+	params  *ServiceMockMockCheckoutParams
+	results *ServiceMockMockCheckoutResults
+	Counter uint64
+}
+
+// ServiceMockMockCheckoutParams contains parameters of the ServiceMock.Checkout
+type ServiceMockMockCheckoutParams struct {
+	ctx    context.Context
+	userID int64
+}
+
+// ServiceMockMockCheckoutResults contains results of the ServiceMock.Checkout
+type ServiceMockMockCheckoutResults struct {
+	i1  int64
+	err error
+}
+
+// Expect sets up expected params for ServiceMock.Checkout
+func (mmCheckout *mServiceMockMockCheckout) Expect(ctx context.Context, userID int64) *mServiceMockMockCheckout {
+	if mmCheckout.mock.funcCheckout != nil {
+		mmCheckout.mock.t.Fatalf("ServiceMockMock.Checkout mock is already set by Set")
+	}
+
+	if mmCheckout.defaultExpectation == nil {
+		mmCheckout.defaultExpectation = &ServiceMockMockCheckoutExpectation{}
+	}
+
+	mmCheckout.defaultExpectation.params = &ServiceMockMockCheckoutParams{ctx, userID}
+	for _, e := range mmCheckout.expectations {
+		if minimock.Equal(e.params, mmCheckout.defaultExpectation.params) {
+			mmCheckout.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmCheckout.defaultExpectation.params)
+		}
+	}
+
+	return mmCheckout
+}
+
+// Inspect accepts an inspector function that has same arguments as the ServiceMock.Checkout
+func (mmCheckout *mServiceMockMockCheckout) Inspect(f func(ctx context.Context, userID int64)) *mServiceMockMockCheckout {
+	if mmCheckout.mock.inspectFuncCheckout != nil {
+		mmCheckout.mock.t.Fatalf("Inspect function is already set for ServiceMockMock.Checkout")
+	}
+
+	mmCheckout.mock.inspectFuncCheckout = f
+
+	return mmCheckout
+}
+
+// Return sets up results that will be returned by ServiceMock.Checkout
+func (mmCheckout *mServiceMockMockCheckout) Return(i1 int64, err error) *ServiceMockMock {
+	if mmCheckout.mock.funcCheckout != nil {
+		mmCheckout.mock.t.Fatalf("ServiceMockMock.Checkout mock is already set by Set")
+	}
+
+	if mmCheckout.defaultExpectation == nil {
+		mmCheckout.defaultExpectation = &ServiceMockMockCheckoutExpectation{mock: mmCheckout.mock}
+	}
+	mmCheckout.defaultExpectation.results = &ServiceMockMockCheckoutResults{i1, err}
+	return mmCheckout.mock
+}
+
+// Set uses given function f to mock the ServiceMock.Checkout method
+func (mmCheckout *mServiceMockMockCheckout) Set(f func(ctx context.Context, userID int64) (i1 int64, err error)) *ServiceMockMock {
+	if mmCheckout.defaultExpectation != nil {
+		mmCheckout.mock.t.Fatalf("Default expectation is already set for the ServiceMock.Checkout method")
+	}
+
+	if len(mmCheckout.expectations) > 0 {
+		mmCheckout.mock.t.Fatalf("Some expectations are already set for the ServiceMock.Checkout method")
+	}
+
+	mmCheckout.mock.funcCheckout = f
+	return mmCheckout.mock
+}
+
+// When sets expectation for the ServiceMock.Checkout which will trigger the result defined by the following
+// Then helper
+func (mmCheckout *mServiceMockMockCheckout) When(ctx context.Context, userID int64) *ServiceMockMockCheckoutExpectation {
+	if mmCheckout.mock.funcCheckout != nil {
+		mmCheckout.mock.t.Fatalf("ServiceMockMock.Checkout mock is already set by Set")
+	}
+
+	expectation := &ServiceMockMockCheckoutExpectation{
+		mock:   mmCheckout.mock,
+		params: &ServiceMockMockCheckoutParams{ctx, userID},
+	}
+	mmCheckout.expectations = append(mmCheckout.expectations, expectation)
+	return expectation
+}
+
+// Then sets up ServiceMock.Checkout return parameters for the expectation previously defined by the When method
+func (e *ServiceMockMockCheckoutExpectation) Then(i1 int64, err error) *ServiceMockMock {
+	e.results = &ServiceMockMockCheckoutResults{i1, err}
+	return e.mock
+}
+
+// Checkout implements cartservice.ServiceMock
+func (mmCheckout *ServiceMockMock) Checkout(ctx context.Context, userID int64) (i1 int64, err error) {
+	mm_atomic.AddUint64(&mmCheckout.beforeCheckoutCounter, 1)
+	defer mm_atomic.AddUint64(&mmCheckout.afterCheckoutCounter, 1)
+
+	if mmCheckout.inspectFuncCheckout != nil {
+		mmCheckout.inspectFuncCheckout(ctx, userID)
+	}
+
+	mm_params := &ServiceMockMockCheckoutParams{ctx, userID}
+
+	// Record call args
+	mmCheckout.CheckoutMock.mutex.Lock()
+	mmCheckout.CheckoutMock.callArgs = append(mmCheckout.CheckoutMock.callArgs, mm_params)
+	mmCheckout.CheckoutMock.mutex.Unlock()
+
+	for _, e := range mmCheckout.CheckoutMock.expectations {
+		if minimock.Equal(e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.i1, e.results.err
+		}
+	}
+
+	if mmCheckout.CheckoutMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmCheckout.CheckoutMock.defaultExpectation.Counter, 1)
+		mm_want := mmCheckout.CheckoutMock.defaultExpectation.params
+		mm_got := ServiceMockMockCheckoutParams{ctx, userID}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmCheckout.t.Errorf("ServiceMockMock.Checkout got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmCheckout.CheckoutMock.defaultExpectation.results
+		if mm_results == nil {
+			mmCheckout.t.Fatal("No results are set for the ServiceMockMock.Checkout")
+		}
+		return (*mm_results).i1, (*mm_results).err
+	}
+	if mmCheckout.funcCheckout != nil {
+		return mmCheckout.funcCheckout(ctx, userID)
+	}
+	mmCheckout.t.Fatalf("Unexpected call to ServiceMockMock.Checkout. %v %v", ctx, userID)
+	return
+}
+
+// CheckoutAfterCounter returns a count of finished ServiceMockMock.Checkout invocations
+func (mmCheckout *ServiceMockMock) CheckoutAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmCheckout.afterCheckoutCounter)
+}
+
+// CheckoutBeforeCounter returns a count of ServiceMockMock.Checkout invocations
+func (mmCheckout *ServiceMockMock) CheckoutBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmCheckout.beforeCheckoutCounter)
+}
+
+// Calls returns a list of arguments used in each call to ServiceMockMock.Checkout.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmCheckout *mServiceMockMockCheckout) Calls() []*ServiceMockMockCheckoutParams {
+	mmCheckout.mutex.RLock()
+
+	argCopy := make([]*ServiceMockMockCheckoutParams, len(mmCheckout.callArgs))
+	copy(argCopy, mmCheckout.callArgs)
+
+	mmCheckout.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockCheckoutDone returns true if the count of the Checkout invocations corresponds
+// the number of defined expectations
+func (m *ServiceMockMock) MinimockCheckoutDone() bool {
+	for _, e := range m.CheckoutMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.CheckoutMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterCheckoutCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcCheckout != nil && mm_atomic.LoadUint64(&m.afterCheckoutCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockCheckoutInspect logs each unmet expectation
+func (m *ServiceMockMock) MinimockCheckoutInspect() {
+	for _, e := range m.CheckoutMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to ServiceMockMock.Checkout with params: %#v", *e.params)
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.CheckoutMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterCheckoutCounter) < 1 {
+		if m.CheckoutMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to ServiceMockMock.Checkout")
+		} else {
+			m.t.Errorf("Expected call to ServiceMockMock.Checkout with params: %#v", *m.CheckoutMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcCheckout != nil && mm_atomic.LoadUint64(&m.afterCheckoutCounter) < 1 {
+		m.t.Error("Expected call to ServiceMockMock.Checkout")
 	}
 }
 
@@ -936,6 +1162,8 @@ func (m *ServiceMockMock) MinimockFinish() {
 	if !m.minimockDone() {
 		m.MinimockAddItemInspect()
 
+		m.MinimockCheckoutInspect()
+
 		m.MinimockDeleteItemInspect()
 
 		m.MinimockDeleteItemsByUserIDInspect()
@@ -965,6 +1193,7 @@ func (m *ServiceMockMock) minimockDone() bool {
 	done := true
 	return done &&
 		m.MinimockAddItemDone() &&
+		m.MinimockCheckoutDone() &&
 		m.MinimockDeleteItemDone() &&
 		m.MinimockDeleteItemsByUserIDDone() &&
 		m.MinimockGetItemsByUserIDDone()

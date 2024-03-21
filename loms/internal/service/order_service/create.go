@@ -16,9 +16,9 @@ func (s *service) Create(user int64, items model.OrderItems) (int64, error) {
 	}
 
 	reserved := false
-	reservErr := s.stockStorage.Reserve(ToStockItems(items))
-	if reservErr != nil {
-		logger.Error("failed to reserve quantity for items", reservErr)
+	reserveErr := s.stockStorage.Reserve(ToStockItems(items))
+	if reserveErr != nil {
+		logger.Error("failed to reserve quantity for items", reserveErr)
 	} else {
 		reserved = true
 	}
@@ -31,6 +31,10 @@ func (s *service) Create(user int64, items model.OrderItems) (int64, error) {
 	if err != nil {
 		logger.Error("failed to change status", err)
 		return 0, fmt.Errorf("failed to change status: %w", err)
+	}
+
+	if !reserved {
+		return 0, fmt.Errorf("failed to reserve quantity for items, %w", reserveErr)
 	}
 
 	return orderID, nil

@@ -5,5 +5,5 @@ const (
 	ProductServiceHost    = "route256.pavl.uk:8080"
 	ProductServiceToken   = "testtoken"
 	ProductServiceRetries = 3
-	LomsServiceGrpcHost   = "cart:8082"
+	LomsServiceGrpcHost   = "loms:8082"
 )

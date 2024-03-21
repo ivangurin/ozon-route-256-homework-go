@@ -4,8 +4,8 @@ import (
 	"context"
 )
 
-func (c *Client) OrederCreate(ctx context.Context, user int64, items OrderItems) (int64, error) {
-	req := toOrederCreateRequest(user, items)
+func (c *Client) OrderCreate(ctx context.Context, user int64, items OrderItems) (int64, error) {
+	req := ToOrderCreateRequest(user, items)
 
 	resp, err := c.OrderAPI.Create(ctx, req)
 	if err != nil {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"route256.ozon.ru/project/cart/internal/model"
 	"route256.ozon.ru/project/cart/internal/pkg/logger"
 )
 
@@ -20,7 +21,7 @@ func (s *service) AddItem(ctx context.Context, userID int64, skuID int64, quanti
 		return fmt.Errorf("failed to get free stock: %w", err)
 	}
 	if freeStock < quantity {
-		return fmt.Errorf("insufficirnt stock for %d: %w", skuID, err)
+		return fmt.Errorf("insufficient stock for %d: %w", skuID, model.ErrInsufficientSock)
 	}
 
 	err = s.cartStorage.AddItem(ctx, userID, skuID, quantity)

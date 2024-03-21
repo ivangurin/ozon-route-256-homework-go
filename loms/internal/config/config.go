@@ -1,6 +1,6 @@
 package config
 
 const (
-	LomsServceHttpPort = "8080"
+	LomsServceHttpPort = "8081"
 	LomsServceGrpcPort = "8082"
 )

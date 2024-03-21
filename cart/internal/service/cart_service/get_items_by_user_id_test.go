@@ -110,7 +110,7 @@ func TestGetItemsByUserID(t *testing.T) {
 
 	cartService := cartservice.NewService(
 		sp.GetProductService(),
-		sp.GetCartStorege(),
+		sp.GetCartStorage(),
 		sp.GetLomsService(),
 	)
 
@@ -122,7 +122,7 @@ func TestGetItemsByUserID(t *testing.T) {
 
 	for _, test := range tests {
 
-		sp.GetCartStoregeMock().GetItemsByUserIDMock.
+		sp.GetCartStorageMock().GetItemsByUserIDMock.
 			When(ctx, test.UserID).
 			Then(test.CartStorage, test.Error)
 

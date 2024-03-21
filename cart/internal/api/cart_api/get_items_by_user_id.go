@@ -32,7 +32,7 @@ func (a *api) GetItemsByUserID() func(w http.ResponseWriter, r *http.Request) {
 			if errors.Is(err, model.ErrNotFound) {
 				http.Error(w, fmt.Sprintf("cart for user %d not found", req.UserID), http.StatusNotFound)
 			} else {
-				http.Error(w, "interanl error", http.StatusInternalServerError)
+				http.Error(w, "internal error", http.StatusInternalServerError)
 			}
 			return
 		}
@@ -64,7 +64,7 @@ func toGetItemsByUserIDResponse(w http.ResponseWriter, cart *cartservice.Cart) e
 	json, err := json.Marshal(cart)
 	if err != nil {
 		logger.Error("handleCartGet: failed to marshal cart response", err)
-		http.Error(w, "interanl error", http.StatusInternalServerError)
+		http.Error(w, "internal error", http.StatusInternalServerError)
 		return nil
 	}
 

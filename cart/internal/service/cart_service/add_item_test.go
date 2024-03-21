@@ -18,7 +18,7 @@ func TestAddItem(t *testing.T) {
 		Name             string
 		UserID           int64
 		SkuID            int64
-		Qunatity         uint32
+		Quantity         uint32
 		ProductInfo      *productservice.GetProductResponse
 		ProductInfoError error
 		StockInfoReq     *stock.StockInfoRequest
@@ -45,7 +45,7 @@ func TestAddItem(t *testing.T) {
 			Error:            err1,
 		},
 		{
-			Name:  "Ошибка при получении резева",
+			Name:  "Ошибка при получении резерва",
 			SkuID: 2,
 			ProductInfo: &productservice.GetProductResponse{
 				Name:  "Product 2",
@@ -109,7 +109,7 @@ func TestAddItem(t *testing.T) {
 
 	cartService := cartservice.NewService(
 		sp.GetProductService(),
-		sp.GetCartStorege(),
+		sp.GetCartStorage(),
 		sp.GetLomsService(),
 	)
 
@@ -123,12 +123,12 @@ func TestAddItem(t *testing.T) {
 			When(ctx, test.StockInfoReq).
 			Then(test.StockInfoResp, test.StockInfoError)
 
-		sp.GetCartStoregeMock().AddItemMock.
-			When(ctx, test.UserID, test.SkuID, uint16(test.Qunatity)).
+		sp.GetCartStorageMock().AddItemMock.
+			When(ctx, test.UserID, test.SkuID, uint16(test.Quantity)).
 			Then(test.StorageAddError)
 
 		t.Run(test.Name, func(t *testing.T) {
-			err := cartService.AddItem(ctx, test.UserID, test.SkuID, uint16(test.Qunatity))
+			err := cartService.AddItem(ctx, test.UserID, test.SkuID, uint16(test.Quantity))
 			if test.Error != nil {
 				require.NotNil(t, err, "Должна быть ошибка")
 				require.ErrorIs(t, err, test.Error, "Не совпала ошибка")

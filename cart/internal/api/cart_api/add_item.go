@@ -30,8 +30,10 @@ func (a *api) AddItem() func(w http.ResponseWriter, r *http.Request) {
 			logger.Error("handleAddItem: failed to add item", err)
 			if errors.Is(err, model.ErrNotFound) {
 				http.Error(w, fmt.Sprintf("sku %d not found", req.SkuID), http.StatusNotFound)
+			} else if errors.Is(err, model.ErrInsufficientSock) {
+				http.Error(w, fmt.Sprintf("insufficient stock for %d", req.SkuID), http.StatusBadRequest)
 			} else {
-				http.Error(w, "interanl error", http.StatusInternalServerError)
+				http.Error(w, "internal error", http.StatusInternalServerError)
 			}
 			return
 		}

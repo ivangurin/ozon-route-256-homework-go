@@ -172,7 +172,7 @@ docker-build:
 	@docker image prune -f --filter label=stage=builder
 
 docker-run: docker-build
-	@docker run -d -p 8080:8080 -p 8082:8082 --rm --name loms loms
+	@docker run -d -p 8081:8081 -p 8082:8082 --rm --name loms loms
 
 docker-stop:
 	@docker stop loms || true
