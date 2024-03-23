@@ -2,11 +2,11 @@ syntax = "proto3";
 
 package route256.ozon.ru.project.loms.pkg.api.stock.v1;
 
-option go_package = "route256.ozon.ru/project/loms/pkg/api/stock/v1;stock";
-
 import "validate/validate.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "route256.ozon.ru/project/loms/pkg/api/stock/v1;stock";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
     info: {
