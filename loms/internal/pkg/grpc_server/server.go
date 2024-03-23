@@ -10,14 +10,14 @@ import (
 	"route256.ozon.ru/project/loms/internal/pkg/middleware"
 )
 
-type api interface {
+type API interface {
 	RegisterGrpcServer(server *grpc.Server)
 }
 
 type Server interface {
 	Start() error
 	Stop() error
-	RegisterAPI(api api)
+	RegisterAPI(APIs []API)
 }
 
 type server struct {
@@ -64,6 +64,8 @@ func (s *server) Stop() error {
 	return nil
 }
 
-func (s *server) RegisterAPI(api api) {
-	api.RegisterGrpcServer(s.grpcServer)
+func (s *server) RegisterAPI(APIs []API) {
+	for _, api := range APIs {
+		api.RegisterGrpcServer(s.grpcServer)
+	}
 }
