@@ -47,7 +47,7 @@ func (a *app) Run() error {
 	}
 
 	// Grpc Server
-	grpcServer := grpcserver.NewServer(a.ctx, config.LomsServceGrpcPort)
+	grpcServer := grpcserver.NewServer(a.ctx, config.LomsServiceGrpcPort)
 	closer.Add(grpcServer.Stop)
 
 	for _, singleAPI := range api {
@@ -66,7 +66,7 @@ func (a *app) Run() error {
 	}()
 
 	// Http Server
-	httpServer, err := httpserver.NewServer(a.ctx, config.LomsServceHttpPort, config.LomsServceGrpcPort)
+	httpServer, err := httpserver.NewServer(a.ctx, config.LomsServiceHttpPort, config.LomsServiceGrpcPort)
 	if err != nil {
 		logger.Error("failed to create http server", err)
 		closer.CloseAll()

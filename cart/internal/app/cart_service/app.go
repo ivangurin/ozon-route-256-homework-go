@@ -34,7 +34,7 @@ func (a *app) Run() error {
 
 	cartAPI := a.sp.GetCartAPI()
 
-	httpServer := httpserver.NewServer(config.CartServceHttpPort)
+	httpServer := httpserver.NewServer(config.CartServiceHttpPort)
 	httpServer.AddHandlers(cartAPI.GetDescription().Handlers)
 	closer.Add(httpServer.Stop)
 
