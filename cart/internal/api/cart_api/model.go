@@ -22,3 +22,11 @@ type GetItemsByUserIDRequest struct {
 type DeleteItemsByUserIDRequest struct {
 	UserID int64 `validate:"required|int|min:1"`
 }
+
+type CheckoutRequest struct {
+	UserID int64 `json:"user" validate:"required|int|min:1"`
+}
+
+type CheckoutResponse struct {
+	OrderID int64 `json:"order_id"`
+}

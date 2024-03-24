@@ -4,5 +4,5 @@ package productservice
 
 // ClientMock ...
 type ClientMock interface {
-	IClient
+	Client
 }

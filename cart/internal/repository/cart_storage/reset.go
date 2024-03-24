@@ -1,8 +1,8 @@
 package cartstorage
 
-func (cs *cartStorage) Reset() {
-	cs.Lock()
-	defer cs.Unlock()
+func (s *storage) Reset() {
+	s.Lock()
+	defer s.Unlock()
 
-	storage = map[int64]*Cart{}
+	cartStorage = map[int64]*Cart{}
 }

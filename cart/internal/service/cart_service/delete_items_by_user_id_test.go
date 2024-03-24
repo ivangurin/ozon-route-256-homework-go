@@ -37,12 +37,13 @@ func TestDeleteItemsByUserID(t *testing.T) {
 	sp := suite.NewSuiteProvider(t)
 	cartService := cartservice.NewService(
 		sp.GetProductService(),
-		sp.GetCartStorege(),
+		sp.GetCartStorage(),
+		sp.GetLomsService(),
 	)
 
 	for _, test := range tests {
 
-		sp.GetCartStoregeMock().DeleteItemsByUserIDMock.
+		sp.GetCartStorageMock().DeleteItemsByUserIDMock.
 			When(ctx, test.UserID).
 			Then(test.Error)
 

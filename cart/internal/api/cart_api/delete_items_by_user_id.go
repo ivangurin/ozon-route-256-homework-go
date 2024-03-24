@@ -25,7 +25,7 @@ func (a *api) DeleteItemsByUserID() func(w http.ResponseWriter, r *http.Request)
 		err = a.cartService.DeleteItemsByUserID(r.Context(), req.UserID)
 		if err != nil {
 			logger.Error("handleDeleteItemsByUserID: failed to delete items", err)
-			http.Error(w, "interanl error", http.StatusInternalServerError)
+			http.Error(w, "internal error", http.StatusInternalServerError)
 			return
 		}
 

@@ -4,4 +4,10 @@ services:
     image: cart
     build: ./cart/
     ports:
-      - "8082:8080"
+      - "8080:8080"
+  loms:
+    image: loms
+    build: ./loms/
+    ports:
+      - "8180:8080"
+      - "8182:8082"

@@ -4,5 +4,5 @@ package cartservice
 
 // ServiceMock ...
 type ServiceMock interface {
-	IService
+	Service
 }

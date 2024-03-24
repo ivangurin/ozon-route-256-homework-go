@@ -17,10 +17,6 @@ import (
 const StatusEnhanceYourCalm = 420
 
 func (c *client) GetProduct(ctx context.Context, skuID int64) (*GetProductResponse, error) {
-
-	logger.Info(fmt.Sprintf("productService.getProduct: start get product %d", skuID))
-	defer logger.Info(fmt.Sprintf("productService.getProduct: finish get product %d", skuID))
-
 	resp, exists := productStorage[skuID]
 	if exists {
 		return resp, nil
@@ -37,7 +33,7 @@ func (c *client) GetProduct(ctx context.Context, skuID int64) (*GetProductRespon
 		return nil, fmt.Errorf("failed to marshal get product request: %w", err)
 	}
 
-	httpReq, err := http.NewRequest(http.MethodPost, fmt.Sprintf("http://%s/get_product", config.ProductServiceAddress), bytes.NewBuffer(jsonReq))
+	httpReq, err := http.NewRequest(http.MethodPost, fmt.Sprintf("http://%s/get_product", config.ProductServiceHost), bytes.NewBuffer(jsonReq))
 	if err != nil {
 		logger.Error("productService.getProduct: failed to create request", err)
 		return nil, fmt.Errorf("failed to create request: %w", err)

@@ -16,6 +16,6 @@ func TestGetDescription(t *testing.T) {
 
 	desc := api.GetDescription()
 
-	require.Len(t, desc.Handlers, 4, "Должно быть 4 хендлера")
+	require.Len(t, desc.Handlers, 5, "Должно быть 5 хендлеров")
 
 }

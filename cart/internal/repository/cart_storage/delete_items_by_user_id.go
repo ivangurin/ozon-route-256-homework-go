@@ -7,19 +7,19 @@ import (
 	"route256.ozon.ru/project/cart/internal/pkg/logger"
 )
 
-func (cs *cartStorage) DeleteItemsByUserID(
+func (s *storage) DeleteItemsByUserID(
 	ctx context.Context,
 	userID int64,
 ) error {
-	cs.Lock()
-	defer cs.Unlock()
+	s.Lock()
+	defer s.Unlock()
 
 	logger.Info(fmt.Sprintf("cartStorage: start clear cart for userID: %d", userID))
 	defer logger.Info(fmt.Sprintf("cartStorage: finish clear cart for userID: %d", userID))
 
-	_, exists := storage[userID]
+	_, exists := cartStorage[userID]
 	if exists {
-		delete(storage, userID)
+		delete(cartStorage, userID)
 	}
 
 	return nil

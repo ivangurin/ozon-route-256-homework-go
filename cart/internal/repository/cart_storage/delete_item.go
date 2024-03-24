@@ -2,15 +2,15 @@ package cartstorage
 
 import "context"
 
-func (cs *cartStorage) DeleteItem(
+func (s *storage) DeleteItem(
 	ctx context.Context,
 	userID int64,
 	skuID int64,
 ) error {
-	cs.Lock()
-	defer cs.Unlock()
+	s.Lock()
+	defer s.Unlock()
 
-	cart, exists := storage[userID]
+	cart, exists := cartStorage[userID]
 	if !exists {
 		return nil
 	}
@@ -23,7 +23,7 @@ func (cs *cartStorage) DeleteItem(
 	delete(cart.Items, skuID)
 
 	if len(cart.Items) == 0 {
-		delete(storage, userID)
+		delete(cartStorage, userID)
 	}
 
 	return nil

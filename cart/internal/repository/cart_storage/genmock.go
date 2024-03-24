@@ -4,5 +4,5 @@ package cartstorage
 
 // ClientMock ...
 type StorageMock interface {
-	IStorage
+	Storage
 }

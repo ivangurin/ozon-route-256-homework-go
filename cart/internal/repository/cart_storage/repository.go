@@ -5,9 +5,9 @@ import (
 	"sync"
 )
 
-var storage map[int64]*Cart = map[int64]*Cart{}
+var cartStorage map[int64]*Cart = map[int64]*Cart{}
 
-type IStorage interface {
+type Storage interface {
 	AddItem(ctx context.Context, userID int64, skuID int64, quantity uint16) error
 	DeleteItem(ctx context.Context, userID int64, skuID int64) error
 	GetItemsByUserID(ctx context.Context, userID int64) (*Cart, error)
@@ -15,10 +15,10 @@ type IStorage interface {
 	Reset()
 }
 
-type cartStorage struct {
+type storage struct {
 	sync.RWMutex
 }
 
-func NewCartStorage() IStorage {
-	return &cartStorage{}
+func NewCartStorage() Storage {
+	return &storage{}
 }

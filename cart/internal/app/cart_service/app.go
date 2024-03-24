@@ -21,7 +21,7 @@ type app struct {
 func NewApp(ctx context.Context) IApp {
 	return &app{
 		ctx: ctx,
-		sp:  serviceprovider.GetServiceProvider(),
+		sp:  serviceprovider.GetServiceProvider(ctx),
 	}
 }
 
@@ -34,7 +34,7 @@ func (a *app) Run() error {
 
 	cartAPI := a.sp.GetCartAPI()
 
-	httpServer := httpserver.NewServer(config.CartServcePort)
+	httpServer := httpserver.NewServer(config.CartServiceHttpPort)
 	httpServer.AddHandlers(cartAPI.GetDescription().Handlers)
 	closer.Add(httpServer.Stop)
 

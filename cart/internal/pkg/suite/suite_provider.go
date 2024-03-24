@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/gojuno/minimock/v3"
+	lomsservice "route256.ozon.ru/project/cart/internal/pkg/client/loms_service"
+	lomsservice_mocks "route256.ozon.ru/project/cart/internal/pkg/client/loms_service/mocks"
 	productservice "route256.ozon.ru/project/cart/internal/pkg/client/product_service"
 	productservice_mocks "route256.ozon.ru/project/cart/internal/pkg/client/product_service/mocks"
 	cartstorage "route256.ozon.ru/project/cart/internal/repository/cart_storage"
@@ -13,13 +15,16 @@ import (
 )
 
 type suiteProvider struct {
-	mc                 *minimock.Controller
-	productServiceMock *productservice_mocks.ClientMockMock
-	productService     productservice.IClient
-	cartStorageMock    *cartstorage_mocks.StorageMockMock
-	cartStorage        cartstorage.IStorage
-	cartServiceMock    *cartservice_mocks.ServiceMockMock
-	cartService        cartservice.IService
+	mc                   *minimock.Controller
+	productServiceMock   *productservice_mocks.ClientMockMock
+	productService       productservice.Client
+	cartStorageMock      *cartstorage_mocks.StorageMockMock
+	cartStorage          cartstorage.Storage
+	cartServiceMock      *cartservice_mocks.ServiceMockMock
+	cartService          cartservice.Service
+	lomsServiceStockMock *lomsservice_mocks.StockClientMockMock
+	lomsServiceOrderMock *lomsservice_mocks.OrderClientMockMock
+	lomsService          *lomsservice.Client
 }
 
 func NewSuiteProvider(t *testing.T) *suiteProvider {
@@ -35,23 +40,23 @@ func (sp *suiteProvider) GetProductServiceMock() *productservice_mocks.ClientMoc
 	return sp.productServiceMock
 }
 
-func (sp *suiteProvider) GetProductService() productservice.IClient {
+func (sp *suiteProvider) GetProductService() productservice.Client {
 	if sp.productService == nil {
 		sp.productService = sp.GetProductServiceMock()
 	}
 	return sp.productService
 }
 
-func (sp *suiteProvider) GetCartStoregeMock() *cartstorage_mocks.StorageMockMock {
+func (sp *suiteProvider) GetCartStorageMock() *cartstorage_mocks.StorageMockMock {
 	if sp.cartStorageMock == nil {
 		sp.cartStorageMock = cartstorage_mocks.NewStorageMockMock(sp.mc)
 	}
 	return sp.cartStorageMock
 }
 
-func (sp *suiteProvider) GetCartStorege() cartstorage.IStorage {
+func (sp *suiteProvider) GetCartStorage() cartstorage.Storage {
 	if sp.cartStorage == nil {
-		sp.cartStorage = sp.GetCartStoregeMock()
+		sp.cartStorage = sp.GetCartStorageMock()
 	}
 	return sp.cartStorage
 }
@@ -63,12 +68,37 @@ func (sp *suiteProvider) GetCartServiceMock() *cartservice_mocks.ServiceMockMock
 	return sp.cartServiceMock
 }
 
-func (sp *suiteProvider) GetCartService() cartservice.IService {
+func (sp *suiteProvider) GetCartService() cartservice.Service {
 	if sp.cartService == nil {
 		sp.cartService = cartservice.NewService(
 			sp.GetProductService(),
-			sp.GetCartStorege(),
+			sp.GetCartStorage(),
+			sp.GetLomsService(),
 		)
 	}
 	return sp.cartService
+}
+
+func (sp *suiteProvider) GetLomsServiceStockMock() *lomsservice_mocks.StockClientMockMock {
+	if sp.lomsServiceStockMock == nil {
+		sp.lomsServiceStockMock = lomsservice_mocks.NewStockClientMockMock(sp.mc)
+	}
+	return sp.lomsServiceStockMock
+}
+
+func (sp *suiteProvider) GetLomsServiceOrderMock() *lomsservice_mocks.OrderClientMockMock {
+	if sp.lomsServiceOrderMock == nil {
+		sp.lomsServiceOrderMock = lomsservice_mocks.NewOrderClientMockMock(sp.mc)
+	}
+	return sp.lomsServiceOrderMock
+}
+
+func (sp *suiteProvider) GetLomsService() *lomsservice.Client {
+	if sp.lomsService == nil {
+		sp.lomsService = &lomsservice.Client{
+			StockAPI: sp.GetLomsServiceStockMock(),
+			OrderAPI: sp.GetLomsServiceOrderMock(),
+		}
+	}
+	return sp.lomsService
 }

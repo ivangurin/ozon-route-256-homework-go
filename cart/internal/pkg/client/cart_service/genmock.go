@@ -4,5 +4,5 @@ package cartservice
 
 // ClientMock ...
 type ClientMock interface {
-	IClient
+	Client
 }
