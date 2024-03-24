@@ -11,10 +11,17 @@ services:
       - POSTGRESQL_REPLICATION_MODE=master
       - POSTGRESQL_REPLICATION_USER=repl_postgres
       - POSTGRESQL_REPLICATION_PASSWORD=repl_postgres
+      - POSTGRESQL_SYNCHRONOUS_COMMIT_MODE=on
+      - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=1
       - POSTGRESQL_PGAUDIT_LOG=READ,WRITE
       - POSTGRESQL_LOG_HOSTNAME=true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 1s
+      timeout: 5s
+      retries: 5
 
-  loms-service-async:
+  loms-service-sync:
     image: bitnami/postgresql:latest
     ports:
       - 5433:5432
@@ -37,8 +44,6 @@ services:
     build: ./cart/
     ports:
       - "8080:8080"
-    depends_on:
-      - loms-service-master
 
   loms:
     image: loms
@@ -46,3 +51,6 @@ services:
     ports:
       - "8180:8080"
       - "8182:8082"
+    depends_on:
+      loms-service-master:
+        condition: service_healthy

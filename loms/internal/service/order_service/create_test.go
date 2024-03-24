@@ -42,7 +42,7 @@ func TestOrderCreate(t *testing.T) {
 		{
 			Name:              "Ошибка при изменении статуса при не успешном резервировании",
 			Items:             model.OrderItems{&model.OrderItem{Sku: 1, Quantity: 1}},
-			Status:            model.OrederStatusFailed,
+			Status:            model.OrderStatusFailed,
 			Error:             err3,
 			ReserveStockError: err2,
 			SetStatusError:    err3,
@@ -50,14 +50,14 @@ func TestOrderCreate(t *testing.T) {
 		{
 			Name:           "Ошибка при изменении статуса при успешном резервировании",
 			Items:          model.OrderItems{&model.OrderItem{Sku: 1, Quantity: 1}},
-			Status:         model.OrederStatusAwatingPayment,
+			Status:         model.OrderStatusAwaitingPayment,
 			Error:          err4,
 			SetStatusError: err4,
 		},
 		{
 			Name:    "Успешное создание заказа",
 			Items:   model.OrderItems{&model.OrderItem{Sku: 1, Quantity: 1}},
-			Status:  model.OrederStatusAwatingPayment,
+			Status:  model.OrderStatusAwaitingPayment,
 			OrderID: 1,
 		},
 	}
@@ -71,24 +71,24 @@ func TestOrderCreate(t *testing.T) {
 		orderService := orderservice.NewService(
 			ctx,
 			sp.GetStockStorage(),
-			sp.GetOrderStorege(),
+			sp.GetOrderStorage(),
 		)
 
-		sp.GetOrderStoregeMock().CreateMock.
-			When(test.User, orderservice.ToOrderStorageItems(test.Items)).
+		sp.GetOrderStorageMock().CreateMock.
+			When(ctx, test.User, orderservice.ToOrderStorageItems(test.Items)).
 			Then(test.OrderID, test.CreateOrderError)
 
-		sp.GetStockStoregeMock().ReserveMock.
-			When(orderservice.ToStockItems(test.Items)).
+		sp.GetStockStorageMock().ReserveMock.
+			When(ctx, orderservice.ToStockItems(test.Items)).
 			Then(test.ReserveStockError)
 
-		sp.GetOrderStoregeMock().SetStatusMock.
-			When(test.OrderID, test.Status).
+		sp.GetOrderStorageMock().SetStatusMock.
+			When(ctx, test.OrderID, test.Status).
 			Then(test.SetStatusError)
 
 		t.Run(test.Name, func(t *testing.T) {
 
-			orderID, err := orderService.Create(test.User, test.Items)
+			orderID, err := orderService.Create(ctx, test.User, test.Items)
 			if test.Error != nil {
 				require.NotNil(t, err, "Должна быть ошибка")
 				require.ErrorIs(t, err, test.Error, "Не та ошибка")

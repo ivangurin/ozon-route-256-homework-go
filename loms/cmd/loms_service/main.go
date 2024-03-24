@@ -8,8 +8,9 @@ import (
 )
 
 func main() {
-	app := lomsservice.NewApp(context.Background())
+	ctx := context.Background()
+	app := lomsservice.NewApp(ctx)
 	if err := app.Run(); err != nil {
-		logger.Fatal("can't run app", err)
+		logger.Fatalf(ctx, "can't run app: %w", err)
 	}
 }

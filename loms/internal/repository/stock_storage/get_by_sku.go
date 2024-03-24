@@ -1,8 +1,12 @@
 package stockstorage
 
-import "route256.ozon.ru/project/loms/internal/model"
+import (
+	"context"
 
-func (r *repository) GetBySku(sku int64) (uint16, error) {
+	"route256.ozon.ru/project/loms/internal/model"
+)
+
+func (r *repository) GetBySku(ctx context.Context, sku int64) (uint16, error) {
 	r.RLock()
 	defer r.RUnlock()
 

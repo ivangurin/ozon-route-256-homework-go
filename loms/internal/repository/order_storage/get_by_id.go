@@ -1,12 +1,13 @@
 package orderstorage
 
 import (
+	"context"
 	"fmt"
 
 	"route256.ozon.ru/project/loms/internal/model"
 )
 
-func (r *repository) GetByID(orderID int64) (*Order, error) {
+func (r *repository) GetByID(ctx context.Context, orderID int64) (*Order, error) {
 	r.RLock()
 	defer r.RUnlock()
 

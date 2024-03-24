@@ -35,7 +35,7 @@ func TestOrderInfo(t *testing.T) {
 			Order: &orderstorage.Order{
 				ID:     2,
 				User:   1,
-				Status: model.OrederStatusNew,
+				Status: model.OrderStatusNew,
 				Items: []*orderstorage.OrderItem{
 					{
 						Sku:      1,
@@ -53,18 +53,18 @@ func TestOrderInfo(t *testing.T) {
 	orderService := orderservice.NewService(
 		ctx,
 		sp.GetStockStorage(),
-		sp.GetOrderStorege(),
+		sp.GetOrderStorage(),
 	)
 
 	for _, test := range tests {
 
-		sp.GetOrderStoregeMock().GetByIDMock.
-			When(test.OrderID).
+		sp.GetOrderStorageMock().GetByIDMock.
+			When(ctx, test.OrderID).
 			Then(test.Order, test.GetByIDError)
 
 		t.Run(test.Name, func(t *testing.T) {
 
-			order, err := orderService.Info(test.OrderID)
+			order, err := orderService.Info(ctx, test.OrderID)
 			if test.Error != nil {
 				require.NotNil(t, err, "Должна быть ошибка")
 				require.ErrorIs(t, err, test.Error, "Не та ошибка")

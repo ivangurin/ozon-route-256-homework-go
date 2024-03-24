@@ -12,7 +12,7 @@ import (
 )
 
 func (a *API) Pay(ctx context.Context, req *order.OrderPayRequest) (*emptypb.Empty, error) {
-	err := a.orderService.Pay(req.GetOrderId())
+	err := a.orderService.Pay(ctx, req.GetOrderId())
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
 			return nil, status.Errorf(codes.NotFound, err.Error())

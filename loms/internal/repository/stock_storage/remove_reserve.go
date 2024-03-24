@@ -1,10 +1,11 @@
 package stockstorage
 
 import (
+	"context"
 	"fmt"
 )
 
-func (r *repository) RemoveReserve(items ReserveItems) error {
+func (r *repository) RemoveReserve(ctx context.Context, items ReserveItems) error {
 	r.Lock()
 	defer r.Unlock()
 
@@ -17,7 +18,7 @@ func (r *repository) RemoveReserve(items ReserveItems) error {
 			return fmt.Errorf("insufficient stock for product with sku %d", item.Sku)
 		}
 		if stockItem.Reserved < item.Quantity {
-			return fmt.Errorf("insufficient reseve for product with sku %d", item.Sku)
+			return fmt.Errorf("insufficient reserve for product with sku %d", item.Sku)
 		}
 	}
 

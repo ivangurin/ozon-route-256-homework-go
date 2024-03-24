@@ -3,21 +3,27 @@ package orderstorage
 import (
 	"context"
 	"sync"
+
+	"route256.ozon.ru/project/loms/internal/db"
 )
 
 type Repository interface {
-	Create(user int64, items []*OrderItem) (int64, error)
-	SetStatus(orderID int64, status string) error
-	GetByID(orderID int64) (*Order, error)
+	Create(ctx context.Context, user int64, items []*OrderItem) (int64, error)
+	SetStatus(ctx context.Context, orderID int64, status string) error
+	GetByID(ctx context.Context, orderID int64) (*Order, error)
 }
 
 type repository struct {
 	sync.RWMutex
-	orders Orders
+	ctx      context.Context
+	dbClient db.Client
+	orders   Orders
 }
 
-func NewRepository(ctx context.Context) Repository {
+func NewRepository(ctx context.Context, dbClient db.Client) Repository {
 	return &repository{
-		orders: Orders{},
+		ctx:      ctx,
+		dbClient: dbClient,
+		orders:   Orders{},
 	}
 }

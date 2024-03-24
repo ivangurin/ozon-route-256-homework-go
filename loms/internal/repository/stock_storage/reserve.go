@@ -1,12 +1,13 @@
 package stockstorage
 
 import (
+	"context"
 	"fmt"
 
 	"route256.ozon.ru/project/loms/internal/model"
 )
 
-func (r *repository) Reserve(items ReserveItems) error {
+func (r *repository) Reserve(ctx context.Context, items ReserveItems) error {
 	r.Lock()
 	defer r.Unlock()
 

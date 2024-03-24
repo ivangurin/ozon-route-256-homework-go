@@ -1,15 +1,19 @@
 package orderstorage
 
-import "route256.ozon.ru/project/loms/internal/model"
+import (
+	"context"
 
-func (r *repository) Create(user int64, items []*OrderItem) (int64, error) {
+	"route256.ozon.ru/project/loms/internal/model"
+)
+
+func (r *repository) Create(ctx context.Context, user int64, items []*OrderItem) (int64, error) {
 	r.Lock()
 	defer r.Unlock()
 
 	order := &Order{
 		ID:     r.getNextID(),
 		User:   user,
-		Status: model.OrederStatusNew,
+		Status: model.OrderStatusNew,
 		Items:  items,
 	}
 

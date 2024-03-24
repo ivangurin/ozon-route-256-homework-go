@@ -1,8 +1,12 @@
 package orderstorage
 
-import "route256.ozon.ru/project/loms/internal/model"
+import (
+	"context"
 
-func (r *repository) SetStatus(orderID int64, status string) error {
+	"route256.ozon.ru/project/loms/internal/model"
+)
+
+func (r *repository) SetStatus(ctx context.Context, orderID int64, status string) error {
 	r.Lock()
 	defer r.Unlock()
 

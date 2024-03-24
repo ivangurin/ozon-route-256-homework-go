@@ -35,8 +35,8 @@ func NewApp(ctx context.Context) App {
 }
 
 func (a *app) Run() error {
-	logger.Info("app is starting...")
-	defer logger.Info("app finished")
+	logger.Info(a.ctx, "app is starting...")
+	defer logger.Info(a.ctx, "app finished")
 
 	closer := a.sp.GetCloser()
 	defer closer.Wait()
@@ -55,20 +55,20 @@ func (a *app) Run() error {
 	}
 
 	go func() {
-		logger.Info("grpc server is starting...")
+		logger.Info(a.ctx, "grpc server is starting...")
 		err := grpcServer.Start()
 		if err != nil {
-			logger.Error("failed to start grpc server", err)
+			logger.Errorf(a.ctx, "failed to start grpc server: %w", err)
 			closer.CloseAll()
 			return
 		}
-		logger.Info("grpc server finished")
+		logger.Info(a.ctx, "grpc server finished")
 	}()
 
 	// Http Server
 	httpServer, err := httpserver.NewServer(a.ctx, config.LomsServiceHttpPort, config.LomsServiceGrpcPort)
 	if err != nil {
-		logger.Error("failed to create http server", err)
+		logger.Errorf(a.ctx, "failed to create http server: %w", err)
 		closer.CloseAll()
 		return fmt.Errorf("failed to create http server: %w", err)
 	}
@@ -77,21 +77,21 @@ func (a *app) Run() error {
 	for _, singleAPI := range api {
 		err := httpServer.RegisterAPI(singleAPI)
 		if err != nil {
-			logger.Error("failed to register api", err)
+			logger.Errorf(a.ctx, "failed to register api: %w", err)
 			closer.CloseAll()
 			return fmt.Errorf("failed to register api: %w", err)
 		}
 	}
 
 	go func() {
-		logger.Info("http server is starting...")
+		logger.Info(a.ctx, "http server is starting...")
 		err := httpServer.Start()
 		if err != nil {
-			logger.Error("failed to start http server", err)
+			logger.Errorf(a.ctx, "failed to start http server: %w", err)
 			closer.CloseAll()
 			return
 		}
-		logger.Info("http server finished")
+		logger.Info(a.ctx, "http server finished")
 	}()
 
 	return nil
