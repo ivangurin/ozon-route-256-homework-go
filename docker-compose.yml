@@ -1,10 +1,45 @@
 version: "3.1"
 services:
+  loms-service-master:
+    image: bitnami/postgresql:latest
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRESQL_USERNAME=postgres
+      - POSTGRESQL_PASSWORD=postgres
+      - POSTGRESQL_DATABASE=loms-service
+      - POSTGRESQL_REPLICATION_MODE=master
+      - POSTGRESQL_REPLICATION_USER=repl_postgres
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_postgres
+      - POSTGRESQL_PGAUDIT_LOG=READ,WRITE
+      - POSTGRESQL_LOG_HOSTNAME=true
+
+  loms-service-async:
+    image: bitnami/postgresql:latest
+    ports:
+      - 5433:5432
+    depends_on:
+      - loms-service-master
+    environment:
+      - POSTGRESQL_USERNAME=postgres
+      - POSTGRESQL_PASSWORD=postgres
+      - POSTGRESQL_DATABASE=loms-service
+      - POSTGRESQL_MASTER_HOST=loms-service-master
+      - POSTGRESQL_MASTER_PORT_NUMBER=5432
+      - POSTGRESQL_REPLICATION_MODE=slave
+      - POSTGRESQL_REPLICATION_USER=repl_postgres
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_postgres
+      - POSTGRESQL_PGAUDIT_LOG=READ,WRITE
+      - POSTGRESQL_LOG_HOSTNAME=true
+
   cart:
     image: cart
     build: ./cart/
     ports:
       - "8080:8080"
+    depends_on:
+      - loms-service-master
+
   loms:
     image: loms
     build: ./loms/
