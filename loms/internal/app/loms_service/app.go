@@ -4,19 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"google.golang.org/grpc"
 	"route256.ozon.ru/project/loms/internal/config"
 	grpcserver "route256.ozon.ru/project/loms/internal/pkg/grpc_server"
 	httpserver "route256.ozon.ru/project/loms/internal/pkg/http_server"
 	"route256.ozon.ru/project/loms/internal/pkg/logger"
 	serviceprovider "route256.ozon.ru/project/loms/internal/pkg/service_provider"
 )
-
-type api interface {
-	RegisterGrpcServer(server *grpc.Server)
-	RegisterHttpHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error
-}
 
 type App interface {
 	Run() error
@@ -41,18 +34,14 @@ func (a *app) Run() error {
 	closer := a.sp.GetCloser()
 	defer closer.Wait()
 
-	api := []api{
-		a.sp.GetOrderAPI(a.ctx),
-		a.sp.GetStockAPI(a.ctx),
-	}
-
 	// Grpc Server
 	grpcServer := grpcserver.NewServer(a.ctx, config.LomsServiceGrpcPort)
 	closer.Add(grpcServer.Stop)
 
-	for _, singleAPI := range api {
-		grpcServer.RegisterAPI(singleAPI)
-	}
+	grpcServer.RegisterAPI([]grpcserver.API{
+		a.sp.GetOrderAPI(a.ctx),
+		a.sp.GetStockAPI(a.ctx),
+	})
 
 	go func() {
 		logger.Info(a.ctx, "grpc server is starting...")
@@ -74,13 +63,14 @@ func (a *app) Run() error {
 	}
 	closer.Add(httpServer.Stop)
 
-	for _, singleAPI := range api {
-		err := httpServer.RegisterAPI(singleAPI)
-		if err != nil {
-			logger.Errorf(a.ctx, "failed to register api: %w", err)
-			closer.CloseAll()
-			return fmt.Errorf("failed to register api: %w", err)
-		}
+	err = httpServer.RegisterAPI([]httpserver.API{
+		a.sp.GetOrderAPI(a.ctx),
+		a.sp.GetStockAPI(a.ctx),
+	})
+	if err != nil {
+		logger.Errorf(a.ctx, "failed to register api: %v", err)
+		closer.CloseAll()
+		return fmt.Errorf("failed to register api: %w", err)
 	}
 
 	go func() {

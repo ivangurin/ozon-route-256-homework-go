@@ -16,14 +16,14 @@ import (
 	"route256.ozon.ru/project/loms/internal/pkg/middleware"
 )
 
-type api interface {
+type API interface {
 	RegisterHttpHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error
 }
 
 type Server interface {
 	Start() error
 	Stop() error
-	RegisterAPI(api api) error
+	RegisterAPI(api []API) error
 }
 
 type server struct {
@@ -85,8 +85,14 @@ func (s *server) Stop() error {
 	return s.httpServer.Shutdown(ctx)
 }
 
-func (s *server) RegisterAPI(api api) error {
-	return api.RegisterHttpHandler(s.ctx, s.gwmux, s.conn)
+func (s *server) RegisterAPI(api []API) error {
+	for _, singleAPI := range api {
+		err := singleAPI.RegisterHttpHandler(s.ctx, s.gwmux, s.conn)
+		if err != nil {
+			return nil
+		}
+	}
+	return nil
 }
 
 func (s *server) handleSwagger(w http.ResponseWriter, req *http.Request) {
