@@ -32,7 +32,7 @@ cover-html:
 	@go tool cover -html cover.out 
 	@rm -f cover.out
 
-generate: genproto genmock
+generate: genproto genmock gensqlc
 
 PHONY: .bin-minimock
 .bin-minimock:
