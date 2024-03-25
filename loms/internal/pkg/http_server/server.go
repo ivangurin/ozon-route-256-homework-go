@@ -55,8 +55,10 @@ func NewServer(ctx context.Context, httpPort, grpcPort string) (Server, error) {
 	}
 
 	s.httpServer = &http.Server{
-		Addr:    fmt.Sprintf(":%s", httpPort),
-		Handler: middleware.WithHTTPLoggingMiddleware(s.mux),
+		Addr:              fmt.Sprintf(":%s", httpPort),
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       10 * time.Second,
+		Handler:           middleware.WithHTTPLoggingMiddleware(s.mux),
 	}
 
 	s.mux.HandleFunc("/swagger.json", s.handleSwagger)
@@ -102,5 +104,8 @@ func (s *server) handleSwagger(w http.ResponseWriter, req *http.Request) {
 	}
 	defer file.Close()
 	reader := bufio.NewReader(file)
-	io.Copy(w, reader)
+	_, err = io.Copy(w, reader)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+	}
 }

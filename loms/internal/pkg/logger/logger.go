@@ -40,11 +40,11 @@ func (l *Logger) Errorf(ctx context.Context, m string, args ...any) {
 }
 
 func (l *Logger) Panic(ctx context.Context, m string) {
-	log.Panic("[panic] %s", m)
+	log.Panicf("[panic] %s", m)
 }
 
 func (l *Logger) Panicf(ctx context.Context, m string, args ...any) {
-	log.Panicf("[fatal] "+m, args...)
+	log.Panicf("[panic] "+m, args...)
 }
 
 func (l *Logger) Fatal(ctx context.Context, m string) {

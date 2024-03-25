@@ -17,7 +17,7 @@ func (s *service) toGetCartResponse(ctx context.Context, cart *cartstorage.Cart)
 
 		product, err := s.productService.GetProductWithRetries(ctx, skuID)
 		if err != nil {
-			logger.Error(fmt.Sprintf("cartService.AddItem: failed to get product %d", skuID), err)
+			logger.Errorf(ctx, "cartService.AddItem: failed to get product %d: %v", skuID, err)
 			return nil, fmt.Errorf("failed to get product %d: %w", skuID, err)
 		}
 

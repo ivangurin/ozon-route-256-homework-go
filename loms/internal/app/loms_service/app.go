@@ -47,7 +47,7 @@ func (a *app) Run() error {
 		logger.Info(a.ctx, "grpc server is starting...")
 		err := grpcServer.Start()
 		if err != nil {
-			logger.Errorf(a.ctx, "failed to start grpc server: %w", err)
+			logger.Errorf(a.ctx, "failed to start grpc server: %v", err)
 			closer.CloseAll()
 			return
 		}
@@ -57,7 +57,7 @@ func (a *app) Run() error {
 	// Http Server
 	httpServer, err := httpserver.NewServer(a.ctx, config.LomsServiceHttpPort, config.LomsServiceGrpcPort)
 	if err != nil {
-		logger.Errorf(a.ctx, "failed to create http server: %w", err)
+		logger.Errorf(a.ctx, "failed to create http server: %v", err)
 		closer.CloseAll()
 		return fmt.Errorf("failed to create http server: %w", err)
 	}
@@ -77,7 +77,7 @@ func (a *app) Run() error {
 		logger.Info(a.ctx, "http server is starting...")
 		err := httpServer.Start()
 		if err != nil {
-			logger.Errorf(a.ctx, "failed to start http server: %w", err)
+			logger.Errorf(a.ctx, "failed to start http server: %v", err)
 			closer.CloseAll()
 			return
 		}

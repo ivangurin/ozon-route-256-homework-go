@@ -190,3 +190,11 @@ migrate-down: .bin-goose
 
 migrate-status: .bin-goose
 	$(LOCAL_BIN)/goose -dir $(GOOSE_MIGRATION_DIR) $(GOOSE_DRIVER) $(GOOSE_DBSTRING) status
+
+PHONY: .bin-sqlc
+.bin-sqlc:
+	$(info $(shell printf "\033[34;1m▶\033[0m") Installing sqlc binary...)
+	GOBIN=$(LOCAL_BIN) go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+
+gensqlc: .bin-sqlc
+	$(LOCAL_BIN)/sqlc generate

@@ -19,7 +19,7 @@ func (s *service) Cancel(ctx context.Context, orderID int64) error {
 		return err
 	}
 
-	err = s.orderStorage.SetStatus(ctx, order.ID, model.OrderStatusCanceled)
+	err = s.orderStorage.SetStatus(ctx, order.ID, model.OrderStatusCancelled)
 	if err != nil {
 		return err
 	}

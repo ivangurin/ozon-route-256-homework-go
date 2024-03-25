@@ -4,7 +4,7 @@ create table "order" (
     id bigserial 
         constraint order_pk primary key,
     "user" bigint not null,
-    "status" order_status_type,
+    "status" order_status_type not null,
     created_at timestamp not null default now(),
     updated_at timestamp not null default now() 
 );

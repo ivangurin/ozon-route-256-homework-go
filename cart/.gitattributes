@@ -1,0 +1,6 @@
+*.pb.go -diff
+*.pb.*.go -diff
+*.swagger.json -diff
+*.sum -diff
+*_mock.go -diff
+*.sql.go -diff

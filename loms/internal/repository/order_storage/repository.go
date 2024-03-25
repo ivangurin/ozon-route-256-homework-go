@@ -2,7 +2,6 @@ package orderstorage
 
 import (
 	"context"
-	"sync"
 
 	"route256.ozon.ru/project/loms/internal/db"
 )
@@ -14,16 +13,13 @@ type Repository interface {
 }
 
 type repository struct {
-	sync.RWMutex
 	ctx      context.Context
 	dbClient db.Client
-	orders   Orders
 }
 
 func NewRepository(ctx context.Context, dbClient db.Client) Repository {
 	return &repository{
 		ctx:      ctx,
 		dbClient: dbClient,
-		orders:   Orders{},
 	}
 }

@@ -51,7 +51,7 @@ func TestOrderCancel(t *testing.T) {
 		{
 			Name:    "Ошибка при изменении статуса",
 			OrderID: 3,
-			Status:  model.OrderStatusCanceled,
+			Status:  model.OrderStatusCancelled,
 			Order: &orderstorage.Order{
 				ID:     3,
 				User:   3,
@@ -69,7 +69,7 @@ func TestOrderCancel(t *testing.T) {
 		{
 			Name:    "Отмена без ошибок",
 			OrderID: 4,
-			Status:  model.OrderStatusCanceled,
+			Status:  model.OrderStatusCancelled,
 			Order: &orderstorage.Order{
 				ID:     4,
 				User:   4,

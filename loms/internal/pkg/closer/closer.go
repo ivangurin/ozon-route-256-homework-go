@@ -72,7 +72,7 @@ func (c *closer) CloseAll() {
 		for i := len(funcs) - 1; i >= 0; i-- {
 			err := c.funcs[i]()
 			if err != nil {
-				logger.Errorf(ctx, "failed to close some func from shutdown: %w", err)
+				logger.Errorf(ctx, "failed to close some func from shutdown: %v", err)
 			}
 		}
 	})

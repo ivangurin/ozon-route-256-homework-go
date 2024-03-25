@@ -2,7 +2,7 @@
 -- +goose StatementBegin
 create type order_status_type as enum (
     'new',
-    'awaiting payment',
+    'awaiting_payment',
     'payed',
     'cancelled',
     'failed'

@@ -4,28 +4,36 @@ import (
 	"context"
 	"fmt"
 
-	"route256.ozon.ru/project/loms/internal/model"
+	"github.com/jackc/pgx/v5"
+	"route256.ozon.ru/project/loms/internal/repository/stock_storage/sqlc"
 )
 
 func (r *repository) Reserve(ctx context.Context, items ReserveItems) error {
-	r.Lock()
-	defer r.Unlock()
+	pool := r.dbClient.GetWriterPool()
 
-	for _, item := range items {
+	err := pool.BeginFunc(ctx, func(tx pgx.Tx) error {
+		qtx := sqlc.New(pool).WithTx(tx)
 
-		stockItem, exists := r.stock[item.Sku]
-		if !exists {
-			return model.ErrNotFound
+		for _, item := range items {
+			stock, err := qtx.GetBySKU(ctx, item.Sku)
+			if err != nil {
+				return fmt.Errorf("failed to get stock for %d sku: %w", item.Sku, err)
+			}
+
+			if stock.TotalCount-stock.Reserved < int32(item.Quantity) {
+				return fmt.Errorf("no free stock for sku %d", item.Sku)
+			}
+
+			err = qtx.Reserve(ctx, sqlc.ReserveParams{Sku: item.Sku, Reserved: int32(item.Quantity)})
+			if err != nil {
+				return fmt.Errorf("failed to reserve stock for sku %d: %w", item.Sku, err)
+			}
 		}
 
-		if (stockItem.TotalCount - stockItem.Reserved) < item.Quantity {
-			return fmt.Errorf("no free stock for %d", item.Sku)
-		}
-
-	}
-
-	for _, item := range items {
-		r.stock[item.Sku].Reserved += item.Quantity
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("failed to reserve: %w", err)
 	}
 
 	return nil

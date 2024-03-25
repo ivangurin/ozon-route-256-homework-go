@@ -4,7 +4,7 @@ const (
 	OrderStatusNew             = "new"
 	OrderStatusAwaitingPayment = "awaiting_payment"
 	OrderStatusPayed           = "payed"
-	OrderStatusCanceled        = "canceled"
+	OrderStatusCancelled       = "cancelled"
 	OrderStatusFailed          = "failed"
 )
 

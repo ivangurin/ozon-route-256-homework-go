@@ -2,7 +2,6 @@ package cartstorage
 
 import (
 	"context"
-	"fmt"
 
 	"route256.ozon.ru/project/cart/internal/pkg/logger"
 )
@@ -14,8 +13,8 @@ func (s *storage) DeleteItemsByUserID(
 	s.Lock()
 	defer s.Unlock()
 
-	logger.Info(fmt.Sprintf("cartStorage: start clear cart for userID: %d", userID))
-	defer logger.Info(fmt.Sprintf("cartStorage: finish clear cart for userID: %d", userID))
+	logger.Infof(ctx, "cartStorage: start clear cart for userID: %d", userID)
+	defer logger.Infof(ctx, "cartStorage: finish clear cart for userID: %d", userID)
 
 	_, exists := cartStorage[userID]
 	if exists {

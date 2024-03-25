@@ -12,14 +12,14 @@ func (s *service) Create(ctx context.Context, user int64, items model.OrderItems
 
 	orderID, err := s.orderStorage.Create(ctx, user, ToOrderStorageItems(items))
 	if err != nil {
-		logger.Errorf(ctx, "failed to create order: %w", err)
+		logger.Errorf(ctx, "failed to create order: %v", err)
 		return 0, fmt.Errorf("failed to create order: %w", err)
 	}
 
 	reserved := false
 	reserveErr := s.stockStorage.Reserve(ctx, ToStockItems(items))
 	if reserveErr != nil {
-		logger.Errorf(ctx, "failed to reserve quantity for items: %w", reserveErr)
+		logger.Errorf(ctx, "failed to reserve quantity for items: %v", reserveErr)
 	} else {
 		reserved = true
 	}

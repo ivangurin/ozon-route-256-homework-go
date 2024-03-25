@@ -38,6 +38,11 @@ services:
       - POSTGRESQL_REPLICATION_PASSWORD=repl_postgres
       - POSTGRESQL_PGAUDIT_LOG=READ,WRITE
       - POSTGRESQL_LOG_HOSTNAME=true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 1s
+      timeout: 5s
+      retries: 5
 
   cart:
     image: cart
@@ -53,4 +58,6 @@ services:
       - "8182:8082"
     depends_on:
       loms-service-master:
+        condition: service_healthy
+      loms-service-sync:
         condition: service_healthy

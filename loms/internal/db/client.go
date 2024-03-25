@@ -8,6 +8,8 @@ import (
 )
 
 type Client interface {
+	GetReaderPool() Pool
+	GetWriterPool() Pool
 	GetMasterPool() Pool
 	GetSyncPool() Pool
 	Close() error
@@ -17,6 +19,7 @@ type client struct {
 	ctx        context.Context
 	masterPool Pool
 	syncPool   Pool
+	readerPool int
 }
 
 func NewClient(ctx context.Context) (Client, error) {
@@ -35,6 +38,19 @@ func NewClient(ctx context.Context) (Client, error) {
 		masterPool: masterPoll,
 		syncPool:   syncPoll,
 	}, nil
+}
+
+func (c *client) GetReaderPool() Pool {
+	if c.readerPool == 0 {
+		c.readerPool++
+		return c.masterPool
+	}
+	c.readerPool--
+	return c.syncPool
+}
+
+func (c *client) GetWriterPool() Pool {
+	return c.GetMasterPool()
 }
 
 func (c *client) GetMasterPool() Pool {
