@@ -198,3 +198,19 @@ PHONY: .bin-sqlc
 
 gensqlc: .bin-sqlc
 	$(LOCAL_BIN)/sqlc generate
+
+GOOSE_DBSTRING_TEST="host=localhost port=54321 user=postgres password=postgres dbname=postgres sslmode=disable"
+
+integration-test:  integration-test-up integration-test-migrate integration-test-run integration-test-down
+	
+integration-test-up: 
+	docker-compose -f ./internal/pkg/suite/integration_test/docker-compose-test.yml up -d
+
+integration-test-migrate: .bin-goose
+	$(LOCAL_BIN)/goose -dir $(GOOSE_MIGRATION_DIR) $(GOOSE_DRIVER) $(GOOSE_DBSTRING_TEST) up || true
+
+integration-test-run:
+	go test -v -tags integration ./... || true
+
+integration-test-down:
+	docker-compose -f ./internal/pkg/suite/integration_test/docker-compose-test.yml down

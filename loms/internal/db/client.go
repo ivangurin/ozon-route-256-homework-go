@@ -3,8 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
-
-	"route256.ozon.ru/project/loms/internal/config"
+	"sync/atomic"
 )
 
 type Client interface {
@@ -19,16 +18,16 @@ type client struct {
 	ctx        context.Context
 	masterPool Pool
 	syncPool   Pool
-	readerPool int
+	readerPool atomic.Int32
 }
 
-func NewClient(ctx context.Context) (Client, error) {
-	masterPoll, err := NewPool(ctx, config.MasterDBUrl)
+func NewClient(ctx context.Context, masterDBUrl, syncDBUrl string) (Client, error) {
+	masterPoll, err := NewPool(ctx, masterDBUrl)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create master pool: %v", err)
 	}
 
-	syncPoll, err := NewPool(ctx, config.SyncDBUrl)
+	syncPoll, err := NewPool(ctx, syncDBUrl)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create sync pool: %v", err)
 	}
@@ -41,11 +40,11 @@ func NewClient(ctx context.Context) (Client, error) {
 }
 
 func (c *client) GetReaderPool() Pool {
-	if c.readerPool == 0 {
-		c.readerPool++
+	if c.readerPool.Load() == 0 {
+		c.readerPool.Add(1)
 		return c.masterPool
 	}
-	c.readerPool--
+	c.readerPool.Add(-1)
 	return c.syncPool
 }
 

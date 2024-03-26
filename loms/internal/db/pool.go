@@ -52,33 +52,27 @@ func (p *pool) QueryRow(ctx context.Context, sql string, args ...interface{}) pg
 	return p.pool.QueryRow(ctx, sql, args...)
 }
 
-func (p *pool) Begin(ctx context.Context) (pgx.Tx, error) {
-	return p.pool.Begin(ctx)
-}
-
 func (p *pool) BeginFunc(ctx context.Context, f func(pgx.Tx) error) error {
-	conn, err := p.pool.Acquire(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to acquire connection: %v", err)
-	}
-	defer conn.Release()
-
-	tx, err := conn.Begin(ctx)
+	tx, err := p.pool.Begin(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %v", err)
 	}
 
-	var rollbackErr error
+	var trErr error
+	var rbErr error
 	defer func(ctx context.Context, tx pgx.Tx) {
-		rollbackErr = tx.Rollback(ctx)
-		if rollbackErr != nil {
-			logger.Errorf(ctx, "failed to rollback transaction: %v", rollbackErr)
+		if trErr == nil {
+			return
+		}
+		rbErr = tx.Rollback(ctx)
+		if rbErr != nil {
+			logger.Errorf(ctx, "failed to rollback transaction: %v", rbErr)
 		}
 	}(ctx, tx)
 
-	err = f(tx)
-	if err != nil {
-		return err
+	trErr = f(tx)
+	if trErr != nil {
+		return trErr
 	}
 
 	return tx.Commit(ctx)
