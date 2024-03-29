@@ -22,20 +22,20 @@ type client struct {
 }
 
 func NewClient(ctx context.Context, masterDBUrl, syncDBUrl string) (Client, error) {
-	masterPoll, err := NewPool(ctx, masterDBUrl)
+	masterPool, err := NewPool(ctx, masterDBUrl)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create master pool: %v", err)
 	}
 
-	syncPoll, err := NewPool(ctx, syncDBUrl)
+	syncPool, err := NewPool(ctx, syncDBUrl)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create sync pool: %v", err)
 	}
 
 	return &client{
 		ctx:        ctx,
-		masterPool: masterPoll,
-		syncPool:   syncPoll,
+		masterPool: masterPool,
+		syncPool:   syncPool,
 	}, nil
 }
 

@@ -19,9 +19,17 @@ type app struct {
 }
 
 func NewApp(ctx context.Context) IApp {
+	ctx, cancel := context.WithCancel(ctx)
+
+	sp := serviceprovider.GetServiceProvider(ctx)
+	sp.GetCloser().Add(func() error {
+		cancel()
+		return nil
+	})
+
 	return &app{
 		ctx: ctx,
-		sp:  serviceprovider.GetServiceProvider(ctx),
+		sp:  sp,
 	}
 }
 
