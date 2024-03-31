@@ -10,13 +10,13 @@ import (
 func (s *service) GetItemsByUserID(ctx context.Context, userID int64) (*Cart, error) {
 	cart, err := s.cartStorage.GetItemsByUserID(ctx, userID)
 	if err != nil {
-		logger.Errorf(ctx, "cartService.GetItemsByUserID: failed to get items by user id: %v", err)
+		logger.Errorf("cartService.GetItemsByUserID: failed to get items by user id: %v", err)
 		return nil, fmt.Errorf("failed to get items by user id: %w", err)
 	}
 
 	resp, err := s.toGetCartResponse(ctx, cart)
 	if err != nil {
-		logger.Errorf(ctx, "cartService.GetItemsByUserID: failed to make response: %v", err)
+		logger.Errorf("cartService.GetItemsByUserID: failed to make response: %v", err)
 		return nil, fmt.Errorf("failed to make response: %w", err)
 	}
 

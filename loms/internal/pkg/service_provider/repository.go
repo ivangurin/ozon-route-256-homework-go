@@ -20,7 +20,7 @@ func (sp *ServiceProvider) GetDBClient(ctx context.Context) db.Client {
 	if sp.repositories.dbClient == nil {
 		dbc, err := db.NewClient(ctx, config.MasterDBUrl, config.SyncDBUrl)
 		if err != nil {
-			logger.Fatalf(ctx, "failed to create db client: %v", err)
+			logger.Fatalf("failed to create db client: %v", err)
 		}
 		sp.repositories.dbClient = dbc
 		sp.GetCloser().Add(dbc.Close)

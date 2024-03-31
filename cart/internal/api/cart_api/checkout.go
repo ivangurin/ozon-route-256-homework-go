@@ -15,19 +15,21 @@ import (
 
 func (a *api) Checkout() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		logger.Infof(r.Context(), "handleCheckout: start handle request: %s", r.RequestURI)
-		defer logger.Infof(r.Context(), "handleCheckout: finish handle request: %s", r.RequestURI)
+		logger.Infof("handleCheckout: start handle request: %s", r.RequestURI)
+		defer logger.Infof("handleCheckout: finish handle request: %s", r.RequestURI)
+
+		ctx := r.Context()
 
 		req, err := toCheckoutRequest(r)
 		if err != nil {
-			logger.Errorf(r.Context(), "handleCheckout: request is not valid: %v", err)
+			logger.Errorf("handleCheckout: request is not valid: %v", err)
 			http.Error(w, fmt.Sprintf("request is not valid: %s", err), http.StatusBadRequest)
 			return
 		}
 
-		orderID, err := a.cartService.Checkout(r.Context(), req.UserID)
+		orderID, err := a.cartService.Checkout(ctx, req.UserID)
 		if err != nil {
-			logger.Errorf(r.Context(), "handleCheckout: failed to checkout: %v", err)
+			logger.Errorf("handleCheckout: failed to checkout: %v", err)
 			if errors.Is(err, model.ErrNotFound) {
 				http.Error(w, "cart not found", http.StatusNotFound)
 			} else {
@@ -36,9 +38,9 @@ func (a *api) Checkout() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = toCheckoutResponse(r.Context(), w, orderID)
+		err = toCheckoutResponse(ctx, w, orderID)
 		if err != nil {
-			logger.Errorf(r.Context(), "failed to write response: %v", err)
+			logger.Errorf("failed to write response: %v", err)
 		}
 
 	}
@@ -53,7 +55,7 @@ func toCheckoutRequest(r *http.Request) (*CheckoutRequest, error) {
 	req := &CheckoutRequest{}
 	err = json.Unmarshal(body, req)
 	if err != nil {
-		logger.Errorf(r.Context(), "handleCheckout: failed to unmarshal request body: %v", err)
+		logger.Errorf("handleCheckout: failed to unmarshal request body: %v", err)
 		return nil, err
 	}
 
@@ -73,7 +75,7 @@ func toCheckoutResponse(ctx context.Context, w http.ResponseWriter, orderID int6
 
 	json, err := json.Marshal(resp)
 	if err != nil {
-		logger.Errorf(ctx, "handleCheckout: failed to marshal response: %v", err)
+		logger.Errorf("handleCheckout: failed to marshal response: %v", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return err
 	}
@@ -83,7 +85,7 @@ func toCheckoutResponse(ctx context.Context, w http.ResponseWriter, orderID int6
 
 	_, err = w.Write(json)
 	if err != nil {
-		logger.Errorf(ctx, "failed to write response: %v", err)
+		logger.Errorf("failed to write response: %v", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return err
 	}

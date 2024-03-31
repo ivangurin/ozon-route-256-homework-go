@@ -16,20 +16,21 @@ import (
 
 func (a *api) GetItemsByUserID() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		logger.Infof("handleCartGet: start handle request: %s", r.RequestURI)
+		defer logger.Infof("handleCartGet: finish handle request: %s", r.RequestURI)
 
-		logger.Infof(r.Context(), "handleCartGet: start handle request: %s", r.RequestURI)
-		defer logger.Infof(r.Context(), "handleCartGet: finish handle request: %s", r.RequestURI)
+		ctx := r.Context()
 
 		req, err := toGetItemsByUserIDRequest(r)
 		if err != nil {
-			logger.Errorf(r.Context(), "handleCartGet: request is not valid: %v", err)
+			logger.Errorf("handleCartGet: request is not valid: %v", err)
 			http.Error(w, fmt.Sprintf("request is not valid: %s", err), http.StatusBadRequest)
 			return
 		}
 
-		cart, err := a.cartService.GetItemsByUserID(r.Context(), req.UserID)
+		cart, err := a.cartService.GetItemsByUserID(ctx, req.UserID)
 		if err != nil {
-			logger.Errorf(r.Context(), "handleCartGet: failed to get cart: %v", err)
+			logger.Errorf("handleCartGet: failed to get cart: %v", err)
 			if errors.Is(err, model.ErrNotFound) {
 				http.Error(w, fmt.Sprintf("cart for user %d not found", req.UserID), http.StatusNotFound)
 			} else {
@@ -38,9 +39,9 @@ func (a *api) GetItemsByUserID() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = toGetItemsByUserIDResponse(r.Context(), w, cart)
+		err = toGetItemsByUserIDResponse(ctx, w, cart)
 		if err != nil {
-			logger.Errorf(r.Context(), "failed to write response: %v", err)
+			logger.Errorf("failed to write response: %v", err)
 		}
 
 	}
@@ -64,7 +65,7 @@ func toGetItemsByUserIDRequest(r *http.Request) (*GetItemsByUserIDRequest, error
 func toGetItemsByUserIDResponse(ctx context.Context, w http.ResponseWriter, cart *cartservice.Cart) error {
 	json, err := json.Marshal(cart)
 	if err != nil {
-		logger.Errorf(ctx, "handleCartGet: failed to marshal cart response: %v", err)
+		logger.Errorf("handleCartGet: failed to marshal cart response: %v", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return nil
 	}
@@ -74,7 +75,7 @@ func toGetItemsByUserIDResponse(ctx context.Context, w http.ResponseWriter, cart
 
 	_, err = w.Write(json)
 	if err != nil {
-		logger.Errorf(ctx, "failed to write response: %v", err)
+		logger.Errorf("failed to write response: %v", err)
 		return err
 	}
 

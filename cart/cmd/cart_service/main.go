@@ -11,6 +11,6 @@ func main() {
 	ctx := context.Background()
 	app := cartservice.NewApp(ctx)
 	if err := app.Run(); err != nil {
-		logger.Fatalf(ctx, "can't run app: %v", err)
+		logger.Fatalf("can't run app: %v", err)
 	}
 }

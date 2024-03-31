@@ -34,8 +34,8 @@ func NewApp(ctx context.Context) IApp {
 }
 
 func (a *app) Run() error {
-	logger.Info(a.ctx, "app cartService is starting...")
-	defer logger.Info(a.ctx, "app cartService finished")
+	logger.Info("app cartService is starting...")
+	defer logger.Info("app cartService finished")
 
 	closer := a.sp.GetCloser()
 	defer closer.Wait()
@@ -47,13 +47,13 @@ func (a *app) Run() error {
 	closer.Add(httpServer.Stop)
 
 	go func() {
-		logger.Info(a.ctx, "http cartService server is starting...")
+		logger.Info("http cartService server is starting...")
 		err := httpServer.Start()
 		if err != nil {
-			logger.Errorf(a.ctx, "failed to start http serve: %vr", err)
+			logger.Errorf("failed to start http serve: %v", err)
 			closer.CloseAll()
 		}
-		logger.Info(a.ctx, "http cartService server finished")
+		logger.Info("http cartService server finished")
 	}()
 
 	return nil

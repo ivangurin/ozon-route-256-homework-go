@@ -14,12 +14,12 @@ func (s *storage) GetItemsByUserID(
 	s.RLock()
 	defer s.RUnlock()
 
-	logger.Infof(ctx, "start get cart for userID: %d", userID)
-	defer logger.Infof(ctx, "finish get cart for userID: %d", userID)
+	logger.Infof("start get cart for userID: %d", userID)
+	defer logger.Infof("finish get cart for userID: %d", userID)
 
 	cart, exists := cartStorage[userID]
 	if !exists {
-		logger.Infof(ctx, "cart for userID %d not found", userID)
+		logger.Infof("cart for userID %d not found", userID)
 		return nil, model.ErrNotFound
 	}
 

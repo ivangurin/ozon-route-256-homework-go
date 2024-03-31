@@ -12,12 +12,12 @@ import (
 )
 
 func (c *client) GetItemsByUserID(ctx context.Context, UserID int64) (*GetItmesByUserIDResponse, error) {
-	logger.Infof(ctx, "cartService.GetItemsByUserID: start get items %d", UserID)
-	defer logger.Infof(ctx, "cartService.GetItemsByUserID: finish get items %d", UserID)
+	logger.Infof("cartService.GetItemsByUserID: start get items %d", UserID)
+	defer logger.Infof("cartService.GetItemsByUserID: finish get items %d", UserID)
 
 	httpReq, err := http.NewRequest(http.MethodGet, fmt.Sprintf("http://%s/user/%d/cart", c.host, UserID), nil)
 	if err != nil {
-		logger.Errorf(ctx, "cartService.GetItemsByUserID: failed to create request: %v", err)
+		logger.Errorf("cartService.GetItemsByUserID: failed to create request: %v", err)
 		return nil, fmt.Errorf("cartService.GetItemsByUserID: failed to create request: %w", err)
 	}
 
@@ -25,31 +25,31 @@ func (c *client) GetItemsByUserID(ctx context.Context, UserID int64) (*GetItmesB
 	client := http.DefaultClient
 	httpResp, err := client.Do(httpReq)
 	if err != nil {
-		logger.Errorf(ctx, "cartService.GetItemsByUserID: failed to do request: %v", err)
+		logger.Errorf("cartService.GetItemsByUserID: failed to do request: %v", err)
 		return nil, fmt.Errorf("cartService.GetItemsByUserID: failed to do request: %w", err)
 	}
 	defer httpResp.Body.Close()
 
 	respBody, err := io.ReadAll(httpResp.Body)
 	if err != nil {
-		logger.Errorf(ctx, "cartService.GetItemsByUserID: failed to get response body: %v", err)
+		logger.Errorf("cartService.GetItemsByUserID: failed to get response body: %v", err)
 		return nil, fmt.Errorf("cartService.GetItemsByUserID: failed to get response body: %w", err)
 	}
 
 	if httpResp.StatusCode == http.StatusNotFound {
-		logger.Errorf(ctx, "cartService.GetItemsByUserID: %s", string(respBody))
+		logger.Errorf("cartService.GetItemsByUserID: %s", string(respBody))
 		return nil, model.ErrNotFound
 	}
 
 	if httpResp.StatusCode != http.StatusOK {
-		logger.Errorf(ctx, "cartService.GetItemsByUserID: %s", string(respBody))
+		logger.Errorf("cartService.GetItemsByUserID: %s", string(respBody))
 		return nil, fmt.Errorf("cartService.GetItemsByUserID: %s", string(respBody))
 	}
 
 	resp := &GetItmesByUserIDResponse{}
 	err = json.Unmarshal(respBody, resp)
 	if err != nil {
-		logger.Errorf(ctx, "cartService.GetItemsByUserID: failed to unmarshal body: %v", err)
+		logger.Errorf("cartService.GetItemsByUserID: failed to unmarshal body: %v", err)
 		return nil, fmt.Errorf("cartService.GetItemsByUserID: failed to unmarshal body: %w", err)
 	}
 

@@ -29,13 +29,13 @@ func (c *client) GetProduct(ctx context.Context, skuID int64) (*GetProductRespon
 
 	jsonReq, err := json.Marshal(req)
 	if err != nil {
-		logger.Errorf(ctx, "productService.getProduct: failed to marshal get product request: %v", err)
+		logger.Errorf("productService.getProduct: failed to marshal get product request: %v", err)
 		return nil, fmt.Errorf("failed to marshal get product request: %w", err)
 	}
 
 	httpReq, err := http.NewRequest(http.MethodPost, fmt.Sprintf("http://%s/get_product", config.ProductServiceHost), bytes.NewBuffer(jsonReq))
 	if err != nil {
-		logger.Errorf(ctx, "productService.getProduct: failed to create request: %v", err)
+		logger.Errorf("productService.getProduct: failed to create request: %v", err)
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
@@ -43,7 +43,7 @@ func (c *client) GetProduct(ctx context.Context, skuID int64) (*GetProductRespon
 	client := http.DefaultClient
 	httpResp, err := client.Do(httpReq)
 	if err != nil {
-		logger.Errorf(ctx, "productService.getProduct: failed to do product request: %v", err)
+		logger.Errorf("productService.getProduct: failed to do product request: %v", err)
 		return nil, fmt.Errorf("failed to do product request: %w", err)
 	}
 	defer httpResp.Body.Close()
@@ -52,7 +52,7 @@ func (c *client) GetProduct(ctx context.Context, skuID int64) (*GetProductRespon
 
 		jsonResp, err := io.ReadAll(httpResp.Body)
 		if err != nil {
-			logger.Errorf(ctx, "productService.getProduct: failed to get product response body: %v", err)
+			logger.Errorf("productService.getProduct: failed to get product response body: %v", err)
 			return nil, fmt.Errorf("failed to get product response body: %w", err)
 		}
 
@@ -60,21 +60,21 @@ func (c *client) GetProduct(ctx context.Context, skuID int64) (*GetProductRespon
 
 		err = json.Unmarshal(jsonResp, resp)
 		if err != nil {
-			logger.Errorf(ctx, "productService.getProduct: failed to unmashal product response body: %v", err)
+			logger.Errorf("productService.getProduct: failed to unmashal product response body: %v", err)
 			return nil, fmt.Errorf("failed to unmashal product response body: %w", err)
 		}
 
 		return resp, nil
 
 	} else if httpResp.StatusCode == http.StatusNotFound {
-		logger.Warn(ctx, "productService.getProduct: product not found")
+		logger.Warn("productService.getProduct: product not found")
 		return nil, model.ErrNotFound
 	} else if httpResp.StatusCode == http.StatusTooManyRequests ||
 		httpResp.StatusCode == StatusEnhanceYourCalm {
-		logger.Warn(ctx, "productService.getProduct: too many requests")
+		logger.Warn("productService.getProduct: too many requests")
 		return nil, model.ErrTooManyRequests
 	} else {
-		logger.Error(ctx, "productService.getProduct: error")
+		logger.Error("productService.getProduct: error")
 		return nil, model.ErrUnknownError
 	}
 }
@@ -82,7 +82,7 @@ func (c *client) GetProduct(ctx context.Context, skuID int64) (*GetProductRespon
 func (c *client) GetProductWithRetries(ctx context.Context, skuID int64) (*GetProductResponse, error) {
 	for i := 0; i < config.ProductServiceRetries; i++ {
 
-		logger.Infof(ctx, "productService.GetProduct: start %d try for product %d", i, skuID)
+		logger.Infof("productService.GetProduct: start %d try for product %d", i, skuID)
 
 		resp, err := c.GetProduct(ctx, skuID)
 		if err != nil {

@@ -15,19 +15,19 @@ import (
 
 func (a *api) AddItem() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		logger.Infof(r.Context(), "handleAddItem: start handle request: %s", r.RequestURI)
-		defer logger.Infof(r.Context(), "handleAddItem: finish handle request: %s", r.RequestURI)
+		logger.Infof("handleAddItem: start handle request: %s", r.RequestURI)
+		defer logger.Infof("handleAddItem: finish handle request: %s", r.RequestURI)
 
 		req, err := toAddItemRequest(r)
 		if err != nil {
-			logger.Errorf(r.Context(), "handleAddItem: request is not valid: %v", err)
+			logger.Errorf("handleAddItem: request is not valid: %v", err)
 			http.Error(w, fmt.Sprintf("request is not valid: %s", err), http.StatusBadRequest)
 			return
 		}
 
 		err = a.cartService.AddItem(r.Context(), req.UserID, req.SkuID, req.Quantity)
 		if err != nil {
-			logger.Errorf(r.Context(), "handleAddItem failed to add item: %v", err)
+			logger.Errorf("handleAddItem failed to add item: %v", err)
 			if errors.Is(err, model.ErrNotFound) {
 				http.Error(w, fmt.Sprintf("sku %d not found", req.SkuID), http.StatusNotFound)
 			} else if errors.Is(err, model.ErrInsufficientSock) {
@@ -55,7 +55,7 @@ func toAddItemRequest(r *http.Request) (*AddItemRequest, error) {
 	data := &AddItemRequestBody{}
 	err = json.Unmarshal(body, data)
 	if err != nil {
-		logger.Errorf(r.Context(), "handleAddItem: failed to unmarshal body json: %v", err)
+		logger.Errorf("handleAddItem: failed to unmarshal body json: %v", err)
 		return nil, err
 	}
 
