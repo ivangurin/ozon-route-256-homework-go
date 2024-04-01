@@ -7,7 +7,6 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"route256.ozon.ru/project/loms/internal/pkg/logger"
 )
 
 type Pool interface {
@@ -53,29 +52,18 @@ func (p *pool) QueryRow(ctx context.Context, sql string, args ...interface{}) pg
 }
 
 func (p *pool) BeginFunc(ctx context.Context, f func(pgx.Tx) error) error {
-	tx, err := p.pool.Begin(ctx)
+	conn, err := p.pool.Acquire(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to begin transaction: %v", err)
+		return fmt.Errorf("failed to get connection: %v", err)
+	}
+	defer conn.Release()
+
+	err = pgx.BeginFunc(ctx, conn, f)
+	if err != nil {
+		return fmt.Errorf("failed to make transaction: %v", err)
 	}
 
-	var trErr error
-	var rbErr error
-	defer func(ctx context.Context, tx pgx.Tx) {
-		if trErr == nil {
-			return
-		}
-		rbErr = tx.Rollback(ctx)
-		if rbErr != nil {
-			logger.Errorf(ctx, "failed to rollback transaction: %v", rbErr)
-		}
-	}(ctx, tx)
-
-	trErr = f(tx)
-	if trErr != nil {
-		return trErr
-	}
-
-	return tx.Commit(ctx)
+	return nil
 }
 
 func (p *pool) Ping(ctx context.Context) error {

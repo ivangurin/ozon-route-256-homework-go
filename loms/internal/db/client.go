@@ -15,10 +15,10 @@ type Client interface {
 }
 
 type client struct {
-	ctx        context.Context
-	masterPool Pool
-	syncPool   Pool
-	readerPool atomic.Int32
+	ctx               context.Context
+	masterPool        Pool
+	syncPool          Pool
+	readerPoolCounter atomic.Uint64
 }
 
 func NewClient(ctx context.Context, masterDBUrl, syncDBUrl string) (Client, error) {
@@ -40,11 +40,10 @@ func NewClient(ctx context.Context, masterDBUrl, syncDBUrl string) (Client, erro
 }
 
 func (c *client) GetReaderPool() Pool {
-	if c.readerPool.Load() == 0 {
-		c.readerPool.Add(1)
+	res := c.readerPoolCounter.Add(1)
+	if res%2 == 0 {
 		return c.masterPool
 	}
-	c.readerPool.Add(-1)
 	return c.syncPool
 }
 

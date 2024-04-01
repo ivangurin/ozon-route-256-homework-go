@@ -2,7 +2,6 @@ package logger
 
 import (
 	"bufio"
-	"context"
 	"log"
 	"os"
 )
@@ -15,82 +14,82 @@ var logger = Logger{
 	out: bufio.NewWriter(os.Stdout),
 }
 
-func (l *Logger) Info(ctx context.Context, m string) {
+func (l *Logger) Info(m string) {
 	log.Printf("[info]: %s", m)
 }
 
-func (l *Logger) Infof(ctx context.Context, m string, args ...any) {
+func (l *Logger) Infof(m string, args ...any) {
 	log.Printf("[info]:"+m, args...)
 }
 
-func (l *Logger) Warn(ctx context.Context, m string) {
+func (l *Logger) Warn(m string) {
 	log.Printf("[warn]: %s", m)
 }
 
-func (l *Logger) Warnf(ctx context.Context, m string, args ...any) {
+func (l *Logger) Warnf(m string, args ...any) {
 	log.Printf("[warn]:"+m, args...)
 }
 
-func (l *Logger) Error(ctx context.Context, m string) {
+func (l *Logger) Error(m string) {
 	log.Printf("[error] %s", m)
 }
 
-func (l *Logger) Errorf(ctx context.Context, m string, args ...any) {
+func (l *Logger) Errorf(m string, args ...any) {
 	log.Printf("[error] "+m, args...)
 }
 
-func (l *Logger) Panic(ctx context.Context, m string) {
+func (l *Logger) Panic(m string) {
 	log.Panicf("[panic] %s", m)
 }
 
-func (l *Logger) Panicf(ctx context.Context, m string, args ...any) {
+func (l *Logger) Panicf(m string, args ...any) {
 	log.Panicf("[panic] "+m, args...)
 }
 
-func (l *Logger) Fatal(ctx context.Context, m string) {
+func (l *Logger) Fatal(m string) {
 	log.Fatalf("[fatal] %s", m)
 }
 
-func (l *Logger) Fatalf(ctx context.Context, m string, args ...any) {
+func (l *Logger) Fatalf(m string, args ...any) {
 	log.Fatalf("[fatal] "+m, args...)
 }
 
-func Info(ctx context.Context, m string) {
-	logger.Info(ctx, m)
+func Info(m string) {
+	logger.Info(m)
 }
 
-func Infof(ctx context.Context, m string, args ...any) {
-	logger.Infof(ctx, m, args...)
+func Infof(m string, args ...any) {
+	logger.Infof(m, args...)
 }
 
-func Warn(ctx context.Context, m string) {
-	logger.Info(ctx, m)
+func Warn(m string) {
+	logger.Info(m)
 }
 
-func Warnf(ctx context.Context, m string, args ...any) {
-	logger.Warnf(ctx, m, args...)
+func Warnf(m string, args ...any) {
+	logger.Warnf(m, args...)
 }
 
-func Error(ctx context.Context, m string) {
-	logger.Error(ctx, m)
+func Error(m string) {
+	logger.Error(m)
 }
 
-func Errorf(ctx context.Context, m string, args ...any) {
-	logger.Errorf(ctx, m, args...)
+func Errorf(m string, args ...any) {
+	logger.Errorf(m, args...)
 }
 
-func Panic(ctx context.Context, m string) {
-	logger.Panic(ctx, m)
+func Panic(m string) {
+	logger.Panic(m)
 }
 
-func Panicf(ctx context.Context, m string, args ...any) {
-	logger.Panicf(ctx, m, args...)
+func Panicf(m string, args ...any) {
+	logger.Panicf(m, args...)
 }
 
-func Fatal(ctx context.Context, m string) {
-	logger.Fatal(ctx, m)
+func Fatal(m string) {
+	logger.Fatal(m)
 }
 
-func Fatalf(ctx context.Context, m string, args ...any) {
-	logger.Fatalf(ctx, m, args...)
+func Fatalf(m string, args ...any) {
+	logger.Fatalf(m, args...)
 }

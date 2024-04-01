@@ -10,12 +10,12 @@ import (
 )
 
 func (c *client) DeleteItemsByUserID(ctx context.Context, UserID int64) error {
-	logger.Infof(ctx, "cartService.DeleteItemsByUserID: start delete items %d", UserID)
-	defer logger.Infof(ctx, "cartService.DeleteItemsByUserID: finish delete items %d", UserID)
+	logger.Infof("cartService.DeleteItemsByUserID: start delete items %d", UserID)
+	defer logger.Infof("cartService.DeleteItemsByUserID: finish delete items %d", UserID)
 
 	httpReq, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("http://%s/user/%d/cart", c.host, UserID), nil)
 	if err != nil {
-		logger.Errorf(ctx, "cartService.DeleteItemsByUserID: failed to create request: %v", err)
+		logger.Errorf("cartService.DeleteItemsByUserID: failed to create request: %v", err)
 		return fmt.Errorf("cartService.DeleteItemsByUserID: failed to create request: %w", err)
 	}
 
@@ -23,19 +23,19 @@ func (c *client) DeleteItemsByUserID(ctx context.Context, UserID int64) error {
 	client := http.DefaultClient
 	httpResp, err := client.Do(httpReq)
 	if err != nil {
-		logger.Errorf(ctx, "cartService.DeleteItemsByUserID: failed to do request: %v", err)
+		logger.Errorf("cartService.DeleteItemsByUserID: failed to do request: %v", err)
 		return fmt.Errorf("cartService.DeleteItemsByUserID: failed to do request: %w", err)
 	}
 	defer httpResp.Body.Close()
 
 	respBody, err := io.ReadAll(httpResp.Body)
 	if err != nil {
-		logger.Errorf(ctx, "cartService.DeleteItemsByUserID: failed to get response body: %v", err)
+		logger.Errorf("cartService.DeleteItemsByUserID: failed to get response body: %v", err)
 		return fmt.Errorf("cartService.DeleteItemsByUserID: failed to get response body: %w", err)
 	}
 
 	if httpResp.StatusCode != http.StatusNoContent {
-		logger.Errorf(ctx, "cartService.DeleteItemsByUserID: %s", string(respBody))
+		logger.Errorf("cartService.DeleteItemsByUserID: %s", string(respBody))
 		return fmt.Errorf("cartService.DeleteItemsByUserID: %s", string(respBody))
 	}
 

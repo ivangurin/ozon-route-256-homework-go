@@ -39,18 +39,18 @@ func (s *Suite) SetupSuite() {
 	var err error
 	s.dbClient, err = db.NewClient(s.ctx, config.TestDBUrl, config.TestDBUrl)
 	if err != nil {
-		logger.Errorf(s.ctx, "failed to create db client: %v", err)
+		logger.Errorf("failed to create db client: %v", err)
 		return
 	}
 
 	s.stockStorage = stockstorage.NewRepository(s.ctx, s.dbClient)
 	if err != nil {
-		logger.Fatalf(s.ctx, "failed to create stock storage: %v", err)
+		logger.Fatalf("failed to create stock storage: %v", err)
 	}
 
 	s.orderStorage = orderstorage.NewRepository(s.ctx, s.dbClient)
 	if err != nil {
-		logger.Fatalf(s.ctx, "failed to create order storage: %v", err)
+		logger.Fatalf("failed to create order storage: %v", err)
 	}
 
 }
