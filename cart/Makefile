@@ -150,17 +150,6 @@ PHONY: .stock-api-generate
 	--validate_out="lang=go,paths=source_relative:internal/pb/${STOCK_API_PROTO_PATH}" \
 	../loms/${STOCK_API_PROTO_PATH}/*.proto
 
-docker-build:
-	@docker build -t cart .
-	@docker image prune -f --filter label=stage=builder
-
-docker-run: docker-build
-	@docker run -d -p 8082:8080 --rm --name cart cart
-
-docker-stop:
-	@docker stop cart || true
-	@docker rmi cart || true
-
 prepare-integration-test:
 
 integration-test-run: prepare-integration-test

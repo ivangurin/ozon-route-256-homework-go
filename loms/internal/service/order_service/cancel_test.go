@@ -37,7 +37,7 @@ func TestOrderCancel(t *testing.T) {
 			Order: &orderstorage.Order{
 				ID:     2,
 				User:   2,
-				Status: model.OrederStatusNew,
+				Status: model.OrderStatusNew,
 				Items: []*orderstorage.OrderItem{
 					{
 						Sku:      2,
@@ -51,11 +51,11 @@ func TestOrderCancel(t *testing.T) {
 		{
 			Name:    "Ошибка при изменении статуса",
 			OrderID: 3,
-			Status:  model.OrederStatusCanceled,
+			Status:  model.OrderStatusCancelled,
 			Order: &orderstorage.Order{
 				ID:     3,
 				User:   3,
-				Status: model.OrederStatusNew,
+				Status: model.OrderStatusNew,
 				Items: []*orderstorage.OrderItem{
 					{
 						Sku:      3,
@@ -69,11 +69,11 @@ func TestOrderCancel(t *testing.T) {
 		{
 			Name:    "Отмена без ошибок",
 			OrderID: 4,
-			Status:  model.OrederStatusCanceled,
+			Status:  model.OrderStatusCancelled,
 			Order: &orderstorage.Order{
 				ID:     4,
 				User:   4,
-				Status: model.OrederStatusNew,
+				Status: model.OrderStatusNew,
 				Items: []*orderstorage.OrderItem{
 					{
 						Sku:      4,
@@ -91,30 +91,30 @@ func TestOrderCancel(t *testing.T) {
 	orderService := orderservice.NewService(
 		ctx,
 		sp.GetStockStorage(),
-		sp.GetOrderStorege(),
+		sp.GetOrderStorage(),
 	)
 
 	for _, test := range tests {
 
 		modelOrder := orderservice.ToModelOrder(test.Order)
 
-		sp.GetOrderStoregeMock().GetByIDMock.
-			When(test.OrderID).
+		sp.GetOrderStorageMock().GetByIDMock.
+			When(ctx, test.OrderID).
 			Then(test.Order, test.GetByIDError)
 
 		if modelOrder != nil {
-			sp.GetStockStoregeMock().CancelReserveMock.
-				When(orderservice.ToStockItems(modelOrder.Items)).
+			sp.GetStockStorageMock().CancelReserveMock.
+				When(ctx, orderservice.ToStockItems(modelOrder.Items)).
 				Then(test.CancelReserveError)
 		}
 
-		sp.GetOrderStoregeMock().SetStatusMock.
-			When(test.OrderID, test.Status).
+		sp.GetOrderStorageMock().SetStatusMock.
+			When(ctx, test.OrderID, test.Status).
 			Then(test.SetStatusError)
 
 		t.Run(test.Name, func(t *testing.T) {
 
-			err := orderService.Cancel(test.OrderID)
+			err := orderService.Cancel(ctx, test.OrderID)
 			if test.Error != nil {
 				require.NotNil(t, err, "Должна быть ошибка")
 				require.ErrorIs(t, err, test.Error, "Не та ошибка")

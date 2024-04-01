@@ -1,35 +1,36 @@
 package orderservice
 
 import (
+	"context"
 	"fmt"
 
 	"route256.ozon.ru/project/loms/internal/model"
 	"route256.ozon.ru/project/loms/internal/pkg/logger"
 )
 
-func (s *service) Create(user int64, items model.OrderItems) (int64, error) {
+func (s *service) Create(ctx context.Context, user int64, items model.OrderItems) (int64, error) {
 
-	orderID, err := s.orderStorage.Create(user, ToOrderStorageItems(items))
+	orderID, err := s.orderStorage.Create(ctx, user, ToOrderStorageItems(items))
 	if err != nil {
-		logger.Error("faild to create order", err)
-		return 0, fmt.Errorf("faild to create order: %w", err)
+		logger.Errorf("failed to create order: %v", err)
+		return 0, fmt.Errorf("failed to create order: %w", err)
 	}
 
 	reserved := false
-	reserveErr := s.stockStorage.Reserve(ToStockItems(items))
+	reserveErr := s.stockStorage.Reserve(ctx, ToStockItems(items))
 	if reserveErr != nil {
-		logger.Error("failed to reserve quantity for items", reserveErr)
+		logger.Errorf("failed to reserve quantity for items: %v", reserveErr)
 	} else {
 		reserved = true
 	}
 
 	if reserved {
-		err = s.orderStorage.SetStatus(orderID, model.OrederStatusAwatingPayment)
+		err = s.orderStorage.SetStatus(ctx, orderID, model.OrderStatusAwaitingPayment)
 	} else {
-		err = s.orderStorage.SetStatus(orderID, model.OrederStatusFailed)
+		err = s.orderStorage.SetStatus(ctx, orderID, model.OrderStatusFailed)
 	}
 	if err != nil {
-		logger.Error("failed to change status", err)
+		logger.Errorf("failed to change status: %w", err)
 		return 0, fmt.Errorf("failed to change status: %w", err)
 	}
 

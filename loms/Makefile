@@ -32,12 +32,17 @@ cover-html:
 	@go tool cover -html cover.out 
 	@rm -f cover.out
 
-generate: genproto genmock
+generate: genproto genmock gensqlc
 
-genmock:
-	$(info $(shell printf "\033[34;1m▶\033[0m") go generate-mocks...)
+PHONY: .bin-minimock
+.bin-minimock:
+	$(info $(shell printf "\033[34;1m▶\033[0m") Installing minimock...)
+	GOBIN=$(LOCAL_BIN) go install github.com/gojuno/minimock/v3/cmd/minimock@latest
+
+genmock: .bin-minimock
+	$(info $(shell printf "\033[34;1m▶\033[0m") Generating mocks...)
 	@for f in $(shell find internal -name 'genmock.go'| sort -u); do \
-		go generate $$f; \
+		PATH=$(LOCAL_BIN):"$(PATH)" go generate $$f; \
 	done
 
 PHONY: genproto
@@ -45,7 +50,7 @@ genproto: .proto-generate
 	go mod tidy
 
 PHONY: .proto-generate
-.proto-generate: .bin-deps .vendor-proto  .order-api-generate .stock-api-generate .merge-swagger
+.proto-generate: .bin-proto .vendor-proto  .order-api-generate .stock-api-generate .merge-swagger
 
 # Вендоринг внешних proto файлов
 .vendor-proto: .vendor-rm  vendor-proto/google/protobuf vendor-proto/validate vendor-proto/google/api vendor-proto/protoc-gen-openapiv2/options
@@ -55,9 +60,9 @@ PHONY: .proto-generate
 .vendor-rm:
 	rm -rf vendor-proto
 
-.PHONY: .bin-deps
-.bin-deps:
-	$(info Installing binary dependencies...)
+.PHONY: .bin-proto
+.bin-proto:
+	$(info $(shell printf "\033[34;1m▶\033[0m") Installing binary dependencies...)
 	GOBIN=$(LOCAL_BIN) go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1 && \
     GOBIN=$(LOCAL_BIN) go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2.0 && \
 	GOBIN=$(LOCAL_BIN) go install github.com/envoyproxy/protoc-gen-validate@v1.0.4 && \
@@ -167,13 +172,45 @@ PHONY: .merge-swagger
 	pkg/${ORDER_API_PROTO_PATH}/order.swagger.json \
 	pkg/${STOCK_API_PROTO_PATH}/stock.swagger.json
 
-docker-build:
-	@docker build -t loms .
-	@docker image prune -f --filter label=stage=builder
 
-docker-run: docker-build
-	@docker run -d -p 8081:8081 -p 8082:8082 --rm --name loms loms
+GOOSE_DRIVER=postgres
+GOOSE_DBSTRING="host=localhost user=postgres password=postgres dbname=loms-service sslmode=disable"
+GOOSE_MIGRATION_DIR=./migrations
 
-docker-stop:
-	@docker stop loms || true
-	@docker rmi loms || true
+PHONY: .bin-goose
+.bin-goose:
+	$(info $(shell printf "\033[34;1m▶\033[0m") Installing goose binary...)
+	GOBIN=$(LOCAL_BIN) go install github.com/pressly/goose/v3/cmd/goose@latest
+
+migrate: .bin-goose
+	$(LOCAL_BIN)/goose -dir $(GOOSE_MIGRATION_DIR) $(GOOSE_DRIVER) $(GOOSE_DBSTRING) up
+
+migrate-down: .bin-goose
+	$(LOCAL_BIN)/goose -dir $(GOOSE_MIGRATION_DIR) $(GOOSE_DRIVER) $(GOOSE_DBSTRING) down
+
+migrate-status: .bin-goose
+	$(LOCAL_BIN)/goose -dir $(GOOSE_MIGRATION_DIR) $(GOOSE_DRIVER) $(GOOSE_DBSTRING) status
+
+PHONY: .bin-sqlc
+.bin-sqlc:
+	$(info $(shell printf "\033[34;1m▶\033[0m") Installing sqlc binary...)
+	GOBIN=$(LOCAL_BIN) go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+
+gensqlc: .bin-sqlc
+	$(LOCAL_BIN)/sqlc generate
+
+GOOSE_DBSTRING_TEST="host=localhost port=54321 user=postgres password=postgres dbname=postgres sslmode=disable"
+
+integration-test:  integration-test-up integration-test-migrate integration-test-run integration-test-down
+	
+integration-test-up: 
+	docker-compose -f ./internal/pkg/suite/integration_test/docker-compose-test.yml up -d
+
+integration-test-migrate: .bin-goose
+	$(LOCAL_BIN)/goose -dir $(GOOSE_MIGRATION_DIR) $(GOOSE_DRIVER) $(GOOSE_DBSTRING_TEST) up || true
+
+integration-test-run:
+	go test -v -tags integration ./... || true
+
+integration-test-down:
+	docker-compose -f ./internal/pkg/suite/integration_test/docker-compose-test.yml down

@@ -9,12 +9,12 @@ import (
 )
 
 func (a *API) Create(ctx context.Context, req *order.OrderCreateRequest) (*order.OrderCreateResponse, error) {
-	oredrID, err := a.orderService.Create(req.GetUser(), toItems(req.GetItems()))
+	orderID, err := a.orderService.Create(ctx, req.GetUser(), toItems(req.GetItems()))
 	if err != nil {
 		return nil, status.Errorf(codes.FailedPrecondition, err.Error())
 	}
 
 	return &order.OrderCreateResponse{
-		OrderId: oredrID,
+		OrderId: orderID,
 	}, nil
 }

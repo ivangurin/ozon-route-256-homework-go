@@ -43,13 +43,13 @@ func TestStockInfo(t *testing.T) {
 
 	for _, test := range tests {
 
-		sp.GetStockStoregeMock().GetBySkuMock.
-			When(test.Sku).
+		sp.GetStockStorageMock().GetBySkuMock.
+			When(ctx, test.Sku).
 			Then(uint16(test.Qunatity), test.Error)
 
 		t.Run(test.Name, func(t *testing.T) {
 
-			quantity, err := stockService.Info(test.Sku)
+			quantity, err := stockService.Info(ctx, test.Sku)
 			if test.Error != nil {
 				require.NotNil(t, err, "Должна быть ошибка")
 				require.ErrorIs(t, err, test.Error, "Не та ошибка")

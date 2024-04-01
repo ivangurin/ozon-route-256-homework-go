@@ -35,7 +35,7 @@ func NewSuiteProvider(t *testing.T, ctx context.Context) *suiteProvider {
 	}
 }
 
-func (sp *suiteProvider) GetStockStoregeMock() *stockstorage_mocks.RepositoryMockMock {
+func (sp *suiteProvider) GetStockStorageMock() *stockstorage_mocks.RepositoryMockMock {
 	if sp.stockStorageMock == nil {
 		sp.stockStorageMock = stockstorage_mocks.NewRepositoryMockMock(sp.mc)
 	}
@@ -44,21 +44,21 @@ func (sp *suiteProvider) GetStockStoregeMock() *stockstorage_mocks.RepositoryMoc
 
 func (sp *suiteProvider) GetStockStorage() stockstorage.Repository {
 	if sp.stockStorage == nil {
-		sp.stockStorage = sp.GetStockStoregeMock()
+		sp.stockStorage = sp.GetStockStorageMock()
 	}
 	return sp.stockStorage
 }
 
-func (sp *suiteProvider) GetOrderStoregeMock() *orderstorage_mocks.RepositoryMockMock {
+func (sp *suiteProvider) GetOrderStorageMock() *orderstorage_mocks.RepositoryMockMock {
 	if sp.orderStorageMock == nil {
 		sp.orderStorageMock = orderstorage_mocks.NewRepositoryMockMock(sp.mc)
 	}
 	return sp.orderStorageMock
 }
 
-func (sp *suiteProvider) GetOrderStorege() orderstorage.Repository {
+func (sp *suiteProvider) GetOrderStorage() orderstorage.Repository {
 	if sp.orderStorage == nil {
-		sp.orderStorage = sp.GetOrderStoregeMock()
+		sp.orderStorage = sp.GetOrderStorageMock()
 	}
 	return sp.orderStorage
 }
@@ -92,7 +92,7 @@ func (sp *suiteProvider) GetOrderService() orderservice.Service {
 		sp.orderService = orderservice.NewService(
 			sp.ctx,
 			sp.GetStockStorage(),
-			sp.GetOrderStorege(),
+			sp.GetOrderStorage(),
 		)
 	}
 	return sp.orderService

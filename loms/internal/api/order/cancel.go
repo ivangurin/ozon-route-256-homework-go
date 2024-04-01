@@ -12,7 +12,7 @@ import (
 )
 
 func (a *API) Cancel(ctx context.Context, req *order.OrderCancelRequest) (*emptypb.Empty, error) {
-	err := a.orderService.Cancel(req.GetOrderId())
+	err := a.orderService.Cancel(ctx, req.GetOrderId())
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
 			return nil, status.Errorf(codes.NotFound, err.Error())

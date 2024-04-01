@@ -19,9 +19,17 @@ type app struct {
 }
 
 func NewApp(ctx context.Context) IApp {
+	ctx, cancel := context.WithCancel(ctx)
+
+	sp := serviceprovider.GetServiceProvider(ctx)
+	sp.GetCloser().Add(func() error {
+		cancel()
+		return nil
+	})
+
 	return &app{
 		ctx: ctx,
-		sp:  serviceprovider.GetServiceProvider(ctx),
+		sp:  sp,
 	}
 }
 
@@ -42,7 +50,7 @@ func (a *app) Run() error {
 		logger.Info("http cartService server is starting...")
 		err := httpServer.Start()
 		if err != nil {
-			logger.Error("failed to start http server", err)
+			logger.Errorf("failed to start http serve: %v", err)
 			closer.CloseAll()
 		}
 		logger.Info("http cartService server finished")

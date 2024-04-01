@@ -8,8 +8,9 @@ import (
 )
 
 func main() {
-	app := cartservice.NewApp(context.Background())
+	ctx := context.Background()
+	app := cartservice.NewApp(ctx)
 	if err := app.Run(); err != nil {
-		logger.Fatal("can't run app", err)
+		logger.Fatalf("can't run app: %v", err)
 	}
 }

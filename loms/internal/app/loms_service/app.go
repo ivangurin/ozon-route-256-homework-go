@@ -21,9 +21,17 @@ type app struct {
 }
 
 func NewApp(ctx context.Context) App {
+	ctx, cancel := context.WithCancel(ctx)
+
+	sp := serviceprovider.GetServiceProvider()
+	sp.GetCloser().Add(func() error {
+		cancel()
+		return nil
+	})
+
 	return &app{
 		ctx: ctx,
-		sp:  serviceprovider.GetServiceProvider(),
+		sp:  sp,
 	}
 }
 
@@ -47,7 +55,7 @@ func (a *app) Run() error {
 		logger.Info("grpc server is starting...")
 		err := grpcServer.Start()
 		if err != nil {
-			logger.Error("failed to start grpc server", err)
+			logger.Errorf("failed to start grpc server: %v", err)
 			closer.CloseAll()
 			return
 		}
@@ -57,7 +65,7 @@ func (a *app) Run() error {
 	// Http Server
 	httpServer, err := httpserver.NewServer(a.ctx, config.LomsServiceHttpPort, config.LomsServiceGrpcPort)
 	if err != nil {
-		logger.Error("failed to create http server", err)
+		logger.Errorf("failed to create http server: %v", err)
 		closer.CloseAll()
 		return fmt.Errorf("failed to create http server: %w", err)
 	}
@@ -68,7 +76,7 @@ func (a *app) Run() error {
 		a.sp.GetStockAPI(a.ctx),
 	})
 	if err != nil {
-		logger.Error("failed to register api", err)
+		logger.Errorf("failed to register api: %v", err)
 		closer.CloseAll()
 		return fmt.Errorf("failed to register api: %w", err)
 	}
@@ -77,7 +85,7 @@ func (a *app) Run() error {
 		logger.Info("http server is starting...")
 		err := httpServer.Start()
 		if err != nil {
-			logger.Error("failed to start http server", err)
+			logger.Errorf("failed to start http server: %v", err)
 			closer.CloseAll()
 			return
 		}

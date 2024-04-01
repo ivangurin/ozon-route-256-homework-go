@@ -1,21 +1,25 @@
 package orderservice
 
-import "route256.ozon.ru/project/loms/internal/model"
+import (
+	"context"
 
-func (s *service) Cancel(orderID int64) error {
-	orderStorage, err := s.orderStorage.GetByID(orderID)
+	"route256.ozon.ru/project/loms/internal/model"
+)
+
+func (s *service) Cancel(ctx context.Context, orderID int64) error {
+	orderStorage, err := s.orderStorage.GetByID(ctx, orderID)
 	if err != nil {
 		return err
 	}
 
 	order := ToModelOrder(orderStorage)
 
-	err = s.stockStorage.CancelReserve(ToStockItems(order.Items))
+	err = s.stockStorage.CancelReserve(ctx, ToStockItems(order.Items))
 	if err != nil {
 		return err
 	}
 
-	err = s.orderStorage.SetStatus(order.ID, model.OrederStatusCanceled)
+	err = s.orderStorage.SetStatus(ctx, order.ID, model.OrderStatusCancelled)
 	if err != nil {
 		return err
 	}

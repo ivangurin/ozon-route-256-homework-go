@@ -58,8 +58,8 @@ func (c *closer) Signal() {
 
 func (c *closer) CloseAll() {
 	c.once.Do(func() {
-		logger.Info("Gracefull shutdown started...")
-		defer logger.Info("Gracefull shutdown finished")
+		logger.Info("Graceful shutdown started...")
+		defer logger.Info("Graceful shutdown finished")
 
 		defer close(c.done)
 
@@ -70,7 +70,7 @@ func (c *closer) CloseAll() {
 		for i := len(funcs) - 1; i >= 0; i-- {
 			err := c.funcs[i]()
 			if err != nil {
-				logger.Error("failed to close some func from shutdown", err)
+				logger.Errorf("failed to close some func from shutdown: %v", err)
 			}
 		}
 	})

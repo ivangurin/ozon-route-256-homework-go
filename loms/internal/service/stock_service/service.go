@@ -7,7 +7,7 @@ import (
 )
 
 type Service interface {
-	Info(sku int64) (uint16, error)
+	Info(ctx context.Context, sku int64) (uint16, error)
 }
 
 type service struct {

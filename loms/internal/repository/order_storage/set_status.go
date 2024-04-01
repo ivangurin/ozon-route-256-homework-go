@@ -1,17 +1,19 @@
 package orderstorage
 
-import "route256.ozon.ru/project/loms/internal/model"
+import (
+	"context"
+	"fmt"
 
-func (r *repository) SetStatus(orderID int64, status string) error {
-	r.Lock()
-	defer r.Unlock()
+	"route256.ozon.ru/project/loms/internal/repository/order_storage/sqlc"
+)
 
-	order, exists := r.orders[orderID]
-	if !exists {
-		return model.ErrNotFound
+func (r *repository) SetStatus(ctx context.Context, orderID int64, status string) error {
+	queries := sqlc.New(r.dbClient.GetWriterPool())
+
+	err := queries.UpdateStatusByOrderID(ctx, sqlc.UpdateStatusByOrderIDParams{ID: orderID, Status: sqlc.OrderStatusType(status)})
+	if err != nil {
+		return fmt.Errorf("failed to update order status for %d: %w", orderID, err)
 	}
-
-	order.Status = status
 
 	return nil
 }

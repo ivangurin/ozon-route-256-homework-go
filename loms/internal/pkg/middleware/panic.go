@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"context"
-	"fmt"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -13,7 +12,7 @@ import (
 func Panic(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 	defer func() {
 		if e := recover(); e != nil {
-			logger.Error(fmt.Sprintf("panic: %v", e), nil)
+			logger.Errorf("panic: %v", e)
 			err = status.Errorf(codes.Internal, "panic: %v", e)
 		}
 	}()
