@@ -1,7 +1,6 @@
 package cartapi
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -39,7 +38,7 @@ func (a *api) GetItemsByUserID() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = toGetItemsByUserIDResponse(ctx, w, cart)
+		err = toGetItemsByUserIDResponse(w, cart)
 		if err != nil {
 			logger.Errorf("failed to write response: %v", err)
 		}
@@ -62,7 +61,7 @@ func toGetItemsByUserIDRequest(r *http.Request) (*GetItemsByUserIDRequest, error
 	return req, nil
 }
 
-func toGetItemsByUserIDResponse(ctx context.Context, w http.ResponseWriter, cart *cartservice.Cart) error {
+func toGetItemsByUserIDResponse(w http.ResponseWriter, cart *cartservice.Cart) error {
 	json, err := json.Marshal(cart)
 	if err != nil {
 		logger.Errorf("handleCartGet: failed to marshal cart response: %v", err)

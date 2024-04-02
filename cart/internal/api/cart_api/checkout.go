@@ -1,7 +1,6 @@
 package cartapi
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -38,7 +37,7 @@ func (a *api) Checkout() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = toCheckoutResponse(ctx, w, orderID)
+		err = toCheckoutResponse(w, orderID)
 		if err != nil {
 			logger.Errorf("failed to write response: %v", err)
 		}
@@ -67,7 +66,7 @@ func toCheckoutRequest(r *http.Request) (*CheckoutRequest, error) {
 	return req, nil
 }
 
-func toCheckoutResponse(ctx context.Context, w http.ResponseWriter, orderID int64) error {
+func toCheckoutResponse(w http.ResponseWriter, orderID int64) error {
 
 	resp := &CheckoutResponse{
 		OrderID: orderID,
