@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"route256.ozon.ru/project/loms/internal/model"
 	"route256.ozon.ru/project/loms/internal/pkg/suite"
@@ -85,45 +86,40 @@ func TestOrderPay(t *testing.T) {
 		},
 	}
 
-	ctx := context.Background()
-
-	sp := suite.NewSuiteProvider(t, ctx)
-
-	orderService := orderservice.NewService(
-		ctx,
-		sp.GetStockStorage(),
-		sp.GetOrderStorage(),
-	)
+	t.Parallel()
 
 	for _, test := range tests {
-
-		modelOrder := orderservice.ToModelOrder(test.Order)
-
-		sp.GetOrderStorageMock().GetByIDMock.
-			When(ctx, test.OrderID).
-			Then(test.Order, test.GetByIDError)
-
-		if modelOrder != nil {
-			sp.GetStockStorageMock().RemoveReserveMock.
-				When(ctx, orderservice.ToStockItems(modelOrder.Items)).
-				Then(test.RemoveReserveError)
-		}
-
-		sp.GetOrderStorageMock().SetStatusMock.
-			When(ctx, test.OrderID, test.Status).
-			Then(test.SetStatusError)
-
 		t.Run(test.Name, func(t *testing.T) {
+			sp := suite.NewSuiteProvider()
 
-			err := orderService.Pay(ctx, test.OrderID)
+			orderService := orderservice.NewService(
+				sp.GetStockStorage(),
+				sp.GetOrderStorage(),
+			)
+
+			modelOrder := orderservice.ToModelOrder(test.Order)
+
+			sp.GetOrderStorageMock().EXPECT().
+				GetByID(mock.Anything, test.OrderID).
+				Return(test.Order, test.GetByIDError)
+
+			if modelOrder != nil {
+				sp.GetStockStorageMock().EXPECT().
+					RemoveReserve(mock.Anything, orderservice.ToStockItems(modelOrder.Items)).
+					Return(test.RemoveReserveError)
+			}
+
+			sp.GetOrderStorageMock().EXPECT().
+				SetStatus(mock.Anything, test.OrderID, test.Status).
+				Return(test.SetStatusError)
+
+			err := orderService.Pay(context.Background(), test.OrderID)
 			if test.Error != nil {
 				require.NotNil(t, err, "Должна быть ошибка")
 				require.ErrorIs(t, err, test.Error, "Не та ошибка")
 			} else {
 				require.Nil(t, err, "Не должно быть ошибки")
 			}
-
 		})
-
 	}
 }

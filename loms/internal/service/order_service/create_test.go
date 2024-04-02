@@ -5,6 +5,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"route256.ozon.ru/project/loms/internal/model"
 	"route256.ozon.ru/project/loms/internal/pkg/suite"
@@ -35,12 +36,14 @@ func TestOrderCreate(t *testing.T) {
 	tests := []*test{
 		{
 			Name:             "Ошибка при создании заказа",
+			User:             1,
 			Items:            model.OrderItems{&model.OrderItem{Sku: 1, Quantity: 1}},
 			Error:            err1,
 			CreateOrderError: err1,
 		},
 		{
 			Name:              "Ошибка при изменении статуса при не успешном резервировании",
+			User:              2,
 			Items:             model.OrderItems{&model.OrderItem{Sku: 1, Quantity: 1}},
 			Status:            model.OrderStatusFailed,
 			Error:             err3,
@@ -49,6 +52,7 @@ func TestOrderCreate(t *testing.T) {
 		},
 		{
 			Name:           "Ошибка при изменении статуса при успешном резервировании",
+			User:           3,
 			Items:          model.OrderItems{&model.OrderItem{Sku: 1, Quantity: 1}},
 			Status:         model.OrderStatusAwaitingPayment,
 			Error:          err4,
@@ -56,39 +60,37 @@ func TestOrderCreate(t *testing.T) {
 		},
 		{
 			Name:    "Успешное создание заказа",
+			User:    4,
 			Items:   model.OrderItems{&model.OrderItem{Sku: 1, Quantity: 1}},
 			Status:  model.OrderStatusAwaitingPayment,
 			OrderID: 1,
 		},
 	}
 
-	ctx := context.Background()
+	t.Parallel()
 
 	for _, test := range tests {
-
-		sp := suite.NewSuiteProvider(t, ctx)
-
-		orderService := orderservice.NewService(
-			ctx,
-			sp.GetStockStorage(),
-			sp.GetOrderStorage(),
-		)
-
-		sp.GetOrderStorageMock().CreateMock.
-			When(ctx, test.User, orderservice.ToOrderStorageItems(test.Items)).
-			Then(test.OrderID, test.CreateOrderError)
-
-		sp.GetStockStorageMock().ReserveMock.
-			When(ctx, orderservice.ToStockItems(test.Items)).
-			Then(test.ReserveStockError)
-
-		sp.GetOrderStorageMock().SetStatusMock.
-			When(ctx, test.OrderID, test.Status).
-			Then(test.SetStatusError)
-
 		t.Run(test.Name, func(t *testing.T) {
+			sp := suite.NewSuiteProvider()
 
-			orderID, err := orderService.Create(ctx, test.User, test.Items)
+			orderService := orderservice.NewService(
+				sp.GetStockStorage(),
+				sp.GetOrderStorage(),
+			)
+
+			sp.GetOrderStorageMock().EXPECT().
+				Create(mock.Anything, test.User, mock.Anything).
+				Return(test.OrderID, test.CreateOrderError)
+
+			sp.GetStockStorageMock().EXPECT().
+				Reserve(mock.Anything, orderservice.ToStockItems(test.Items)).
+				Return(test.ReserveStockError)
+
+			sp.GetOrderStorageMock().EXPECT().
+				SetStatus(mock.Anything, test.OrderID, test.Status).
+				Return(test.SetStatusError)
+
+			orderID, err := orderService.Create(context.Background(), test.User, test.Items)
 			if test.Error != nil {
 				require.NotNil(t, err, "Должна быть ошибка")
 				require.ErrorIs(t, err, test.Error, "Не та ошибка")
@@ -96,7 +98,6 @@ func TestOrderCreate(t *testing.T) {
 				require.Nil(t, err, "Не должно быть ошибки")
 				require.Equal(t, test.OrderID, orderID, "Не совпало количество")
 			}
-
 		})
 	}
 

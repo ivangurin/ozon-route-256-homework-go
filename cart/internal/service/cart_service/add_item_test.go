@@ -5,12 +5,19 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/goleak"
 	"route256.ozon.ru/project/cart/internal/pb/api/stock/v1"
 	productservice "route256.ozon.ru/project/cart/internal/pkg/client/product_service"
 	"route256.ozon.ru/project/cart/internal/pkg/suite"
 	cartservice "route256.ozon.ru/project/cart/internal/service/cart_service"
 )
+
+func TestTest(t *testing.T) {
+	defer goleak.VerifyNone(t, goleak.IgnoreTopFunction("github.com/golang/glog.(*loggingT).flushDaemon"))
+
+}
 
 func TestAddItem(t *testing.T) {
 
@@ -34,8 +41,6 @@ func TestAddItem(t *testing.T) {
 		err3 = fmt.Errorf("some error 3")
 		err4 = fmt.Errorf("some error 4")
 	)
-
-	ctx := context.Background()
 
 	tests := []*test{
 		{
@@ -105,30 +110,31 @@ func TestAddItem(t *testing.T) {
 		},
 	}
 
-	sp := suite.NewSuiteProvider(t)
-
-	cartService := cartservice.NewService(
-		sp.GetProductService(),
-		sp.GetCartStorage(),
-		sp.GetLomsService(),
-	)
+	t.Parallel()
 
 	for _, test := range tests {
-
-		sp.GetProductServiceMock().GetProductWithRetriesMock.
-			When(ctx, test.SkuID).
-			Then(test.ProductInfo, test.ProductInfoError)
-
-		sp.GetLomsServiceStockMock().InfoMock.
-			When(ctx, test.StockInfoReq).
-			Then(test.StockInfoResp, test.StockInfoError)
-
-		sp.GetCartStorageMock().AddItemMock.
-			When(ctx, test.UserID, test.SkuID, uint16(test.Quantity)).
-			Then(test.StorageAddError)
-
 		t.Run(test.Name, func(t *testing.T) {
-			err := cartService.AddItem(ctx, test.UserID, test.SkuID, uint16(test.Quantity))
+			sp := suite.NewSuiteProvider()
+
+			cartService := cartservice.NewService(
+				sp.GetProductService(),
+				sp.GetCartStorage(),
+				sp.GetLomsService(),
+			)
+
+			sp.GetProductServiceMock().EXPECT().
+				GetProductWithRetries(mock.Anything, test.SkuID).
+				Return(test.ProductInfo, test.ProductInfoError)
+
+			sp.GetLomsServiceStockMock().EXPECT().
+				Info(mock.Anything, test.StockInfoReq).
+				Return(test.StockInfoResp, test.StockInfoError)
+
+			sp.GetCartStorageMock().EXPECT().
+				AddItem(mock.Anything, test.UserID, test.SkuID, uint16(test.Quantity)).
+				Return(test.StorageAddError)
+
+			err := cartService.AddItem(context.Background(), test.UserID, test.SkuID, uint16(test.Quantity))
 			if test.Error != nil {
 				require.NotNil(t, err, "Должна быть ошибка")
 				require.ErrorIs(t, err, test.Error, "Не совпала ошибка")
@@ -137,5 +143,4 @@ func TestAddItem(t *testing.T) {
 			}
 		})
 	}
-
 }

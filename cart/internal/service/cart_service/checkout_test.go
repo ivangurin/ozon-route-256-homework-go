@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"route256.ozon.ru/project/cart/internal/pb/api/order/v1"
 	lomsservice "route256.ozon.ru/project/cart/internal/pkg/client/loms_service"
@@ -31,8 +32,6 @@ func TestCheckout(t *testing.T) {
 		err2 = fmt.Errorf("some error 2")
 		err3 = fmt.Errorf("some error 3")
 	)
-
-	ctx := context.Background()
 
 	tests := []*test{
 		{
@@ -81,39 +80,40 @@ func TestCheckout(t *testing.T) {
 		},
 	}
 
-	sp := suite.NewSuiteProvider(t)
-
-	cartService := cartservice.NewService(
-		sp.GetProductService(),
-		sp.GetCartStorage(),
-		sp.GetLomsService(),
-	)
+	t.Parallel()
 
 	for _, test := range tests {
-
-		sp.GetCartStorageMock().GetItemsByUserIDMock.
-			When(ctx, test.UserID).
-			Then(test.Cart, test.GetItemsByUserIDError)
-
-		var orderItems lomsservice.OrderItems
-		var orderCreateReq *order.OrderCreateRequest
-		var orderCreateResp *order.OrderCreateResponse
-		if test.Cart != nil {
-			orderItems = cartservice.ToOrderItems(test.Cart.Items)
-			orderCreateReq = lomsservice.ToOrderCreateRequest(test.UserID, orderItems)
-			orderCreateResp = &order.OrderCreateResponse{OrderId: test.OrderID}
-		}
-
-		sp.GetLomsServiceOrderMock().CreateMock.
-			When(ctx, orderCreateReq).
-			Then(orderCreateResp, test.CreateOrderError)
-
-		sp.GetCartStorageMock().DeleteItemsByUserIDMock.
-			When(ctx, test.UserID).
-			Then(test.DeleteItemsByUserIDerror)
-
 		t.Run(test.Name, func(t *testing.T) {
-			orderID, err := cartService.Checkout(ctx, test.UserID)
+			sp := suite.NewSuiteProvider()
+
+			cartService := cartservice.NewService(
+				sp.GetProductService(),
+				sp.GetCartStorage(),
+				sp.GetLomsService(),
+			)
+
+			sp.GetCartStorageMock().EXPECT().
+				GetItemsByUserID(mock.Anything, test.UserID).
+				Return(test.Cart, test.GetItemsByUserIDError)
+
+			var orderItems lomsservice.OrderItems
+			var orderCreateReq *order.OrderCreateRequest
+			var orderCreateResp *order.OrderCreateResponse
+			if test.Cart != nil {
+				orderItems = cartservice.ToOrderItems(test.Cart.Items)
+				orderCreateReq = lomsservice.ToOrderCreateRequest(test.UserID, orderItems)
+				orderCreateResp = &order.OrderCreateResponse{OrderId: test.OrderID}
+			}
+
+			sp.GetLomsServiceOrderMock().EXPECT().
+				Create(mock.Anything, orderCreateReq).
+				Return(orderCreateResp, test.CreateOrderError)
+
+			sp.GetCartStorageMock().EXPECT().
+				DeleteItemsByUserID(mock.Anything, test.UserID).
+				Return(test.DeleteItemsByUserIDerror)
+
+			orderID, err := cartService.Checkout(context.Background(), test.UserID)
 			if test.Error == nil {
 				require.Nil(t, err, "Ошибки быть не должно")
 				require.Equal(t, test.OrderID, orderID, "Не совпал номер заказа")
@@ -123,7 +123,5 @@ func TestCheckout(t *testing.T) {
 				require.ErrorIs(t, err, test.Error, "Не совпала ошибка")
 			}
 		})
-
 	}
-
 }

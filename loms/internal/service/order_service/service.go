@@ -21,7 +21,6 @@ type service struct {
 }
 
 func NewService(
-	ctx context.Context,
 	stockStorage stockstorage.Repository,
 	orderStorage orderstorage.Repository,
 ) Service {

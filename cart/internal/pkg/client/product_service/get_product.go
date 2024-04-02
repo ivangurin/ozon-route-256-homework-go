@@ -81,7 +81,6 @@ func (c *client) GetProduct(ctx context.Context, skuID int64) (*GetProductRespon
 
 func (c *client) GetProductWithRetries(ctx context.Context, skuID int64) (*GetProductResponse, error) {
 	for i := 0; i < config.ProductServiceRetries; i++ {
-
 		logger.Infof("productService.GetProduct: start %d try for product %d", i, skuID)
 
 		resp, err := c.GetProduct(ctx, skuID)

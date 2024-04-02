@@ -1,7 +1,6 @@
 package cartapi
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/go-test/deep"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"route256.ozon.ru/project/cart/internal/model"
 	"route256.ozon.ru/project/cart/internal/pkg/suite"
@@ -26,6 +26,8 @@ func TestGetItemsByUserID(t *testing.T) {
 		StatusCode int
 		Error      error
 	}
+
+	t.Parallel()
 
 	tests := []*test{
 		{
@@ -69,17 +71,17 @@ func TestGetItemsByUserID(t *testing.T) {
 		},
 	}
 
-	ctx := context.Background()
-	sp := suite.NewSuiteProvider(t)
+	sp := suite.NewSuiteProvider()
 	api := &api{
 		cartService: sp.GetCartServiceMock(),
 	}
 
 	for _, test := range tests {
 
-		sp.GetCartServiceMock().GetItemsByUserIDMock.
-			When(ctx, test.UserID).
-			Then(test.Cart, test.Error)
+		sp.GetCartServiceMock().EXPECT().
+			GetItemsByUserID(mock.Anything, test.UserID).
+			Return(test.Cart, test.Error).
+			Once()
 
 		t.Run(test.Name, func(t *testing.T) {
 
