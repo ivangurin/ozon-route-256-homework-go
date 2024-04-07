@@ -10,6 +10,8 @@ import (
 
 func TestCloser(t *testing.T) {
 
+	t.Parallel()
+
 	closer := NewCloser(os.Interrupt)
 
 	closed := false

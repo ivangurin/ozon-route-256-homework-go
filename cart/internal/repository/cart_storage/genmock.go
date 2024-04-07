@@ -1,5 +1,4 @@
-//go:generate mkdir -p ./mocks
-//go:generate minimock -i "StorageMock" -o ./mocks/ -s ".go" -g
+//go:generate mockery --name=(.+)Mock --case=underscore  --with-expecter
 package cartstorage
 
 // ClientMock ...

@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/go-test/deep"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"route256.ozon.ru/project/loms/internal/model"
 	"route256.ozon.ru/project/loms/internal/pkg/suite"
@@ -46,25 +47,22 @@ func TestOrderInfo(t *testing.T) {
 		},
 	}
 
-	ctx := context.Background()
-
-	sp := suite.NewSuiteProvider(t, ctx)
-
-	orderService := orderservice.NewService(
-		ctx,
-		sp.GetStockStorage(),
-		sp.GetOrderStorage(),
-	)
+	t.Parallel()
 
 	for _, test := range tests {
-
-		sp.GetOrderStorageMock().GetByIDMock.
-			When(ctx, test.OrderID).
-			Then(test.Order, test.GetByIDError)
-
 		t.Run(test.Name, func(t *testing.T) {
+			sp := suite.NewSuiteProvider()
 
-			order, err := orderService.Info(ctx, test.OrderID)
+			orderService := orderservice.NewService(
+				sp.GetStockStorage(),
+				sp.GetOrderStorage(),
+			)
+
+			sp.GetOrderStorageMock().EXPECT().
+				GetByID(mock.Anything, test.OrderID).
+				Return(test.Order, test.GetByIDError)
+
+			order, err := orderService.Info(context.Background(), test.OrderID)
 			if test.Error != nil {
 				require.NotNil(t, err, "Должна быть ошибка")
 				require.ErrorIs(t, err, test.Error, "Не та ошибка")

@@ -7,22 +7,21 @@ import (
 
 	cartstorage "route256.ozon.ru/project/cart/internal/repository/cart_storage"
 
-	"route256.ozon.ru/project/cart/internal/pkg/logger"
+	productservice "route256.ozon.ru/project/cart/internal/pkg/client/product_service"
 )
 
-func (s *service) toGetCartResponse(ctx context.Context, cart *cartstorage.Cart) (*Cart, error) {
+func (s *service) toGetCartResponse(ctx context.Context, cart *cartstorage.Cart, products map[int64]*productservice.GetProductResponse) (*Cart, error) {
 	var resp *Cart = &Cart{}
 	resp.Items = make([]*CartItem, 0, len(cart.Items))
-	for skuID, cartItem := range cart.Items {
+	for sku, cartItem := range cart.Items {
 
-		product, err := s.productService.GetProductWithRetries(ctx, skuID)
-		if err != nil {
-			logger.Errorf("cartService.AddItem: failed to get product %d: %v", skuID, err)
-			return nil, fmt.Errorf("failed to get product %d: %w", skuID, err)
+		product, exists := products[sku]
+		if !exists {
+			return nil, fmt.Errorf("failed to get product %d", sku)
 		}
 
 		resp.Items = append(resp.Items, &CartItem{
-			SkuID:    skuID,
+			SkuID:    sku,
 			Name:     product.Name,
 			Price:    product.Price,
 			Quantity: cartItem.Quantity,

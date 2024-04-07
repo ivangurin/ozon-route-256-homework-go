@@ -1,7 +1,6 @@
 package cartapi
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -9,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"route256.ozon.ru/project/cart/internal/pkg/suite"
 )
 
@@ -21,6 +21,8 @@ func TestDeleteItem(t *testing.T) {
 		StatusCode int
 		Error      error
 	}
+
+	t.Parallel()
 
 	tests := []*test{
 		{
@@ -53,17 +55,17 @@ func TestDeleteItem(t *testing.T) {
 		},
 	}
 
-	ctx := context.Background()
-	sp := suite.NewSuiteProvider(t)
+	sp := suite.NewSuiteProvider()
 	api := &api{
 		cartService: sp.GetCartServiceMock(),
 	}
 
 	for _, test := range tests {
 
-		sp.GetCartServiceMock().DeleteItemMock.
-			When(ctx, test.UserID, test.SkuID).
-			Then(test.Error)
+		sp.GetCartServiceMock().EXPECT().
+			DeleteItem(mock.Anything, test.UserID, test.SkuID).
+			Return(test.Error).
+			Once()
 
 		t.Run(test.Name, func(t *testing.T) {
 

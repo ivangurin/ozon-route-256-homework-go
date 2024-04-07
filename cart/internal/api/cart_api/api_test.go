@@ -9,7 +9,9 @@ import (
 
 func TestGetDescription(t *testing.T) {
 
-	sp := suite.NewSuiteProvider(t)
+	t.Parallel()
+
+	sp := suite.NewSuiteProvider()
 	api := NewAPI(
 		sp.GetCartServiceMock(),
 	)

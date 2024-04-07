@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"route256.ozon.ru/project/cart/internal/pkg/suite"
 	cartservice "route256.ozon.ru/project/cart/internal/service/cart_service"
@@ -32,27 +33,24 @@ func TestDeleteItemsByUserID(t *testing.T) {
 		},
 	}
 
-	ctx := context.Background()
-
-	sp := suite.NewSuiteProvider(t)
-	cartService := cartservice.NewService(
-		sp.GetProductService(),
-		sp.GetCartStorage(),
-		sp.GetLomsService(),
-	)
+	t.Parallel()
 
 	for _, test := range tests {
-
-		sp.GetCartStorageMock().DeleteItemsByUserIDMock.
-			When(ctx, test.UserID).
-			Then(test.Error)
-
 		t.Run(test.Name, func(t *testing.T) {
+			sp := suite.NewSuiteProvider()
 
-			err := cartService.DeleteItemsByUserID(ctx, test.UserID)
+			cartService := cartservice.NewService(
+				sp.GetProductService(),
+				sp.GetCartStorage(),
+				sp.GetLomsService(),
+			)
+
+			sp.GetCartStorageMock().EXPECT().
+				DeleteItemsByUserID(mock.Anything, test.UserID).
+				Return(test.Error)
+
+			err := cartService.DeleteItemsByUserID(context.Background(), test.UserID)
 			require.ErrorIs(t, err, test.Error, "Должна быть ошибка")
-
 		})
 	}
-
 }

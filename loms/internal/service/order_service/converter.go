@@ -7,6 +7,9 @@ import (
 )
 
 func ToOrderStorageItems(items model.OrderItems) orderstorage.OrderItems {
+	if items == nil {
+		return nil
+	}
 	res := make(orderstorage.OrderItems, 0, len(items))
 	for _, item := range items {
 		res = append(res, toOrderStorageItem(item))

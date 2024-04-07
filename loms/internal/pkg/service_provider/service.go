@@ -15,7 +15,6 @@ type services struct {
 func (sp *ServiceProvider) GetStockService(ctx context.Context) stockservice.Service {
 	if sp.services.stockService == nil {
 		sp.services.stockService = stockservice.NewService(
-			ctx,
 			sp.GetStockStorage(ctx),
 		)
 	}
@@ -25,7 +24,6 @@ func (sp *ServiceProvider) GetStockService(ctx context.Context) stockservice.Ser
 func (sp *ServiceProvider) GetOrderService(ctx context.Context) orderservice.Service {
 	if sp.services.orderService == nil {
 		sp.services.orderService = orderservice.NewService(
-			ctx,
 			sp.GetStockStorage(ctx),
 			sp.GetOrderStorage(ctx),
 		)

@@ -3,7 +3,6 @@ package cartapi
 import (
 	"bufio"
 	"bytes"
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"route256.ozon.ru/project/cart/internal/model"
 	"route256.ozon.ru/project/cart/internal/pkg/suite"
@@ -28,6 +28,8 @@ func TestAddItem(t *testing.T) {
 		StatusCode int
 		Error      error
 	}
+
+	t.Parallel()
 
 	tests := []*test{
 		{
@@ -83,19 +85,18 @@ func TestAddItem(t *testing.T) {
 		},
 	}
 
-	ctx := context.Background()
-	sp := suite.NewSuiteProvider(t)
-	api := &api{
-		cartService: sp.GetCartServiceMock(),
-	}
-
 	for _, test := range tests {
-
-		sp.GetCartServiceMock().AddItemMock.
-			When(ctx, test.UserID, test.SkuID, test.Quantity).
-			Then(test.Error)
-
 		t.Run(test.Name, func(t *testing.T) {
+			sp := suite.NewSuiteProvider()
+
+			api := &api{
+				cartService: sp.GetCartServiceMock(),
+			}
+
+			sp.GetCartServiceMock().EXPECT().
+				AddItem(mock.Anything, test.UserID, test.SkuID, test.Quantity).
+				Return(test.Error).
+				Once()
 
 			var jsonRequest []byte
 			var err error
@@ -114,8 +115,10 @@ func TestAddItem(t *testing.T) {
 			err = bodyWriter.Flush()
 			require.NoError(t, err)
 
+			reader := bufio.NewReader(&body)
+
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/user/%d/cart/%d", test.UserID, test.SkuID), bufio.NewReader(&body))
+			r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/user/%d/cart/%d", test.UserID, test.SkuID), reader)
 			r.SetPathValue(paramUserID, fmt.Sprintf("%d", test.UserID))
 			r.SetPathValue(paramSkuID, fmt.Sprintf("%d", test.SkuID))
 			api.AddItem()(w, r)
@@ -123,6 +126,5 @@ func TestAddItem(t *testing.T) {
 			assert.Equal(t, test.StatusCode, w.Result().StatusCode)
 
 		})
-
 	}
 }

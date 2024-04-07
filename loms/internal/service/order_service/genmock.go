@@ -1,5 +1,4 @@
-//go:generate mkdir -p ./mocks
-//go:generate minimock -i "ServiceMock" -o ./mocks/ -s ".go" -g
+//go:generate mockery --name=(.+)Mock --case=underscore  --with-expecter
 package orderservice
 
 // ServiceMock ...

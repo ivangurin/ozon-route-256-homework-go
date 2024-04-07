@@ -79,5 +79,4 @@ func TestCartStorage(t *testing.T) {
 	cart, err = cartStorage.GetItemsByUserID(ctx, 1)
 	require.ErrorIs(t, err, model.ErrNotFound, "Корзина еще не существует")
 	require.Nil(t, cart, "Данные по корзине не должны вернуться")
-
 }

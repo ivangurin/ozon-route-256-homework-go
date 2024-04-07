@@ -34,13 +34,13 @@ cover-html:
 
 generate: genproto genmock gensqlc
 
-PHONY: .bin-minimock
-.bin-minimock:
-	$(info $(shell printf "\033[34;1m▶\033[0m") Installing minimock...)
-	GOBIN=$(LOCAL_BIN) go install github.com/gojuno/minimock/v3/cmd/minimock@latest
+PHONY: .bin-mock
+.bin-mock:
+	$(info $(shell printf "\033[34;1m▶\033[0m") Installing mockery...)
+	GOBIN=$(LOCAL_BIN) go install github.com/vektra/mockery/v2@v2.42.1
 
-genmock: .bin-minimock
-	$(info $(shell printf "\033[34;1m▶\033[0m") Generating mocks...)
+genmock: .bin-mock
+	$(info $(shell printf "\033[34;1m▶\033[0m") go generate-mocks...)
 	@for f in $(shell find internal -name 'genmock.go'| sort -u); do \
 		PATH=$(LOCAL_BIN):"$(PATH)" go generate $$f; \
 	done

@@ -19,6 +19,7 @@ type Suite struct {
 }
 
 func TestSuite(t *testing.T) {
+	t.Parallel()
 	suite.Run(t, &Suite{})
 }
 

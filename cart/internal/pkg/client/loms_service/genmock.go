@@ -1,6 +1,4 @@
-//go:generate mkdir -p ./mocks
-//go:generate minimock -i "StockClientMock" -o ./mocks/ -s ".go" -g
-//go:generate minimock -i "OrderClientMock" -o ./mocks/ -s ".go" -g
+//go:generate mockery --name=(.+)Mock --case=underscore  --with-expecter
 package lomsservice
 
 import (
