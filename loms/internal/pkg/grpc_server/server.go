@@ -7,6 +7,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"route256.ozon.ru/project/loms/internal/pkg/logger"
 	"route256.ozon.ru/project/loms/internal/pkg/middleware"
 )
 
@@ -61,6 +62,7 @@ func (s *server) Start() error {
 
 func (s *server) Stop() error {
 	s.grpcServer.GracefulStop()
+	logger.Info("grpc server stopped successfully")
 	return nil
 }
 

@@ -59,7 +59,7 @@ func (a *app) Run() error {
 			closer.CloseAll()
 			return
 		}
-		logger.Info("grpc server finished")
+		logger.Info("grpc server started successfully")
 	}()
 
 	// Http Server
@@ -89,7 +89,7 @@ func (a *app) Run() error {
 			closer.CloseAll()
 			return
 		}
-		logger.Info("http server finished")
+		logger.Info("http server started successfully")
 	}()
 
 	return nil

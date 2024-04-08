@@ -26,6 +26,7 @@ func (sp *ServiceProvider) GetOrderService(ctx context.Context) orderservice.Ser
 		sp.services.orderService = orderservice.NewService(
 			sp.GetStockStorage(ctx),
 			sp.GetOrderStorage(ctx),
+			sp.GetSyncProducer(),
 		)
 	}
 	return sp.services.orderService

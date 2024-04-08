@@ -13,6 +13,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"route256.ozon.ru/project/loms/internal/pkg/logger"
 	"route256.ozon.ru/project/loms/internal/pkg/middleware"
 )
 
@@ -84,7 +85,13 @@ func (s *server) Start() error {
 func (s *server) Stop() error {
 	ctx, cancel := context.WithTimeout(s.ctx, 3*time.Second)
 	defer cancel()
-	return s.httpServer.Shutdown(ctx)
+	err := s.httpServer.Shutdown(ctx)
+	if err != nil {
+		logger.Errorf("failed to stop http server: +v", err)
+		return fmt.Errorf("failed to stop http server: %w", err)
+	}
+	logger.Info("http server stopped successfully")
+	return nil
 }
 
 func (s *server) RegisterAPI(api []API) error {

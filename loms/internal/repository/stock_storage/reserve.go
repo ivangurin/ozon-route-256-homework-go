@@ -33,7 +33,7 @@ func (r *repository) Reserve(ctx context.Context, items ReserveItems) error {
 		return nil
 	})
 	if err != nil {
-		return fmt.Errorf("failed to reserve: %w", err)
+		return fmt.Errorf("failed to reserve stock: %w", err)
 	}
 
 	return nil

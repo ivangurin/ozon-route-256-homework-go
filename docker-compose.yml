@@ -103,6 +103,8 @@ services:
         condition: service_healthy
       loms-service-sync:
         condition: service_healthy
+      kafka0:
+        condition: service_healthy
 
   # notifier:
   #   image: notifier

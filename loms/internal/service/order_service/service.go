@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"route256.ozon.ru/project/loms/internal/model"
+	"route256.ozon.ru/project/loms/internal/pkg/kafka"
 	orderstorage "route256.ozon.ru/project/loms/internal/repository/order_storage"
 	stockstorage "route256.ozon.ru/project/loms/internal/repository/stock_storage"
 )
@@ -16,16 +17,19 @@ type Service interface {
 }
 
 type service struct {
-	stockStorage stockstorage.Repository
-	orderStorage orderstorage.Repository
+	stockStorage  stockstorage.Repository
+	orderStorage  orderstorage.Repository
+	kafkaProducer kafka.Producer
 }
 
 func NewService(
 	stockStorage stockstorage.Repository,
 	orderStorage orderstorage.Repository,
+	kafkaProducer kafka.Producer,
 ) Service {
 	return &service{
-		stockStorage: stockStorage,
-		orderStorage: orderStorage,
+		stockStorage:  stockStorage,
+		orderStorage:  orderStorage,
+		kafkaProducer: kafkaProducer,
 	}
 }
