@@ -106,9 +106,9 @@ services:
       kafka0:
         condition: service_healthy
 
-  # notifier:
-  #   image: notifier
-  #   build: ./notifier/
-  #   depends_on:
-  #     kafka0:
-  #       condition: service_healthy
+  notifier:
+    image: notifier
+    build: ./notifier/
+    depends_on:
+      kafka0:
+        condition: service_healthy

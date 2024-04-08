@@ -5,7 +5,7 @@ import (
 	"os/signal"
 	"sync"
 
-	"route256.ozon.ru/project/loms/internal/pkg/logger"
+	"route256.ozon.ru/project/notifier/internal/pkg/logger"
 )
 
 type ICloser interface {
