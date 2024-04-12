@@ -79,6 +79,6 @@ func (p *producer) Close() error {
 		logger.Errorf("failed to close kafka producer: %v", err)
 		return fmt.Errorf("failed to close kafka producer: %w", err)
 	}
-	logger.Info("kafka producer closed successfully")
+	logger.Info("kafka producer is closed successfully")
 	return nil
 }

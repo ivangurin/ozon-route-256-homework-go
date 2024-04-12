@@ -175,12 +175,16 @@ PHONY: .merge-swagger
 
 GOOSE_DRIVER=postgres
 GOOSE_DBSTRING="host=localhost user=postgres password=postgres dbname=loms-service sslmode=disable"
+GOOSE_DBSTRING_DOCKER="host=loms-service-master user=postgres password=postgres dbname=loms-service sslmode=disable"
 GOOSE_MIGRATION_DIR=./migrations
 
 PHONY: .bin-goose
 .bin-goose:
 	$(info $(shell printf "\033[34;1m▶\033[0m") Installing goose binary...)
 	GOBIN=$(LOCAL_BIN) go install github.com/pressly/goose/v3/cmd/goose@latest
+
+migrate-from-docker: .bin-goose
+	$(LOCAL_BIN)/goose -dir $(GOOSE_MIGRATION_DIR) $(GOOSE_DRIVER) $(GOOSE_DBSTRING_DOCKER) up
 
 migrate: .bin-goose
 	$(LOCAL_BIN)/goose -dir $(GOOSE_MIGRATION_DIR) $(GOOSE_DRIVER) $(GOOSE_DBSTRING) up

@@ -90,7 +90,7 @@ func (s *server) Stop() error {
 		logger.Errorf("failed to stop http server: +v", err)
 		return fmt.Errorf("failed to stop http server: %w", err)
 	}
-	logger.Info("http server stopped successfully")
+	logger.Info("http server is stopped successfully")
 	return nil
 }
 

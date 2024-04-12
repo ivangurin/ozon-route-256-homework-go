@@ -103,12 +103,12 @@ services:
         condition: service_healthy
       loms-service-sync:
         condition: service_healthy
-      kafka0:
-        condition: service_healthy
+      kafka-init-topics:
+        condition: service_started
 
   notifier:
     image: notifier
     build: ./notifier/
     depends_on:
-      kafka0:
-        condition: service_healthy
+      kafka-init-topics:
+        condition: service_completed_successfully

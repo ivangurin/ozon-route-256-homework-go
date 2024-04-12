@@ -59,7 +59,6 @@ func (a *app) Run() error {
 			closer.CloseAll()
 			return
 		}
-		logger.Info("grpc server started successfully")
 	}()
 
 	// Http Server
@@ -89,8 +88,12 @@ func (a *app) Run() error {
 			closer.CloseAll()
 			return
 		}
-		logger.Info("http server started successfully")
 	}()
+
+	// Kafka Outbox Sender
+	kafkaService := a.sp.GetKafkaService(a.ctx)
+	kafkaService.SendMessages(a.ctx)
+	closer.Add(kafkaService.StopSendMessages)
 
 	return nil
 }

@@ -51,16 +51,12 @@ func (h *consumerGroupHandler) ConsumeClaim(session sarama.ConsumerGroupSession,
 			}
 
 			// mark message as successfully handled and ready to commit offset
-			// autocommit may commit message offset sometime
 			session.MarkMessage(message, "")
 
 			// commit offset manually right now
 			// works when autocommit disabled
 			// session.Commit()
 
-			// autocommit not to work if cg not gracefully shut downed
-			// but manual commit does
-			//panic("emulate not commit")
 		case <-session.Context().Done():
 			return nil
 		}

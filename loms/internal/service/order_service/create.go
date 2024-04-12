@@ -16,11 +16,6 @@ func (s *service) Create(ctx context.Context, user int64, items model.OrderItems
 		return 0, fmt.Errorf("failed to create order: %w", err)
 	}
 
-	err = s.sendMessageStatusChanged(ctx, orderID, model.OrderStatusNew)
-	if err != nil {
-		logger.Errorf("failed to produce message to kafka: %v", err)
-	}
-
 	reserved := false
 	reserveErr := s.stockStorage.Reserve(ctx, ToStockItems(items))
 	if reserveErr != nil {
@@ -40,11 +35,6 @@ func (s *service) Create(ctx context.Context, user int64, items model.OrderItems
 	if err != nil {
 		logger.Errorf("failed to change status: %w", err)
 		return 0, fmt.Errorf("failed to change status: %w", err)
-	}
-
-	err = s.sendMessageStatusChanged(ctx, orderID, status)
-	if err != nil {
-		logger.Errorf("failed to produce message to kafka: %v", err)
 	}
 
 	if !reserved {

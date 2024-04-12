@@ -56,6 +56,18 @@ func (ns NullOrderStatusType) Value() (driver.Value, error) {
 	return string(ns.OrderStatusType), nil
 }
 
+type KafkaOutbox struct {
+	ID         string
+	CreatedAt  pgtype.Timestamp
+	UpdatedAt  pgtype.Timestamp
+	Status     pgtype.Text
+	Error      pgtype.Text
+	Event      pgtype.Text
+	EntityType pgtype.Text
+	EntityID   pgtype.Text
+	Data       pgtype.Text
+}
+
 type Order struct {
 	ID        int64
 	User      int64

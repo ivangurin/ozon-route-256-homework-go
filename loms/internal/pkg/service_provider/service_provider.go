@@ -43,11 +43,12 @@ func (sp *ServiceProvider) GetSyncProducer() kafka.Producer {
 		var err error
 		sp.syncProducer, err = kafka.NewSyncProducer(
 			config.KafkaAddr,
+			kafka.WithIdempotent(),
 			kafka.WithRequiredAcks(sarama.WaitForAll),
 			kafka.WithMaxOpenRequests(1),
 			kafka.WithMaxRetries(5),
 			kafka.WithRetryBackoff(10*time.Millisecond),
-			kafka.WithProducerPartitioner(sarama.NewRoundRobinPartitioner),
+			// kafka.WithProducerPartitioner(sarama.NewRoundRobinPartitioner),
 		)
 		if err != nil {
 			logger.Fatalf("failed to create kafka producer: %v", err)

@@ -55,7 +55,7 @@ func (c *consumer) handleOrderStatusChanged(ctx context.Context, msg *sarama.Con
 		return false, fmt.Errorf("failed to unmarshal the message: %w", err)
 	}
 
-	err = c.notifierService.OrderStatusChanges(ctx, orderStatusChangedMessage.Data.OrderID, orderStatusChangedMessage.Data.Status)
+	err = c.notifierService.OrderStatusChanges(ctx, orderStatusChangedMessage.Data.Order.ID, orderStatusChangedMessage.Data.Order.Status)
 	if err != nil {
 		return false, fmt.Errorf("failed to handle the order status change: %w", err)
 	}

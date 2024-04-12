@@ -62,7 +62,7 @@ func (s *server) Start() error {
 
 func (s *server) Stop() error {
 	s.grpcServer.GracefulStop()
-	logger.Info("grpc server stopped successfully")
+	logger.Info("grpc server is stopped successfully")
 	return nil
 }
 

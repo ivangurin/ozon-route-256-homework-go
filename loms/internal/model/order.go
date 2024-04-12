@@ -11,11 +11,11 @@ const (
 )
 
 const (
-	OrderEventStatusChanged = "order_status_changed"
+	EventOrderStatusChanged = "order_status_changed"
 )
 
 const (
-	OrderEntityOrder = "order"
+	EntityTypeOrder = "order"
 )
 
 type OrderItem struct {
@@ -35,15 +35,19 @@ type Order struct {
 type Orders map[int64]*Order
 
 type OrderChangeStatusMessage struct {
-	Event  string                       `json:"event"`
-	Entity string                       `json:"entity"`
-	ID     string                       `json:"id"`
-	UUID   string                       `json:"uuid"`
-	Time   time.Time                    `json:"time"`
-	Data   OrderChangeStatusMessageData `json:"data"`
+	ID         string                       `json:"id"`
+	Time       time.Time                    `json:"time"`
+	Event      string                       `json:"event"`
+	EntityType string                       `json:"entity_type"`
+	EntityID   string                       `json:"entity_id"`
+	Data       OrderChangeStatusMessageData `json:"data"`
 }
 
 type OrderChangeStatusMessageData struct {
-	OrderID int64  `json:"order_id"`
-	Status  string `json:"status"`
+	Order OrderChangeStatusMessageOrder `json:"order"`
+}
+
+type OrderChangeStatusMessageOrder struct {
+	ID     int64  `json:"id"`
+	Status string `json:"status"`
 }
