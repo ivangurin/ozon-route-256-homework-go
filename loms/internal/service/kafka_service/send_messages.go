@@ -22,16 +22,17 @@ func (s *service) SendMessages(ctx context.Context) {
 }
 
 func (s *service) StopSendMessages() error {
+	close(s.sendMessageDone)
 	s.sendMessagesWG.Wait()
 	return nil
 }
 
 func (s *service) sendMessages(ctx context.Context) error {
-	ticker := time.NewTicker(5 * time.Second)
+	ticker := time.NewTicker(config.KafkaOutboxSenderTimeout * time.Second)
 	defer ticker.Stop()
 	for {
 		select {
-		case <-ctx.Done():
+		case <-s.sendMessageDone:
 			s.sendMessagesWG.Done()
 			logger.Info("kafka outbox sender is stopped successfully")
 			return nil
