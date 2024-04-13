@@ -22,28 +22,24 @@ func (s *service) SendMessages(ctx context.Context) {
 }
 
 func (s *service) StopSendMessages() error {
-	close(s.sendMessagesDone)
 	s.sendMessagesWG.Wait()
 	return nil
 }
 
 func (s *service) sendMessages(ctx context.Context) error {
-	firstTime := true
+	ticker := time.NewTicker(5 * time.Second)
+	defer ticker.Stop()
 	for {
 		select {
-		case <-s.sendMessagesDone:
+		case <-ctx.Done():
 			s.sendMessagesWG.Done()
 			logger.Info("kafka outbox sender is stopped successfully")
 			return nil
-		default:
-			if !firstTime {
-				time.Sleep(1 * time.Second)
-			}
+		case <-ticker.C:
 			err := s.kafkaStorage.SendMessages(ctx, s.sendMessage)
 			if err != nil {
 				logger.Errorf("failed to send messages: %v", err)
 			}
-			firstTime = false
 		}
 	}
 }

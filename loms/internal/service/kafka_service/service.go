@@ -14,10 +14,9 @@ type Service interface {
 }
 
 type service struct {
-	kafkaStorage     kafka_storage.Repository
-	kafkaProducer    kafka.Producer
-	sendMessagesWG   sync.WaitGroup
-	sendMessagesDone chan struct{}
+	kafkaStorage   kafka_storage.Repository
+	kafkaProducer  kafka.Producer
+	sendMessagesWG sync.WaitGroup
 }
 
 func NewService(
@@ -25,9 +24,8 @@ func NewService(
 	kafkaProducer kafka.Producer,
 ) Service {
 	return &service{
-		kafkaStorage:     kafkaStorage,
-		kafkaProducer:    kafkaProducer,
-		sendMessagesWG:   sync.WaitGroup{},
-		sendMessagesDone: make(chan struct{}),
+		kafkaStorage:   kafkaStorage,
+		kafkaProducer:  kafkaProducer,
+		sendMessagesWG: sync.WaitGroup{},
 	}
 }
