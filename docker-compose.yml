@@ -1,3 +1,6 @@
+volumes:
+  prometheus_data: {}
+
 services:
   loms-service-master:
     image: bitnami/postgresql:latest
@@ -41,7 +44,7 @@ services:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 1s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   kafka0:
     image: confluentinc/cp-kafka:7.6.0.arm64
@@ -86,11 +89,40 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka0:29092
       DYNAMIC_CONFIG_ENABLED: "true"
 
+  jaeger:
+    image: jaegertracing/all-in-one:${JAEGER_VERSION:-latest}
+    ports:
+      - "16686:16686"
+    healthcheck:
+      test: [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://jaeger:14269 || exit 1",
+        ] # jaeger collector health check ping
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  prometheus:
+    image: prom/prometheus:v2.51.2
+    volumes:
+      - ./config/prometheus/:/etc/prometheus/
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+    ports:
+      - 9090:9090
+
   cart:
     image: cart
     build: ./cart/
     ports:
       - "8080:8080"
+    depends_on:
+      jaeger:
+        condition: service_healthy
 
   loms:
     image: loms
@@ -105,6 +137,8 @@ services:
         condition: service_healthy
       kafka-init-topics:
         condition: service_started
+      jaeger:
+        condition: service_healthy
 
   notifier:
     image: notifier
