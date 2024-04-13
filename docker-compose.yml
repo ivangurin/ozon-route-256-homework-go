@@ -1,5 +1,6 @@
 volumes:
   prometheus_data: {}
+  grafana-data: {}
 
 services:
   loms-service-master:
@@ -123,6 +124,18 @@ services:
       interval: 1s
       timeout: 5s
       retries: 10
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    environment:
+      - GF_INSTALL_PLUGINS=prometheus
+    depends_on:
+      prometheus:
+        condition: service_healthy
 
   cart:
     image: cart
