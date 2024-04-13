@@ -7,6 +7,6 @@ import (
 )
 
 func (s *service) OrderStatusChanges(ctx context.Context, orderID int64, status string) error {
-	logger.Infof("Got a new order status. OrderID: %d. Status: %s", orderID, status)
+	logger.Infof(ctx, "Got a new order status. OrderID: %d. Status: %s", orderID, status)
 	return nil
 }

@@ -34,27 +34,34 @@ func NewApp(ctx context.Context) IApp {
 }
 
 func (a *app) Run() error {
-	logger.Info("app cartService is starting...")
-	defer logger.Info("app cartService finished")
+	logger.Info(a.ctx, "app cartService is starting...")
+	defer logger.Info(a.ctx, "app cartService finished")
 
 	closer := a.sp.GetCloser()
 	defer closer.Wait()
 
 	cartAPI := a.sp.GetCartAPI()
 
+	// http server
 	httpServer := httpserver.NewServer(config.CartServiceHttpPort)
 	httpServer.AddHandlers(cartAPI.GetDescription().Handlers)
 	closer.Add(httpServer.Stop)
 
 	go func() {
-		logger.Info("http cartService server is starting...")
+		logger.Info(a.ctx, "http cartService server is starting...")
 		err := httpServer.Start()
 		if err != nil {
-			logger.Errorf("failed to start http serve: %v", err)
+			logger.Errorf(a.ctx, "failed to start http serve: %v", err)
 			closer.CloseAll()
 		}
-		logger.Info("http cartService server finished")
+		logger.Info(a.ctx, "http cartService server finished")
 	}()
+
+	// logger
+	closer.Add(func() error {
+		logger.Sync()
+		return nil
+	})
 
 	return nil
 }

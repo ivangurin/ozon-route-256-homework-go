@@ -13,8 +13,8 @@ func (s *storage) DeleteItemsByUserID(
 	s.Lock()
 	defer s.Unlock()
 
-	logger.Infof("cartStorage: start clear cart for userID: %d", userID)
-	defer logger.Infof("cartStorage: finish clear cart for userID: %d", userID)
+	logger.Infof(ctx, "cartStorage: start clear cart for userID: %d", userID)
+	defer logger.Infof(ctx, "cartStorage: finish clear cart for userID: %d", userID)
 
 	_, exists := cartStorage[userID]
 	if exists {

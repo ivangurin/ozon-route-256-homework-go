@@ -87,10 +87,10 @@ func (s *server) Stop() error {
 	defer cancel()
 	err := s.httpServer.Shutdown(ctx)
 	if err != nil {
-		logger.Errorf("failed to stop http server: +v", err)
+		logger.Errorf(ctx, "failed to stop http server: +v", err)
 		return fmt.Errorf("failed to stop http server: %w", err)
 	}
-	logger.Info("http server is stopped successfully")
+	logger.Info(ctx, "http server is stopped successfully")
 	return nil
 }
 

@@ -1,6 +1,7 @@
 package serviceprovider
 
 import (
+	"context"
 	"os"
 	"syscall"
 	"time"
@@ -51,7 +52,7 @@ func (sp *ServiceProvider) GetSyncProducer() kafka.Producer {
 			// kafka.WithProducerPartitioner(sarama.NewRoundRobinPartitioner),
 		)
 		if err != nil {
-			logger.Fatalf("failed to create kafka producer: %v", err)
+			logger.Fatalf(context.Background(), "failed to create kafka producer: %v", err)
 		}
 		sp.GetCloser().Add(sp.syncProducer.Close)
 	}

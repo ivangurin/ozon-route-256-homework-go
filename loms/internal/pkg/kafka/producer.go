@@ -74,11 +74,12 @@ func (p *producer) SendMessageWithKey(ctx context.Context, topic string, key str
 }
 
 func (p *producer) Close() error {
+	ctx := context.Background()
 	err := p.syncProducer.Close()
 	if err != nil {
-		logger.Errorf("failed to close kafka producer: %v", err)
+		logger.Errorf(ctx, "failed to close kafka producer: %v", err)
 		return fmt.Errorf("failed to close kafka producer: %w", err)
 	}
-	logger.Info("kafka producer is closed successfully")
+	logger.Info(ctx, "kafka producer is closed successfully")
 	return nil
 }

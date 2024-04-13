@@ -10,13 +10,16 @@ import (
 type Handler func(ctx context.Context, message *sarama.ConsumerMessage) (bool, error)
 
 type consumerGroupHandler struct {
+	ctx     context.Context
 	handler Handler
 }
 
 func NewConsumerGroupHandler(
+	ctx context.Context,
 	handler Handler,
 ) *consumerGroupHandler {
 	return &consumerGroupHandler{
+		ctx:     ctx,
 		handler: handler,
 	}
 }
@@ -42,7 +45,7 @@ func (h *consumerGroupHandler) ConsumeClaim(session sarama.ConsumerGroupSession,
 
 			ok, err := h.handler(session.Context(), message)
 			if err != nil {
-				logger.Errorf("failed to handle message: %v", err)
+				logger.Errorf(h.ctx, "failed to handle message: %v", err)
 				continue
 			}
 

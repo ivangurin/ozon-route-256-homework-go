@@ -10,7 +10,7 @@ import (
 func (s *service) DeleteItem(ctx context.Context, userID int64, skuID int64) error {
 	err := s.cartStorage.DeleteItem(ctx, userID, skuID)
 	if err != nil {
-		logger.Errorf("cartService.DeleteItem:: failed to delete item: %v", err)
+		logger.Errorf(ctx, "cartService.DeleteItem:: failed to delete item: %v", err)
 		return fmt.Errorf("failed to delete item: %w", err)
 	}
 

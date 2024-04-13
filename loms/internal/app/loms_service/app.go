@@ -36,8 +36,8 @@ func NewApp(ctx context.Context) App {
 }
 
 func (a *app) Run() error {
-	logger.Info("app is starting...")
-	defer logger.Info("app finished")
+	logger.Info(a.ctx, "app is starting...")
+	defer logger.Info(a.ctx, "app finished")
 
 	closer := a.sp.GetCloser()
 	defer closer.Wait()
@@ -52,10 +52,10 @@ func (a *app) Run() error {
 	})
 
 	go func() {
-		logger.Info("grpc server is starting...")
+		logger.Info(a.ctx, "grpc server is starting...")
 		err := grpcServer.Start()
 		if err != nil {
-			logger.Errorf("failed to start grpc server: %v", err)
+			logger.Errorf(a.ctx, "failed to start grpc server: %v", err)
 			closer.CloseAll()
 			return
 		}
@@ -64,7 +64,7 @@ func (a *app) Run() error {
 	// Http Server
 	httpServer, err := httpserver.NewServer(a.ctx, config.LomsServiceHttpPort, config.LomsServiceGrpcPort)
 	if err != nil {
-		logger.Errorf("failed to create http server: %v", err)
+		logger.Errorf(a.ctx, "failed to create http server: %v", err)
 		closer.CloseAll()
 		return fmt.Errorf("failed to create http server: %w", err)
 	}
@@ -75,16 +75,16 @@ func (a *app) Run() error {
 		a.sp.GetStockAPI(a.ctx),
 	})
 	if err != nil {
-		logger.Errorf("failed to register api: %v", err)
+		logger.Errorf(a.ctx, "failed to register api: %v", err)
 		closer.CloseAll()
 		return fmt.Errorf("failed to register api: %w", err)
 	}
 
 	go func() {
-		logger.Info("http server is starting...")
+		logger.Info(a.ctx, "http server is starting...")
 		err := httpServer.Start()
 		if err != nil {
-			logger.Errorf("failed to start http server: %v", err)
+			logger.Errorf(a.ctx, "failed to start http server: %v", err)
 			closer.CloseAll()
 			return
 		}
@@ -94,6 +94,12 @@ func (a *app) Run() error {
 	kafkaService := a.sp.GetKafkaService(a.ctx)
 	kafkaService.SendMessages(a.ctx)
 	closer.Add(kafkaService.StopSendMessages)
+
+	// logger
+	closer.Add(func() error {
+		logger.Sync()
+		return nil
+	})
 
 	return nil
 }

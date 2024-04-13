@@ -31,7 +31,7 @@ deactivate lapi
 loop consuming
 c -> que : consumer.FetchEvents()
 loop for each msg
-  c -> c : logger.Print(stdout, event)
+  c -> c : logger.Print(ctx, stdout, event)
   c -> que : consumer.CommitOffset()
 end
 end

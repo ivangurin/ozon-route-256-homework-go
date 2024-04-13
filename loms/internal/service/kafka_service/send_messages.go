@@ -13,7 +13,7 @@ import (
 )
 
 func (s *service) SendMessages(ctx context.Context) {
-	logger.Info("kafka outbox sender is starting...")
+	logger.Info(ctx, "kafka outbox sender is starting...")
 	s.sendMessagesWG.Add(1)
 	go func() {
 		time.Sleep(10 * time.Second)
@@ -34,12 +34,12 @@ func (s *service) sendMessages(ctx context.Context) error {
 		select {
 		case <-s.sendMessageDone:
 			s.sendMessagesWG.Done()
-			logger.Info("kafka outbox sender is stopped successfully")
+			logger.Info(ctx, "kafka outbox sender is stopped successfully")
 			return nil
 		case <-ticker.C:
 			err := s.kafkaStorage.SendMessages(ctx, s.sendMessage)
 			if err != nil {
-				logger.Errorf("failed to send messages: %v", err)
+				logger.Errorf(ctx, "failed to send messages: %v", err)
 			}
 		}
 	}
@@ -51,7 +51,7 @@ func (s *service) sendMessage(ctx context.Context, message *sqlc.KafkaOutbox) er
 	case model.EventOrderStatusChanged:
 		err = s.sendOrderStatusChangedMessage(ctx, message)
 	default:
-		logger.Errorf("failed to send message: %v", err)
+		logger.Errorf(ctx, "failed to send message: %v", err)
 	}
 	return err
 }
@@ -80,7 +80,7 @@ func (s *service) sendOrderStatusChangedMessage(ctx context.Context, message *sq
 		message.EntityID.String,
 		orderStatusChangedMessage)
 	if err != nil {
-		logger.Errorf("failed to send OrderChangeStatusMessage: %v", err)
+		logger.Errorf(ctx, "failed to send OrderChangeStatusMessage: %v", err)
 		return fmt.Errorf("failed to send OrderChangeStatusMessage: %w", err)
 	}
 
