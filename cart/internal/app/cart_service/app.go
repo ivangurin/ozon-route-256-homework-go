@@ -43,7 +43,7 @@ func (a *app) Run() error {
 	cartAPI := a.sp.GetCartAPI()
 
 	// http server
-	httpServer := httpserver.NewServer(config.CartServiceHttpPort)
+	httpServer := httpserver.NewServer(a.ctx, config.CartServiceHttpPort)
 	httpServer.AddHandlers(cartAPI.GetDescription().Handlers)
 	closer.Add(httpServer.Stop)
 
@@ -54,7 +54,6 @@ func (a *app) Run() error {
 			logger.Errorf(a.ctx, "failed to start http serve: %v", err)
 			closer.CloseAll()
 		}
-		logger.Info(a.ctx, "http cartService server finished")
 	}()
 
 	// logger

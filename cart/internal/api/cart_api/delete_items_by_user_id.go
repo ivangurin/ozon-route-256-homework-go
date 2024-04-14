@@ -12,9 +12,6 @@ import (
 func (a *api) DeleteItemsByUserID() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		logger.Infof(ctx, "handleDeleteItemsByUserID: start handle request: %s", r.RequestURI)
-		defer logger.Infof(ctx, "handleDeleteItemsByUserID: finish handle request: %s", r.RequestURI)
-
 		req, err := toDeleteItemsByUserIDRequest(r)
 		if err != nil {
 			logger.Errorf(ctx, "handleDeleteItemsByUserID: request is not valid: %v", err)

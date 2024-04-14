@@ -7,7 +7,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"route256.ozon.ru/project/cart/internal/model"
+	"route256.ozon.ru/project/cart/internal/pkg/http_server/middleware"
+	"route256.ozon.ru/project/cart/internal/pkg/logger"
 )
 
 type IServer interface {
@@ -17,29 +20,38 @@ type IServer interface {
 }
 
 type server struct {
-	server http.Server
+	ctx        context.Context
+	mux        *http.ServeMux
+	httpServer *http.Server
 }
 
-func NewServer(port string) IServer {
+func NewServer(ctx context.Context, port string) IServer {
 	s := &server{
-		server: http.Server{
-			Addr:              fmt.Sprintf(":%s", port),
-			ReadHeaderTimeout: 10 * time.Second,
-			ReadTimeout:       10 * time.Second,
-		},
+		ctx: ctx,
+		mux: http.NewServeMux(),
 	}
+
+	s.httpServer = &http.Server{
+		Addr:              fmt.Sprintf(":%s", port),
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       10 * time.Second,
+		Handler:           middleware.Logging(middleware.Metrics(s.mux)),
+	}
+
+	// metrics
+	s.mux.Handle("/metrics", promhttp.Handler())
 
 	return s
 }
 
 func (s *server) AddHandlers(handlers model.HttpApiHandlers) {
-	for _, handeler := range handlers {
-		http.HandleFunc(handeler.Pattern, handeler.Handler)
+	for _, handler := range handlers {
+		s.mux.HandleFunc(handler.Pattern, handler.Handler)
 	}
 }
 
 func (s *server) Start() error {
-	err := s.server.ListenAndServe()
+	err := s.httpServer.ListenAndServe()
 	if err != nil {
 		if !errors.Is(err, http.ErrServerClosed) {
 			return fmt.Errorf("failed to start http server: %w", err)
@@ -50,7 +62,11 @@ func (s *server) Start() error {
 }
 
 func (s *server) Stop() error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	return s.server.Shutdown(ctx)
+	err := s.httpServer.Shutdown(s.ctx)
+	if err != nil {
+		logger.Errorf(s.ctx, "failed to stop http server: %v", err)
+		return fmt.Errorf("failed to stop http server: %w", err)
+	}
+	logger.Info(s.ctx, "http server is stopped successfully")
+	return nil
 }

@@ -14,7 +14,7 @@ func Metrics(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, h
 
 	metrics.UpdateRequestsCounter(info.FullMethod)
 
-	defer metrics.UpdateResponseTime(time.Now())
+	defer metrics.UpdateResponseTime(time.Now().UTC())
 
 	resp, err = handler(ctx, req)
 	if err != nil {

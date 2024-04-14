@@ -115,6 +115,13 @@ services:
       - "--storage.tsdb.path=/prometheus"
       - "--web.console.libraries=/usr/share/prometheus/console_libraries"
       - "--web.console.templates=/usr/share/prometheus/consoles"
+    depends_on:
+      cart:
+        condition: service_started
+      loms:
+        condition: service_started
+      notifier:
+        condition: service_started
     healthcheck:
       test:
         [
@@ -145,8 +152,6 @@ services:
     depends_on:
       jaeger:
         condition: service_healthy
-      prometheus:
-        condition: service_healthy
 
   loms:
     image: loms
@@ -163,8 +168,6 @@ services:
         condition: service_completed_successfully
       jaeger:
         condition: service_healthy
-      prometheus:
-        condition: service_healthy
 
   notifier:
     image: notifier
@@ -173,6 +176,4 @@ services:
       kafka-init-topics:
         condition: service_completed_successfully
       jaeger:
-        condition: service_healthy
-      prometheus:
         condition: service_healthy

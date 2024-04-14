@@ -14,7 +14,7 @@ func Logger(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, ha
 	logger.Infof(ctx, "request: method: %v, req: %v", info.FullMethod, string(raw))
 
 	if resp, err = handler(ctx, req); err != nil {
-		logger.Infof(ctx, "response: method: %v, err: %v", info.FullMethod, err)
+		logger.Errorf(ctx, "response: method: %v, err: %v", info.FullMethod, err)
 		return
 	}
 

@@ -12,9 +12,6 @@ import (
 func (a *api) DeleteItem() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		logger.Infof(ctx, "handleDeleteItem: start handle request: %s", r.RequestURI)
-		defer logger.Infof(ctx, "handleDeleteItem: finish handle request: %s", r.RequestURI)
-
 		req, err := toDeleteItemReq(r)
 		if err != nil {
 			logger.Errorf(ctx, "handleDeleteItem: request is not valid: %v", err)

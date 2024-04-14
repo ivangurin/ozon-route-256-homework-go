@@ -14,7 +14,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"route256.ozon.ru/project/loms/internal/pkg/http_server/middleware"
 	"route256.ozon.ru/project/loms/internal/pkg/logger"
 )
 
@@ -60,7 +59,7 @@ func NewServer(ctx context.Context, httpPort, grpcPort string) (Server, error) {
 		Addr:              fmt.Sprintf(":%s", httpPort),
 		ReadHeaderTimeout: 10 * time.Second,
 		ReadTimeout:       10 * time.Second,
-		Handler:           middleware.WithHTTPLoggingMiddleware(s.mux),
+		Handler:           s.mux,
 	}
 
 	// swagger
@@ -94,7 +93,7 @@ func (s *server) Stop() error {
 	defer cancel()
 	err := s.httpServer.Shutdown(ctx)
 	if err != nil {
-		logger.Errorf(ctx, "failed to stop http server: +v", err)
+		logger.Errorf(ctx, "failed to stop http server: %v", err)
 		return fmt.Errorf("failed to stop http server: %w", err)
 	}
 	logger.Info(ctx, "http server is stopped successfully")

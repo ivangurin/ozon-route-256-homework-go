@@ -16,9 +16,6 @@ import (
 func (a *api) Checkout() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		logger.Infof(ctx, "handleCheckout: start handle request: %s", r.RequestURI)
-		defer logger.Infof(ctx, "handleCheckout: finish handle request: %s", r.RequestURI)
-
 		req, err := toCheckoutRequest(ctx, r)
 		if err != nil {
 			logger.Errorf(ctx, "handleCheckout: request is not valid: %v", err)

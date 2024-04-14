@@ -17,9 +17,6 @@ import (
 func (a *api) GetItemsByUserID() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		logger.Infof(ctx, "handleCartGet: start handle request: %s", r.RequestURI)
-		defer logger.Infof(ctx, "handleCartGet: finish handle request: %s", r.RequestURI)
-
 		req, err := toGetItemsByUserIDRequest(r)
 		if err != nil {
 			logger.Errorf(ctx, "handleCartGet: request is not valid: %v", err)

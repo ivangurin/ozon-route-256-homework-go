@@ -17,9 +17,6 @@ import (
 func (a *api) AddItem() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		logger.Infof(ctx, "handleAddItem: start handle request: %s", r.RequestURI)
-		defer logger.Infof(ctx, "handleAddItem: finish handle request: %s", r.RequestURI)
-
 		req, err := toAddItemRequest(ctx, r)
 		if err != nil {
 			logger.Errorf(ctx, "handleAddItem: request is not valid: %v", err)
