@@ -1,6 +1,7 @@
 package config
 
 const (
+	AppName               = "cart-service"
 	CartServiceHttpPort   = "8080"
 	ProductServiceHost    = "route256.pavl.uk:8080"
 	ProductServiceToken   = "testtoken"

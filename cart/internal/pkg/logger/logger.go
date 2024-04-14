@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"go.uber.org/zap"
+	"route256.ozon.ru/project/cart/internal/config"
 )
 
 type Logger struct {
@@ -18,7 +19,7 @@ func NewLogger(opts ...ConfigOption) *Logger {
 	if err != nil {
 		panic(err)
 	}
-
+	logger = logger.With(zap.String("app", config.AppName))
 	return &Logger{
 		logger: logger,
 	}

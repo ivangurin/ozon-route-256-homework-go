@@ -17,5 +17,5 @@ func Panic(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, han
 		}
 	}()
 	resp, err = handler(ctx, req)
-	return resp, err
+	return
 }

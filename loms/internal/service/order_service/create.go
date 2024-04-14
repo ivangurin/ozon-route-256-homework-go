@@ -6,6 +6,7 @@ import (
 
 	"route256.ozon.ru/project/loms/internal/model"
 	"route256.ozon.ru/project/loms/internal/pkg/logger"
+	"route256.ozon.ru/project/loms/internal/pkg/metrics"
 )
 
 func (s *service) Create(ctx context.Context, user int64, items model.OrderItems) (int64, error) {
@@ -15,6 +16,8 @@ func (s *service) Create(ctx context.Context, user int64, items model.OrderItems
 		logger.Errorf(ctx, "failed to create order: %v", err)
 		return 0, fmt.Errorf("failed to create order: %w", err)
 	}
+
+	metrics.UpdateOrdersCreated()
 
 	reserved := false
 	reserveErr := s.stockStorage.Reserve(ctx, ToStockItems(items))
@@ -36,6 +39,8 @@ func (s *service) Create(ctx context.Context, user int64, items model.OrderItems
 		logger.Errorf(ctx, "failed to change status: %w", err)
 		return 0, fmt.Errorf("failed to change status: %w", err)
 	}
+
+	metrics.UpdateOrderStatusChanged(model.OrderStatusNew, status)
 
 	if !reserved {
 		return 0, fmt.Errorf("failed to reserve quantity for items, %w", reserveErr)

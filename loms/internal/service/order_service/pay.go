@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"route256.ozon.ru/project/loms/internal/model"
+	"route256.ozon.ru/project/loms/internal/pkg/metrics"
 )
 
 func (s *service) Pay(ctx context.Context, orderID int64) error {
@@ -23,6 +24,8 @@ func (s *service) Pay(ctx context.Context, orderID int64) error {
 	if err != nil {
 		return err
 	}
+
+	metrics.UpdateOrderStatusChanged(orderStorage.Status, model.OrderStatusPayed)
 
 	return nil
 }

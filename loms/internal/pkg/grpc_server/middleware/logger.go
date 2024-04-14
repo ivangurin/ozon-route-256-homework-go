@@ -2,8 +2,6 @@ package middleware
 
 import (
 	"context"
-	"log"
-	"net/http"
 
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -24,13 +22,4 @@ func Logger(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, ha
 	logger.Infof(ctx, "response: method: %v, resp: %v", info.FullMethod, string(rawResp))
 
 	return
-}
-
-func WithHTTPLoggingMiddleware(next http.Handler) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		log.Println(r.Method)
-		next.ServeHTTP(w, r)
-	}
-
-	return http.HandlerFunc(fn)
 }

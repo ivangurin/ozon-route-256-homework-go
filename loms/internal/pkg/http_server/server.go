@@ -11,10 +11,11 @@ import (
 	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"route256.ozon.ru/project/loms/internal/pkg/http_server/middleware"
 	"route256.ozon.ru/project/loms/internal/pkg/logger"
-	"route256.ozon.ru/project/loms/internal/pkg/middleware"
 )
 
 type API interface {
@@ -62,11 +63,17 @@ func NewServer(ctx context.Context, httpPort, grpcPort string) (Server, error) {
 		Handler:           middleware.WithHTTPLoggingMiddleware(s.mux),
 	}
 
+	// swagger
 	s.mux.HandleFunc("/swagger.json", s.handleSwagger)
 
+	// swagger-ui
 	fs := http.FileServer(http.Dir("pkg/swagger-ui"))
 	s.mux.Handle("/docs/", http.StripPrefix("/docs/", fs))
 
+	// metrics
+	s.mux.Handle("/metrics", promhttp.Handler())
+
+	// grpc-gateway
 	s.mux.Handle("/", s.gwmux)
 
 	return s, nil
