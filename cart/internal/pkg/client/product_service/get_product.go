@@ -60,8 +60,8 @@ func (c *client) GetProduct(ctx context.Context, skuID int64) (*GetProductRespon
 
 		err = json.Unmarshal(jsonResp, resp)
 		if err != nil {
-			logger.Errorf(ctx, "productService.getProduct: failed to unmashal product response body: %v", err)
-			return nil, fmt.Errorf("failed to unmashal product response body: %w", err)
+			logger.Errorf(ctx, "productService.getProduct: failed to unmarshal product response body: %v", err)
+			return nil, fmt.Errorf("failed to unmarshal product response body: %w", err)
 		}
 
 		return resp, nil

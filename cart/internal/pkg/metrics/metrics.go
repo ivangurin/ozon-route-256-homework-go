@@ -37,8 +37,6 @@ func UpdateResponseCode(method, handler, code string) {
 	responseCode.WithLabelValues(method, handler, code).Inc()
 }
 
-func UpdateResponseTime(start time.Time) func() {
-	return func() {
-		responseTime.Observe(time.Since(start).Seconds())
-	}
+func UpdateResponseTime(start time.Time) {
+	responseTime.Observe(time.Since(start).Seconds())
 }

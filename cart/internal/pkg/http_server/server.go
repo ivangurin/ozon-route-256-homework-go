@@ -35,7 +35,7 @@ func NewServer(ctx context.Context, port string) IServer {
 		Addr:              fmt.Sprintf(":%s", port),
 		ReadHeaderTimeout: 10 * time.Second,
 		ReadTimeout:       10 * time.Second,
-		Handler:           middleware.Logging(middleware.Metrics(s.mux)),
+		Handler:           s.mux,
 	}
 
 	// metrics
@@ -46,7 +46,11 @@ func NewServer(ctx context.Context, port string) IServer {
 
 func (s *server) AddHandlers(handlers model.HttpApiHandlers) {
 	for _, handler := range handlers {
-		s.mux.HandleFunc(handler.Pattern, handler.Handler)
+		s.mux.HandleFunc(
+			handler.Pattern,
+			middleware.WithLogger(
+				middleware.WithMetrics(
+					handler.Handler)))
 	}
 }
 

@@ -7,7 +7,7 @@ import (
 	"route256.ozon.ru/project/cart/internal/pkg/metrics"
 )
 
-func Metrics(next http.Handler) http.Handler {
+func WithMetrics(next http.Handler) http.HandlerFunc {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			metrics.UpdateRequestsCounter(r.Method, r.URL.Path)
