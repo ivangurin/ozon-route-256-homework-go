@@ -4,15 +4,24 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"route256.ozon.ru/project/loms/internal/model"
+	"route256.ozon.ru/project/loms/internal/pkg/metrics"
 	"route256.ozon.ru/project/loms/internal/repository/order_storage/sqlc"
 )
 
 func (r *repository) GetByID(ctx context.Context, orderID int64) (*Order, error) {
-	queries := sqlc.New(r.dbClient.GetReaderPool())
+	metrics.UpdateDatabaseRequestsTotal(
+		RepositoryName,
+		"GetByID",
+		"select",
+	)
 
+	defer metrics.UpdateDatabaseResponseTime(time.Now().UTC())
+
+	queries := sqlc.New(r.dbClient.GetReaderPool())
 	order, err := queries.GetOrderByID(ctx, orderID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -25,9 +34,22 @@ func (r *repository) GetByID(ctx context.Context, orderID int64) (*Order, error)
 	items, err := queries.GetOrderItemsByOrderID(ctx, orderID)
 	if err != nil {
 		if !errors.Is(err, pgx.ErrNoRows) {
+			metrics.UpdateDatabaseResponseCode(
+				RepositoryName,
+				"GetByID",
+				"select",
+				"error",
+			)
 			return nil, fmt.Errorf("failed to select order %d: %w", orderID, err)
 		}
 	}
+
+	metrics.UpdateDatabaseResponseCode(
+		RepositoryName,
+		"GetByID",
+		"select",
+		"ok",
+	)
 
 	return &Order{
 		ID:     order.ID,

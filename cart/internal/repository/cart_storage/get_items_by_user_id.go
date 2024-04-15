@@ -2,15 +2,24 @@ package cartstorage
 
 import (
 	"context"
+	"time"
 
 	"route256.ozon.ru/project/cart/internal/model"
 	"route256.ozon.ru/project/cart/internal/pkg/logger"
+	"route256.ozon.ru/project/cart/internal/pkg/metrics"
 )
 
 func (s *storage) GetItemsByUserID(
 	ctx context.Context,
 	userID int64,
 ) (*Cart, error) {
+	metrics.UpdateDatabaseRequestsTotal(
+		RepositoryName,
+		"GetItemsByUserID",
+		"select",
+	)
+	defer metrics.UpdateDatabaseResponseTime(time.Now().UTC())
+
 	s.RLock()
 	defer s.RUnlock()
 
@@ -20,8 +29,20 @@ func (s *storage) GetItemsByUserID(
 	cart, exists := cartStorage[userID]
 	if !exists {
 		logger.Infof(ctx, "cart for userID %d not found", userID)
+		metrics.UpdateDatabaseResponseCode(
+			RepositoryName,
+			"GetItemsByUserID",
+			"select",
+			"not_found",
+		)
 		return nil, model.ErrNotFound
 	}
 
+	metrics.UpdateDatabaseResponseCode(
+		RepositoryName,
+		"GetItemsByUserID",
+		"select",
+		"ok",
+	)
 	return cart, nil
 }

@@ -10,7 +10,7 @@ import (
 func WithMetrics(next http.Handler) http.HandlerFunc {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			metrics.UpdateRequestsCounter(r.Method, r.URL.Path)
+			metrics.UpdateRequestsTotal(r.Method, r.URL.Path)
 			defer metrics.UpdateResponseTime(time.Now().UTC())
 			next.ServeHTTP(w, r)
 			lw := NewLoggingResponseWriter(w)

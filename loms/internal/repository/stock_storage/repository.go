@@ -6,6 +6,10 @@ import (
 	"route256.ozon.ru/project/loms/internal/db"
 )
 
+const (
+	RepositoryName = "StockStorage"
+)
+
 type Repository interface {
 	GetBySku(ctx context.Context, sku int64) (uint16, error)
 	Reserve(ctx context.Context, items ReserveItems) error

@@ -12,7 +12,7 @@ import (
 
 func Metrics(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 
-	metrics.UpdateRequestsCounter(info.FullMethod)
+	metrics.UpdateRequestsTotal(info.FullMethod)
 
 	defer metrics.UpdateResponseTime(time.Now().UTC())
 

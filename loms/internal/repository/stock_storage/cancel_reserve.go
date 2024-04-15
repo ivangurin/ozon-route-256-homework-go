@@ -3,14 +3,24 @@ package stockstorage
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5"
+	"route256.ozon.ru/project/loms/internal/pkg/metrics"
 	"route256.ozon.ru/project/loms/internal/repository/stock_storage/sqlc"
 )
 
 func (r *repository) CancelReserve(ctx context.Context, items ReserveItems) error {
-	pool := r.dbClient.GetWriterPool()
 
+	metrics.UpdateDatabaseRequestsTotal(
+		RepositoryName,
+		"CancelReserve",
+		"update",
+	)
+
+	defer metrics.UpdateDatabaseResponseTime(time.Now().UTC())
+
+	pool := r.dbClient.GetWriterPool()
 	err := pool.BeginFunc(ctx, func(tx pgx.Tx) error {
 		qtx := sqlc.New(pool).WithTx(tx)
 
@@ -38,8 +48,21 @@ func (r *repository) CancelReserve(ctx context.Context, items ReserveItems) erro
 		return nil
 	})
 	if err != nil {
+		metrics.UpdateDatabaseResponseCode(
+			RepositoryName,
+			"CancelReserve",
+			"update",
+			"error",
+		)
 		return fmt.Errorf("failed to cancel reserve: %w", err)
 	}
+
+	metrics.UpdateDatabaseResponseCode(
+		RepositoryName,
+		"CancelReserve",
+		"update",
+		"ok",
+	)
 
 	return nil
 }

@@ -7,7 +7,10 @@ import (
 	"route256.ozon.ru/project/loms/internal/repository/kafka_storage/sqlc"
 )
 
-const KafkaOutboxTable = "kafka_outbox"
+const (
+	RepositoryName   = "KafkaStorage"
+	KafkaOutboxTable = "kafka_outbox"
+)
 
 type Repository interface {
 	SendMessages(ctx context.Context, callback func(ctx context.Context, message *sqlc.KafkaOutbox) error) error

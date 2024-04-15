@@ -5,6 +5,10 @@ import (
 	"sync"
 )
 
+const (
+	RepositoryName = "CartStorage"
+)
+
 var cartStorage map[int64]*Cart = map[int64]*Cart{}
 
 type Storage interface {

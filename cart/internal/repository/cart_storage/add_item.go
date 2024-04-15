@@ -1,6 +1,11 @@
 package cartstorage
 
-import "context"
+import (
+	"context"
+	"time"
+
+	"route256.ozon.ru/project/cart/internal/pkg/metrics"
+)
 
 func (s *storage) AddItem(
 	ctx context.Context,
@@ -8,6 +13,13 @@ func (s *storage) AddItem(
 	skuID int64,
 	quantity uint16,
 ) error {
+	metrics.UpdateDatabaseRequestsTotal(
+		RepositoryName,
+		"AddItem",
+		"insert",
+	)
+	defer metrics.UpdateDatabaseResponseTime(time.Now().UTC())
+
 	s.Lock()
 	defer s.Unlock()
 
@@ -27,5 +39,11 @@ func (s *storage) AddItem(
 
 	cartItem.Quantity += quantity
 
+	metrics.UpdateDatabaseResponseCode(
+		RepositoryName,
+		"AddItem",
+		"insert",
+		"ok",
+	)
 	return nil
 }
