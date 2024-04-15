@@ -84,7 +84,7 @@ func UpdateExternalRequestsTotal(service, handler string) {
 }
 
 func UpdateExternalResponseCode(service, handler, code string) {
-	externalResponseCode.WithLabelValues(handler, code).Inc()
+	externalResponseCode.WithLabelValues(service, handler, code).Inc()
 }
 
 func UpdateExternalResponseTime(start time.Time) {

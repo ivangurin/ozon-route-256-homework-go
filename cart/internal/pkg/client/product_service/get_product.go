@@ -8,10 +8,12 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"route256.ozon.ru/project/cart/internal/config"
 	"route256.ozon.ru/project/cart/internal/model"
 	"route256.ozon.ru/project/cart/internal/pkg/logger"
+	"route256.ozon.ru/project/cart/internal/pkg/metrics"
 )
 
 const StatusEnhanceYourCalm = 420
@@ -21,6 +23,12 @@ func (c *client) GetProduct(ctx context.Context, skuID int64) (*GetProductRespon
 	if exists {
 		return resp, nil
 	}
+
+	metrics.UpdateExternalRequestsTotal(
+		ServiceName,
+		"GetProduct",
+	)
+	defer metrics.UpdateExternalResponseTime(time.Now().UTC())
 
 	req := &GetProductRequest{
 		Token: config.ProductServiceToken,
@@ -48,6 +56,12 @@ func (c *client) GetProduct(ctx context.Context, skuID int64) (*GetProductRespon
 	}
 	defer httpResp.Body.Close()
 
+	metrics.UpdateExternalResponseCode(
+		ServiceName,
+		"GetProduct",
+		http.StatusText(httpResp.StatusCode),
+	)
+
 	if httpResp.StatusCode == http.StatusOK {
 
 		jsonResp, err := io.ReadAll(httpResp.Body)
@@ -65,7 +79,6 @@ func (c *client) GetProduct(ctx context.Context, skuID int64) (*GetProductRespon
 		}
 
 		return resp, nil
-
 	} else if httpResp.StatusCode == http.StatusNotFound {
 		logger.Warn(ctx, "productService.getProduct: product not found")
 		return nil, model.ErrNotFound

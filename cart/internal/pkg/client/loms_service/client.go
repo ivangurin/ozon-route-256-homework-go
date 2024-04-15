@@ -11,6 +11,10 @@ type Client struct {
 	OrderAPI order_api.OrderClient
 }
 
+const (
+	ServiceName = "loms-service"
+)
+
 func NewClient(conn *grpc.ClientConn) *Client {
 	return &Client{
 		StockAPI: stock_api.NewStockClient(conn),
