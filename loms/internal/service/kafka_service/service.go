@@ -27,7 +27,6 @@ func NewService(
 	return &service{
 		kafkaStorage:    kafkaStorage,
 		kafkaProducer:   kafkaProducer,
-		sendMessagesWG:  sync.WaitGroup{},
 		sendMessageDone: make(chan struct{}),
 	}
 }
