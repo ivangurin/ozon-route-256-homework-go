@@ -7,16 +7,19 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"route256.ozon.ru/project/loms/internal/pkg/metrics"
+	"route256.ozon.ru/project/loms/internal/pkg/tracer"
 	"route256.ozon.ru/project/loms/internal/repository/order_storage/sqlc"
 )
 
 func (r *repository) SetStatus(ctx context.Context, orderID int64, status string) error {
+	ctx, span := tracer.StartSpanFromContext(ctx, "orderStorage:SetStatus")
+	defer span.End()
+
 	metrics.UpdateDatabaseRequestsTotal(
 		RepositoryName,
 		"SetStatus",
 		"update",
 	)
-
 	defer metrics.UpdateDatabaseResponseTime(time.Now().UTC())
 
 	pool := r.dbClient.GetWriterPool()

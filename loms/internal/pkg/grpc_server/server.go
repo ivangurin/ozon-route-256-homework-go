@@ -31,8 +31,9 @@ func NewServer(ctx context.Context, port string) Server {
 
 	grpcServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
-			middleware.Panic,
+			middleware.Tracer,
 			middleware.Logger,
+			middleware.Panic,
 			middleware.Metrics,
 			middleware.Validate,
 		),

@@ -3,14 +3,26 @@ package stockstorage
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5"
+	"route256.ozon.ru/project/loms/internal/pkg/metrics"
+	"route256.ozon.ru/project/loms/internal/pkg/tracer"
 	"route256.ozon.ru/project/loms/internal/repository/stock_storage/sqlc"
 )
 
 func (r *repository) Reserve(ctx context.Context, items ReserveItems) error {
-	pool := r.dbClient.GetWriterPool()
+	ctx, span := tracer.StartSpanFromContext(ctx, "stockRepository:Reserve")
+	defer span.End()
 
+	metrics.UpdateDatabaseRequestsTotal(
+		RepositoryName,
+		"Reserve",
+		"update",
+	)
+	defer metrics.UpdateDatabaseResponseTime(time.Now().UTC())
+
+	pool := r.dbClient.GetWriterPool()
 	err := pool.BeginFunc(ctx, func(tx pgx.Tx) error {
 		qtx := sqlc.New(pool).WithTx(tx)
 
@@ -33,8 +45,20 @@ func (r *repository) Reserve(ctx context.Context, items ReserveItems) error {
 		return nil
 	})
 	if err != nil {
+		metrics.UpdateDatabaseResponseCode(
+			RepositoryName,
+			"Reserve",
+			"update",
+			"error",
+		)
 		return fmt.Errorf("failed to reserve stock: %w", err)
 	}
 
+	metrics.UpdateDatabaseResponseCode(
+		RepositoryName,
+		"Reserve",
+		"update",
+		"ok",
+	)
 	return nil
 }

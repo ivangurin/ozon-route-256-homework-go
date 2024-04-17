@@ -8,15 +8,18 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
 	"route256.ozon.ru/project/loms/internal/pkg/metrics"
+	"route256.ozon.ru/project/loms/internal/pkg/tracer"
 )
 
 func InsertOutboxMessageTx(ctx context.Context, tx pgx.Tx, message *Outbox) error {
+	ctx, span := tracer.StartSpanFromContext(ctx, "kafkaStorage:InsertOutboxMessageTx")
+	defer span.End()
+
 	metrics.UpdateDatabaseRequestsTotal(
 		RepositoryName,
 		"InsertOutboxMessageTx",
 		"insert",
 	)
-
 	defer metrics.UpdateDatabaseResponseTime(time.Now().UTC())
 
 	builder := squirrel.

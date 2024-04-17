@@ -16,6 +16,5 @@ func Panic(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, han
 			err = status.Errorf(codes.Internal, "panic: %v", e)
 		}
 	}()
-	resp, err = handler(ctx, req)
-	return
+	return handler(ctx, req)
 }

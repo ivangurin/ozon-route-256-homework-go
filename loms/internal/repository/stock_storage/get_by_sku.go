@@ -9,17 +9,19 @@ import (
 	"github.com/jackc/pgx/v5"
 	"route256.ozon.ru/project/loms/internal/model"
 	"route256.ozon.ru/project/loms/internal/pkg/metrics"
+	"route256.ozon.ru/project/loms/internal/pkg/tracer"
 	"route256.ozon.ru/project/loms/internal/repository/stock_storage/sqlc"
 )
 
 func (r *repository) GetBySku(ctx context.Context, sku int64) (uint16, error) {
+	ctx, span := tracer.StartSpanFromContext(ctx, "stockRepository:GetBySku")
+	defer span.End()
 
 	metrics.UpdateDatabaseRequestsTotal(
 		RepositoryName,
 		"GetBySku",
 		"select",
 	)
-
 	defer metrics.UpdateDatabaseResponseTime(time.Now().UTC())
 
 	pool := r.dbClient.GetReaderPool()

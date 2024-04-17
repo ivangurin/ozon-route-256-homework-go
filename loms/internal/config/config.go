@@ -10,4 +10,5 @@ const (
 	KafkaAddr                = "kafka0:29092"
 	KafkaOrderEventsTopic    = "loms.order-events"
 	KafkaOutboxSenderTimeout = 5
+	JaegerUrl                = "http://jaeger:14268/api/traces"
 )

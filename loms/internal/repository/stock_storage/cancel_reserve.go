@@ -7,17 +7,19 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"route256.ozon.ru/project/loms/internal/pkg/metrics"
+	"route256.ozon.ru/project/loms/internal/pkg/tracer"
 	"route256.ozon.ru/project/loms/internal/repository/stock_storage/sqlc"
 )
 
 func (r *repository) CancelReserve(ctx context.Context, items ReserveItems) error {
+	ctx, span := tracer.StartSpanFromContext(ctx, "stockRepository:CancelReserve")
+	defer span.End()
 
 	metrics.UpdateDatabaseRequestsTotal(
 		RepositoryName,
 		"CancelReserve",
 		"update",
 	)
-
 	defer metrics.UpdateDatabaseResponseTime(time.Now().UTC())
 
 	pool := r.dbClient.GetWriterPool()

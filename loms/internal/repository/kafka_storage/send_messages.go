@@ -9,16 +9,19 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"route256.ozon.ru/project/loms/internal/pkg/metrics"
+	"route256.ozon.ru/project/loms/internal/pkg/tracer"
 	"route256.ozon.ru/project/loms/internal/repository/kafka_storage/sqlc"
 )
 
 func (r *repository) SendMessages(ctx context.Context, callback func(ctx context.Context, message *sqlc.KafkaOutbox) error) error {
+	ctx, span := tracer.StartSpanFromContext(ctx, "kafkaStorage:SendMessages")
+	defer span.End()
+
 	metrics.UpdateDatabaseRequestsTotal(
 		RepositoryName,
 		"SendMessages",
 		"update",
 	)
-
 	defer metrics.UpdateDatabaseResponseTime(time.Now().UTC())
 
 	pool := r.dbClient.GetWriterPool()

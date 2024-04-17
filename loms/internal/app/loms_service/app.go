@@ -9,6 +9,7 @@ import (
 	httpserver "route256.ozon.ru/project/loms/internal/pkg/http_server"
 	"route256.ozon.ru/project/loms/internal/pkg/logger"
 	serviceprovider "route256.ozon.ru/project/loms/internal/pkg/service_provider"
+	"route256.ozon.ru/project/loms/internal/pkg/tracer"
 )
 
 type App interface {
@@ -96,10 +97,10 @@ func (a *app) Run() error {
 	closer.Add(kafkaService.StopSendMessages)
 
 	// logger
-	closer.Add(func() error {
-		logger.Sync()
-		return nil
-	})
+	closer.Add(logger.Close)
+
+	// tracer
+	closer.Add(tracer.Close)
 
 	return nil
 }

@@ -8,16 +8,19 @@ import (
 	"github.com/jackc/pgx/v5"
 	"route256.ozon.ru/project/loms/internal/model"
 	"route256.ozon.ru/project/loms/internal/pkg/metrics"
+	"route256.ozon.ru/project/loms/internal/pkg/tracer"
 	"route256.ozon.ru/project/loms/internal/repository/order_storage/sqlc"
 )
 
 func (r *repository) Create(ctx context.Context, user int64, items []*OrderItem) (int64, error) {
+	ctx, span := tracer.StartSpanFromContext(ctx, "orderStorage:Create")
+	defer span.End()
+
 	metrics.UpdateDatabaseRequestsTotal(
 		RepositoryName,
 		"Create",
 		"insert",
 	)
-
 	defer metrics.UpdateDatabaseResponseTime(time.Now().UTC())
 
 	pool := r.dbClient.GetWriterPool()
