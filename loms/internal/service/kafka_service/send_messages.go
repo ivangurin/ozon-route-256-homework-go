@@ -17,7 +17,6 @@ func (s *service) SendMessages(ctx context.Context) {
 	logger.Info(ctx, "kafka outbox sender is starting...")
 	s.sendMessagesWG.Add(1)
 	go func() {
-		time.Sleep(10 * time.Second)
 		s.sendMessages(ctx)
 	}()
 }

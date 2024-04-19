@@ -1,6 +1,7 @@
 volumes:
   prometheus_data: {}
   grafana-data: {}
+  postgres-data: {}
 
 services:
   loms-service-master:
@@ -18,6 +19,8 @@ services:
       - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=1
       - POSTGRESQL_PGAUDIT_LOG=READ,WRITE
       - POSTGRESQL_LOG_HOSTNAME=true
+    volumes:
+      - postgres-data:/bitnami/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 1s
@@ -46,6 +49,18 @@ services:
       interval: 1s
       timeout: 5s
       retries: 10
+
+  # loms-service-migrate:
+  #   image: golang:latest
+  #   depends_on:
+  #     loms-service-master:
+  #       condition: service_healthy
+  #   environment:
+  #     - GOOSE_DRIVER=postgres
+  #     - GOOSE_DBSTRING=user=postgres password=postgres dbname=loms-service host=loms-service-master port=5432 sslmode=disable
+  #   volumes:
+  #     - ./loms/migrations:/migrations
+  #   command: "sh -c 'go install github.com/pressly/goose/v3/cmd/goose@latest && goose -dir /migrations up'"
 
   kafka0:
     image: confluentinc/cp-kafka:7.6.0.arm64
@@ -168,6 +183,8 @@ services:
         condition: service_completed_successfully
       jaeger:
         condition: service_healthy
+      # loms-service-migrate:
+      #   condition: service_completed_successfully
 
   notifier:
     image: notifier

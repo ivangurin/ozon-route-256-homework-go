@@ -8,7 +8,6 @@ run-all: build-all
 
 run:
 	docker-compose up -d
-	cd loms && make migrate
 
 stop:
 	docker-compose down
