@@ -7,7 +7,7 @@ run-all: build-all
 	docker-compose up --force-recreate --build
 
 run:
-	docker-compose up -d --force-recreate
+	docker-compose up -d
 	cd loms && make migrate
 
 stop:

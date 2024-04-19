@@ -8,9 +8,13 @@ import (
 	productservice "route256.ozon.ru/project/cart/internal/pkg/client/product_service"
 	"route256.ozon.ru/project/cart/internal/pkg/errgroup"
 	"route256.ozon.ru/project/cart/internal/pkg/logger"
+	"route256.ozon.ru/project/cart/internal/pkg/tracer"
 )
 
 func (s *service) GetItemsByUserID(ctx context.Context, userID int64) (*Cart, error) {
+	ctx, span := tracer.StartSpanFromContext(ctx, "cartService.GetItemsByUserID")
+	defer span.End()
+
 	cart, err := s.cartStorage.GetItemsByUserID(ctx, userID)
 	if err != nil {
 		logger.Errorf(ctx, "cartService.GetItemsByUserID: failed to get items by user id: %v", err)

@@ -9,11 +9,11 @@ import (
 	"route256.ozon.ru/project/loms/internal/config"
 	"route256.ozon.ru/project/loms/internal/model"
 	"route256.ozon.ru/project/loms/internal/pkg/logger"
-	"route256.ozon.ru/project/loms/internal/pkg/tracer"
 	"route256.ozon.ru/project/loms/internal/repository/kafka_storage/sqlc"
 )
 
 func (s *service) SendMessages(ctx context.Context) {
+
 	logger.Info(ctx, "kafka outbox sender is starting...")
 	s.sendMessagesWG.Add(1)
 	go func() {
@@ -47,8 +47,8 @@ func (s *service) sendMessages(ctx context.Context) error {
 }
 
 func (s *service) sendMessage(ctx context.Context, message *sqlc.KafkaOutbox) error {
-	ctx, span := tracer.StartSpanFromContext(ctx, "kafkaService:sendMessage")
-	defer span.End()
+	// ctx, span := tracer.StartSpanFromContext(ctx, "kafkaService.sendMessage")
+	// defer span.End()
 
 	var err error
 	switch message.Event.String {

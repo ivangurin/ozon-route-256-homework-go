@@ -14,7 +14,7 @@ import (
 )
 
 func (r *repository) insertOutboxOrderStatusChanged(ctx context.Context, tx pgx.Tx, orderID int64, status string) error {
-	ctx, span := tracer.StartSpanFromContext(ctx, "orderStorage:insertOutboxOrderStatusChanged")
+	ctx, span := tracer.StartSpanFromContext(ctx, "orderStorage.insertOutboxOrderStatusChanged")
 	defer span.End()
 
 	metrics.UpdateDatabaseRequestsTotal(

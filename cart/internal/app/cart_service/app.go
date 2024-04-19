@@ -7,6 +7,7 @@ import (
 	httpserver "route256.ozon.ru/project/cart/internal/pkg/http_server"
 	"route256.ozon.ru/project/cart/internal/pkg/logger"
 	serviceprovider "route256.ozon.ru/project/cart/internal/pkg/service_provider"
+	"route256.ozon.ru/project/cart/internal/pkg/tracer"
 )
 
 type IApp interface {
@@ -57,10 +58,10 @@ func (a *app) Run() error {
 	}()
 
 	// logger
-	closer.Add(func() error {
-		logger.Sync()
-		return nil
-	})
+	closer.Add(logger.Close)
+
+	// tracer
+	closer.Add(tracer.Close)
 
 	return nil
 }

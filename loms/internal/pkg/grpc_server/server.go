@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"route256.ozon.ru/project/loms/internal/pkg/grpc_server/middleware"
@@ -30,6 +31,7 @@ type server struct {
 func NewServer(ctx context.Context, port string) Server {
 
 	grpcServer := grpc.NewServer(
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 		grpc.ChainUnaryInterceptor(
 			middleware.Tracer,
 			middleware.Logger,

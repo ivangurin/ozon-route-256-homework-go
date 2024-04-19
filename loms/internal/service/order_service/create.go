@@ -7,9 +7,12 @@ import (
 	"route256.ozon.ru/project/loms/internal/model"
 	"route256.ozon.ru/project/loms/internal/pkg/logger"
 	"route256.ozon.ru/project/loms/internal/pkg/metrics"
+	"route256.ozon.ru/project/loms/internal/pkg/tracer"
 )
 
 func (s *service) Create(ctx context.Context, user int64, items model.OrderItems) (int64, error) {
+	ctx, span := tracer.StartSpanFromContext(ctx, "orderService.Create")
+	defer span.End()
 
 	orderID, err := s.orderStorage.Create(ctx, user, ToOrderStorageItems(items))
 	if err != nil {

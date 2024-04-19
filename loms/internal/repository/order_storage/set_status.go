@@ -12,7 +12,7 @@ import (
 )
 
 func (r *repository) SetStatus(ctx context.Context, orderID int64, status string) error {
-	ctx, span := tracer.StartSpanFromContext(ctx, "orderStorage:SetStatus")
+	ctx, span := tracer.StartSpanFromContext(ctx, "orderStorage.SetStatus")
 	defer span.End()
 
 	metrics.UpdateDatabaseRequestsTotal(

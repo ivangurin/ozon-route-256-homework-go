@@ -6,10 +6,13 @@ import (
 
 	lomsservice "route256.ozon.ru/project/cart/internal/pkg/client/loms_service"
 	"route256.ozon.ru/project/cart/internal/pkg/logger"
+	"route256.ozon.ru/project/cart/internal/pkg/tracer"
 	cartstorage "route256.ozon.ru/project/cart/internal/repository/cart_storage"
 )
 
 func (s *service) Checkout(ctx context.Context, userID int64) (int64, error) {
+	ctx, span := tracer.StartSpanFromContext(ctx, "cartService.Checkout")
+	defer span.End()
 
 	cart, err := s.cartStorage.GetItemsByUserID(ctx, userID)
 	if err != nil {

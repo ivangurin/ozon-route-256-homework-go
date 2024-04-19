@@ -7,4 +7,5 @@ const (
 	ProductServiceToken   = "testtoken"
 	ProductServiceRetries = 3
 	LomsServiceGrpcHost   = "loms:8082"
+	JaegerUrl             = "http://jaeger:14268/api/traces"
 )

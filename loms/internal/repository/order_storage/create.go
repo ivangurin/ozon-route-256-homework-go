@@ -13,7 +13,7 @@ import (
 )
 
 func (r *repository) Create(ctx context.Context, user int64, items []*OrderItem) (int64, error) {
-	ctx, span := tracer.StartSpanFromContext(ctx, "orderStorage:Create")
+	ctx, span := tracer.StartSpanFromContext(ctx, "orderStorage.Create")
 	defer span.End()
 
 	metrics.UpdateDatabaseRequestsTotal(

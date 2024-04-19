@@ -48,9 +48,10 @@ func (s *server) AddHandlers(handlers model.HttpApiHandlers) {
 	for _, handler := range handlers {
 		s.mux.HandleFunc(
 			handler.Pattern,
-			middleware.WithLogger(
-				middleware.WithMetrics(
-					handler.Handler)))
+			middleware.WithTracer(
+				middleware.WithLogger(
+					middleware.WithMetrics(
+						handler.Handler))))
 	}
 }
 

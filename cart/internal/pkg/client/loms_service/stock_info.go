@@ -2,12 +2,15 @@ package lomsservice
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	stock_api "route256.ozon.ru/project/cart/internal/pb/api/stock/v1"
 	"route256.ozon.ru/project/cart/internal/pkg/metrics"
+	"route256.ozon.ru/project/cart/internal/pkg/tracer"
 )
 
 func (c *Client) StockInfo(ctx context.Context, sku int64) (uint16, error) {
@@ -16,6 +19,9 @@ func (c *Client) StockInfo(ctx context.Context, sku int64) (uint16, error) {
 		"StockInfo",
 	)
 	defer metrics.UpdateExternalResponseTime(time.Now().UTC())
+
+	fmt.Println("TRACE ID", tracer.GetTraceID(ctx))
+	ctx = metadata.AppendToOutgoingContext(ctx, "x-trace-id", tracer.GetTraceID(ctx))
 
 	req := &stock_api.StockInfoRequest{
 		Sku: sku,

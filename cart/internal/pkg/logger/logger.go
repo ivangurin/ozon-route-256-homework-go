@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"route256.ozon.ru/project/cart/internal/config"
 )
@@ -19,16 +20,22 @@ func NewLogger(opts ...ConfigOption) *Logger {
 	if err != nil {
 		panic(err)
 	}
+
 	logger = logger.With(zap.String("app", config.AppName))
+
 	return &Logger{
 		logger: logger,
 	}
 }
 
-func Sync() {
+func Close() error {
 	if logger != nil && logger.logger != nil {
-		logger.logger.Sync()
+		err := logger.logger.Sync()
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 func (l *Logger) Info(ctx context.Context, m string) {
@@ -113,13 +120,29 @@ func Fatalf(ctx context.Context, m string, args ...any) {
 
 func getFields(ctx context.Context) []zap.Field {
 	fields := make([]zap.Field, 0, 2)
-	value := ctx.Value("trace_id")
-	if value != nil {
-		fields = append(fields, zap.String("trace_id", value.(string)))
+	traceID := getTraceID(ctx)
+	if traceID != "" {
+		fields = append(fields, zap.String("trace_id", traceID))
 	}
-	value = ctx.Value("span_id")
-	if value != nil {
-		fields = append(fields, zap.String("span_id", value.(string)))
+	spanID := getSpanID(ctx)
+	if spanID != "" {
+		fields = append(fields, zap.String("span_id", spanID))
 	}
 	return fields
+}
+
+func getTraceID(ctx context.Context) string {
+	spanCtx := trace.SpanContextFromContext(ctx)
+	if spanCtx.HasTraceID() {
+		return spanCtx.TraceID().String()
+	}
+	return ""
+}
+
+func getSpanID(ctx context.Context) string {
+	spanCtx := trace.SpanContextFromContext(ctx)
+	if spanCtx.HasSpanID() {
+		return spanCtx.SpanID().String()
+	}
+	return ""
 }

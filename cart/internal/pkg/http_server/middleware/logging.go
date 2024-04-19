@@ -1,10 +1,21 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 
 	"route256.ozon.ru/project/cart/internal/pkg/logger"
+	"route256.ozon.ru/project/cart/internal/pkg/tracer"
 )
+
+func WithTracer(next http.Handler) http.HandlerFunc {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		ctx, span := tracer.StartSpanFromContext(r.Context(), fmt.Sprintf("%s %s", r.Method, r.URL.Path))
+		defer span.End()
+		next.ServeHTTP(w, r.WithContext(ctx))
+	}
+	return http.HandlerFunc(fn)
+}
 
 func WithLogger(next http.Handler) http.HandlerFunc {
 	fn := func(w http.ResponseWriter, r *http.Request) {

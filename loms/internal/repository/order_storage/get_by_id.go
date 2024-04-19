@@ -14,7 +14,7 @@ import (
 )
 
 func (r *repository) GetByID(ctx context.Context, orderID int64) (*Order, error) {
-	ctx, span := tracer.StartSpanFromContext(ctx, "orderStorage:GetByID")
+	ctx, span := tracer.StartSpanFromContext(ctx, "orderStorage.GetByID")
 	defer span.End()
 
 	metrics.UpdateDatabaseRequestsTotal(

@@ -21,7 +21,8 @@ func (sp *ServiceProvider) GetProductService() productservice.Client {
 
 func (sp *ServiceProvider) GetLomsService() *lomsservice.Client {
 	if sp.clients.lomsService == nil {
-		sp.clients.lomsService = lomsservice.NewClient(client.GetClientConn(sp.ctx, config.LomsServiceGrpcHost))
+		sp.clients.lomsService = lomsservice.NewClient(
+			client.GetClientConn(sp.ctx, config.LomsServiceGrpcHost))
 	}
 	return sp.clients.lomsService
 }
