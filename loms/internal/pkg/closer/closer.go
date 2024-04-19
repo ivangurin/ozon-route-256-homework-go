@@ -58,8 +58,8 @@ func (c *closer) Signal() {
 
 func (c *closer) CloseAll() {
 	c.once.Do(func() {
-		logger.Info("Graceful shutdown started...")
-		defer logger.Info("Graceful shutdown finished")
+		logger.Info("graceful shutdown started...")
+		defer logger.Info("graceful shutdown finished")
 
 		defer close(c.done)
 

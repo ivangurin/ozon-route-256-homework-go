@@ -3,3 +3,5 @@ go 1.22
 use ./cart
 
 use ./loms
+
+use ./notifier

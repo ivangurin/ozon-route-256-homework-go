@@ -3,10 +3,12 @@ package orderservice_test
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"route256.ozon.ru/project/loms/internal/config"
 	"route256.ozon.ru/project/loms/internal/model"
 	"route256.ozon.ru/project/loms/internal/pkg/suite"
 	orderservice "route256.ozon.ru/project/loms/internal/service/order_service"
@@ -76,6 +78,7 @@ func TestOrderCreate(t *testing.T) {
 			orderService := orderservice.NewService(
 				sp.GetStockStorage(),
 				sp.GetOrderStorage(),
+				sp.GetKafkaProducer(),
 			)
 
 			sp.GetOrderStorageMock().EXPECT().
@@ -89,6 +92,10 @@ func TestOrderCreate(t *testing.T) {
 			sp.GetOrderStorageMock().EXPECT().
 				SetStatus(mock.Anything, test.OrderID, test.Status).
 				Return(test.SetStatusError)
+
+			sp.GetKafkaProducer().EXPECT().
+				SendMessageWithKey(mock.Anything, config.KafkaOrderEventsTopic, fmt.Sprintf("%d", test.OrderID), mock.Anything).
+				Return(nil)
 
 			orderID, err := orderService.Create(context.Background(), test.User, test.Items)
 			if test.Error != nil {

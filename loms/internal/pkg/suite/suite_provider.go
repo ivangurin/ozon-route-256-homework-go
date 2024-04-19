@@ -1,6 +1,7 @@
 package suite
 
 import (
+	kafka_mocks "route256.ozon.ru/project/loms/internal/pkg/kafka/mocks"
 	orderstorage "route256.ozon.ru/project/loms/internal/repository/order_storage"
 	orderstorage_mocks "route256.ozon.ru/project/loms/internal/repository/order_storage/mocks"
 	stockstorage "route256.ozon.ru/project/loms/internal/repository/stock_storage"
@@ -12,6 +13,7 @@ import (
 )
 
 type suiteProvider struct {
+	kafkaProducer    *kafka_mocks.ProducerMock
 	stockStorage     stockstorage.Repository
 	stockStorageMock *stockstorage_mocks.RepositoryMock
 	stockService     stockservce.Service
@@ -24,6 +26,13 @@ type suiteProvider struct {
 
 func NewSuiteProvider() *suiteProvider {
 	return &suiteProvider{}
+}
+
+func (sp *suiteProvider) GetKafkaProducer() *kafka_mocks.ProducerMock {
+	if sp.kafkaProducer == nil {
+		sp.kafkaProducer = &kafka_mocks.ProducerMock{}
+	}
+	return sp.kafkaProducer
 }
 
 func (sp *suiteProvider) GetStockStorageMock() *stockstorage_mocks.RepositoryMock {
@@ -82,6 +91,7 @@ func (sp *suiteProvider) GetOrderService() orderservice.Service {
 		sp.orderService = orderservice.NewService(
 			sp.GetStockStorage(),
 			sp.GetOrderStorage(),
+			sp.GetKafkaProducer(),
 		)
 	}
 	return sp.orderService

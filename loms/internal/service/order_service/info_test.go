@@ -56,6 +56,7 @@ func TestOrderInfo(t *testing.T) {
 			orderService := orderservice.NewService(
 				sp.GetStockStorage(),
 				sp.GetOrderStorage(),
+				sp.GetKafkaProducer(),
 			)
 
 			sp.GetOrderStorageMock().EXPECT().

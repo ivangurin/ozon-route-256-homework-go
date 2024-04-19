@@ -24,11 +24,14 @@ func (s *service) Create(ctx context.Context, user int64, items model.OrderItems
 		reserved = true
 	}
 
+	var status string
 	if reserved {
-		err = s.orderStorage.SetStatus(ctx, orderID, model.OrderStatusAwaitingPayment)
+		status = model.OrderStatusAwaitingPayment
 	} else {
-		err = s.orderStorage.SetStatus(ctx, orderID, model.OrderStatusFailed)
+		status = model.OrderStatusFailed
 	}
+
+	err = s.orderStorage.SetStatus(ctx, orderID, status)
 	if err != nil {
 		logger.Errorf("failed to change status: %w", err)
 		return 0, fmt.Errorf("failed to change status: %w", err)
