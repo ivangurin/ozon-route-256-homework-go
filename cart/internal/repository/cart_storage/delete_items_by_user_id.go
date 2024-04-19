@@ -6,12 +6,16 @@ import (
 
 	"route256.ozon.ru/project/cart/internal/pkg/logger"
 	"route256.ozon.ru/project/cart/internal/pkg/metrics"
+	"route256.ozon.ru/project/cart/internal/pkg/tracer"
 )
 
 func (s *storage) DeleteItemsByUserID(
 	ctx context.Context,
 	userID int64,
 ) error {
+	_, span := tracer.StartSpanFromContext(ctx, "cartStorage.DeleteItemsByUserID")
+	defer span.End()
+
 	metrics.UpdateDatabaseRequestsTotal(
 		RepositoryName,
 		"DeleteItemsByUserID",

@@ -9,6 +9,7 @@ import (
 	"github.com/IBM/sarama"
 	"route256.ozon.ru/project/loms/internal/config"
 	"route256.ozon.ru/project/loms/internal/pkg/logger"
+	"route256.ozon.ru/project/loms/internal/pkg/tracer"
 )
 
 const (
@@ -55,8 +56,12 @@ func (p *producer) SendMessageWithKey(ctx context.Context, topic string, key str
 	pm := &sarama.ProducerMessage{
 		Headers: []sarama.RecordHeader{
 			{
-				Key:   []byte(appParam),
-				Value: []byte(config.AppName),
+				Key:   sarama.ByteEncoder(appParam),
+				Value: sarama.ByteEncoder(config.AppName),
+			},
+			{
+				Key:   sarama.ByteEncoder("x-trace-id"),
+				Value: sarama.ByteEncoder(tracer.GetTraceID(ctx)),
 			},
 		},
 		Timestamp: time.Now(),

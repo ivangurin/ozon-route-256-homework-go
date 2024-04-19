@@ -39,7 +39,7 @@ func (s *service) Create(ctx context.Context, user int64, items model.OrderItems
 
 	err = s.orderStorage.SetStatus(ctx, orderID, status)
 	if err != nil {
-		logger.Errorf(ctx, "failed to change status: %w", err)
+		logger.Errorf(ctx, "failed to change status: %v", err)
 		return 0, fmt.Errorf("failed to change status: %w", err)
 	}
 

@@ -2,6 +2,7 @@ package kafka_storage
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -11,8 +12,8 @@ import (
 	"route256.ozon.ru/project/loms/internal/pkg/tracer"
 )
 
-func InsertOutboxMessageTx(ctx context.Context, tx pgx.Tx, message *Outbox) error {
-	ctx, span := tracer.StartSpanFromContext(ctx, "kafkaStorage:InsertOutboxMessageTx")
+func InsertOutboxMessage(ctx context.Context, tx pgx.Tx, message *Outbox) error {
+	ctx, span := tracer.StartSpanFromContext(ctx, "kafkaStorage:InsertOutboxMessage")
 	defer span.End()
 
 	metrics.UpdateDatabaseRequestsTotal(
@@ -22,10 +23,28 @@ func InsertOutboxMessageTx(ctx context.Context, tx pgx.Tx, message *Outbox) erro
 	)
 	defer metrics.UpdateDatabaseResponseTime(time.Now().UTC())
 
+	traceID := tracer.GetTraceID(ctx)
+	var sqlTraceID sql.NullString
+	if traceID != "" {
+		sqlTraceID = sql.NullString{
+			String: traceID,
+			Valid:  true,
+		}
+	}
+
+	spanID := tracer.GetSpanID(ctx)
+	var sqlSpanID sql.NullString
+	if spanID != "" {
+		sqlSpanID = sql.NullString{
+			String: spanID,
+			Valid:  true,
+		}
+	}
+
 	builder := squirrel.
 		Insert(KafkaOutboxTable).
-		Columns("event", "entity_type", "entity_id", "data").
-		Values(message.Event, message.EntityType, message.EntityID, message.Data).
+		Columns("event", "entity_type", "entity_id", "data", "trace_id", "span_id").
+		Values(message.Event, message.EntityType, message.EntityID, message.Data, sqlTraceID, sqlSpanID).
 		PlaceholderFormat(squirrel.Dollar)
 
 	query, args, err := builder.ToSql()

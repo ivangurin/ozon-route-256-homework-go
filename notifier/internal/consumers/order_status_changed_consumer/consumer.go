@@ -6,8 +6,9 @@ import (
 	"fmt"
 
 	"github.com/IBM/sarama"
-	orderservice "route256.ozon.ru/project/notifier/internal/app/notifier_service/model/order_service"
+	orderservice "route256.ozon.ru/project/notifier/internal/model/order_service"
 	"route256.ozon.ru/project/notifier/internal/pkg/logger"
+	"route256.ozon.ru/project/notifier/internal/pkg/tracer"
 	notifierservice "route256.ozon.ru/project/notifier/internal/service/notifier_service"
 )
 
@@ -28,6 +29,9 @@ func NewConsumer(
 }
 
 func (c *consumer) Handle(ctx context.Context, msg *sarama.ConsumerMessage) (bool, error) {
+	ctx, span := tracer.StartSpanFromContext(ctx, "orderStatusChangedConsumer.HandleMessage")
+	defer span.End()
+
 	logger.Infof(ctx, "Got a new message. Offset: %d. Partition: %d", msg.Offset, msg.Partition)
 	defer logger.Infof(ctx, "The message is handled. Offset: %d. Partition: %d", msg.Offset, msg.Partition)
 
@@ -48,6 +52,9 @@ func (c *consumer) Handle(ctx context.Context, msg *sarama.ConsumerMessage) (boo
 }
 
 func (c *consumer) handleOrderStatusChanged(ctx context.Context, msg *sarama.ConsumerMessage) (bool, error) {
+	ctx, span := tracer.StartSpanFromContext(ctx, "orderStatusChangedConsumer.handleOrderStatusChanged")
+	defer span.End()
+
 	orderStatusChangedMessage := &orderservice.OrderChangeStatusMessage{}
 	err := json.Unmarshal(msg.Value, orderStatusChangedMessage)
 	if err != nil {

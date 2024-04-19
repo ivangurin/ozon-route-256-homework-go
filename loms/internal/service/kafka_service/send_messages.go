@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"time"
 
+	"go.opentelemetry.io/otel/trace"
 	"route256.ozon.ru/project/loms/internal/config"
 	"route256.ozon.ru/project/loms/internal/model"
 	"route256.ozon.ru/project/loms/internal/pkg/logger"
+	"route256.ozon.ru/project/loms/internal/pkg/tracer"
 	"route256.ozon.ru/project/loms/internal/repository/kafka_storage/sqlc"
 )
 
@@ -46,8 +48,17 @@ func (s *service) sendMessages(ctx context.Context) error {
 }
 
 func (s *service) sendMessage(ctx context.Context, message *sqlc.KafkaOutbox) error {
-	// ctx, span := tracer.StartSpanFromContext(ctx, "kafkaService.sendMessage")
-	// defer span.End()
+	if message.TraceID.String != "" {
+		traceIDHex, _ := trace.TraceIDFromHex(message.TraceID.String)
+		spanContext := trace.NewSpanContext(trace.SpanContextConfig{
+			TraceID: traceIDHex,
+		})
+		ctx = trace.ContextWithSpanContext(ctx, spanContext)
+	}
+
+	var span trace.Span
+	ctx, span = tracer.StartSpanFromContext(ctx, "kafkaService.sendMessage")
+	defer span.End()
 
 	var err error
 	switch message.Event.String {
@@ -56,6 +67,7 @@ func (s *service) sendMessage(ctx context.Context, message *sqlc.KafkaOutbox) er
 	default:
 		logger.Errorf(ctx, "failed to send message: %v", err)
 	}
+
 	return err
 }
 

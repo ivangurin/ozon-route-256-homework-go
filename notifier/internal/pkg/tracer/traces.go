@@ -11,7 +11,7 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 	"go.opentelemetry.io/otel/trace"
 	otel_trace "go.opentelemetry.io/otel/trace"
-	"route256.ozon.ru/project/loms/internal/config"
+	"route256.ozon.ru/project/notifier/internal/config"
 )
 
 var tracer otel_trace.Tracer = NewTracer()

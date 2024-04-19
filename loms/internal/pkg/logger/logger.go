@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"route256.ozon.ru/project/loms/internal/config"
+	"route256.ozon.ru/project/loms/internal/pkg/tracer"
 )
 
 type Logger struct {
@@ -120,29 +120,13 @@ func Fatalf(ctx context.Context, m string, args ...any) {
 
 func getFields(ctx context.Context) []zap.Field {
 	fields := make([]zap.Field, 0, 2)
-	traceID := getTraceID(ctx)
+	traceID := tracer.GetTraceID(ctx)
 	if traceID != "" {
 		fields = append(fields, zap.String("trace_id", traceID))
 	}
-	spanID := getSpanID(ctx)
+	spanID := tracer.GetSpanID(ctx)
 	if spanID != "" {
 		fields = append(fields, zap.String("span_id", spanID))
 	}
 	return fields
-}
-
-func getTraceID(ctx context.Context) string {
-	spanCtx := trace.SpanContextFromContext(ctx)
-	if spanCtx.HasTraceID() {
-		return spanCtx.TraceID().String()
-	}
-	return ""
-}
-
-func getSpanID(ctx context.Context) string {
-	spanCtx := trace.SpanContextFromContext(ctx)
-	if spanCtx.HasSpanID() {
-		return spanCtx.SpanID().String()
-	}
-	return ""
 }

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"route256.ozon.ru/project/cart/internal/pkg/metrics"
+	"route256.ozon.ru/project/cart/internal/pkg/tracer"
 )
 
 func (s *storage) AddItem(
@@ -13,6 +14,9 @@ func (s *storage) AddItem(
 	skuID int64,
 	quantity uint16,
 ) error {
+	_, span := tracer.StartSpanFromContext(ctx, "cartStorage.AddItem")
+	defer span.End()
+
 	metrics.UpdateDatabaseRequestsTotal(
 		RepositoryName,
 		"AddItem",

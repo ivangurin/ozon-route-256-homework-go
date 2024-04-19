@@ -2,9 +2,12 @@ package kafka
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/IBM/sarama"
+	"go.opentelemetry.io/otel/trace"
 	"route256.ozon.ru/project/notifier/internal/pkg/logger"
+	"route256.ozon.ru/project/notifier/internal/pkg/tracer"
 )
 
 type Handler func(ctx context.Context, message *sarama.ConsumerMessage) (bool, error)
@@ -43,7 +46,30 @@ func (h *consumerGroupHandler) ConsumeClaim(session sarama.ConsumerGroupSession,
 				return nil
 			}
 
-			ok, err := h.handler(session.Context(), message)
+			ctx := session.Context()
+
+			for _, header := range message.Headers {
+				key := string(header.Key)
+
+				if key == "x-trace-id" {
+					traceID := string(header.Value)
+					if traceID != "" {
+						fmt.Println("traceID", traceID)
+						traceIDHex, _ := trace.TraceIDFromHex(traceID)
+						spanContext := trace.NewSpanContext(trace.SpanContextConfig{
+							TraceID: traceIDHex,
+						})
+						ctx = trace.ContextWithSpanContext(ctx, spanContext)
+					}
+				}
+
+			}
+
+			var span trace.Span
+			ctx, span = tracer.StartSpanFromContext(ctx, "kafkaConsumerGroup.HandleMessage")
+			defer span.End()
+
+			ok, err := h.handler(ctx, message)
 			if err != nil {
 				logger.Errorf(h.ctx, "failed to handle message: %v", err)
 				continue

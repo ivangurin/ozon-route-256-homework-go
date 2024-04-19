@@ -7,12 +7,16 @@ import (
 	"route256.ozon.ru/project/cart/internal/model"
 	"route256.ozon.ru/project/cart/internal/pkg/logger"
 	"route256.ozon.ru/project/cart/internal/pkg/metrics"
+	"route256.ozon.ru/project/cart/internal/pkg/tracer"
 )
 
 func (s *storage) GetItemsByUserID(
 	ctx context.Context,
 	userID int64,
 ) (*Cart, error) {
+	_, span := tracer.StartSpanFromContext(ctx, "cartStorage.GetItemsByUserID")
+	defer span.End()
+
 	metrics.UpdateDatabaseRequestsTotal(
 		RepositoryName,
 		"GetItemsByUserID",

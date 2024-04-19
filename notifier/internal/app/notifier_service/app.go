@@ -9,6 +9,7 @@ import (
 	"route256.ozon.ru/project/notifier/internal/pkg/kafka"
 	"route256.ozon.ru/project/notifier/internal/pkg/logger"
 	serviceprovider "route256.ozon.ru/project/notifier/internal/pkg/service_provider"
+	"route256.ozon.ru/project/notifier/internal/pkg/tracer"
 )
 
 type App interface {
@@ -74,10 +75,10 @@ func (a *app) Run() error {
 	}()
 
 	// logger
-	closer.Add(func() error {
-		logger.Sync()
-		return nil
-	})
+	closer.Add(logger.Close)
+
+	// tracer
+	closer.Add(tracer.Close)
 
 	return err
 }

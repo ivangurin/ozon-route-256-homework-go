@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"route256.ozon.ru/project/cart/internal/pkg/metrics"
+	"route256.ozon.ru/project/cart/internal/pkg/tracer"
 )
 
 func (s *storage) DeleteItem(
@@ -12,6 +13,9 @@ func (s *storage) DeleteItem(
 	userID int64,
 	skuID int64,
 ) error {
+	_, span := tracer.StartSpanFromContext(ctx, "cartStorage.DeleteItem")
+	defer span.End()
+
 	metrics.UpdateDatabaseRequestsTotal(
 		RepositoryName,
 		"DeleteItem",

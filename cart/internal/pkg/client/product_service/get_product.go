@@ -14,11 +14,15 @@ import (
 	"route256.ozon.ru/project/cart/internal/model"
 	"route256.ozon.ru/project/cart/internal/pkg/logger"
 	"route256.ozon.ru/project/cart/internal/pkg/metrics"
+	"route256.ozon.ru/project/cart/internal/pkg/tracer"
 )
 
 const StatusEnhanceYourCalm = 420
 
 func (c *client) GetProduct(ctx context.Context, skuID int64) (*GetProductResponse, error) {
+	ctx, span := tracer.StartSpanFromContext(ctx, "productService.GetProduct")
+	defer span.End()
+
 	resp, exists := productStorage[skuID]
 	if exists {
 		return resp, nil
@@ -93,6 +97,9 @@ func (c *client) GetProduct(ctx context.Context, skuID int64) (*GetProductRespon
 }
 
 func (c *client) GetProductWithRetries(ctx context.Context, skuID int64) (*GetProductResponse, error) {
+	ctx, span := tracer.StartSpanFromContext(ctx, "productService.GetProductWithRetries")
+	defer span.End()
+
 	for i := 0; i < config.ProductServiceRetries; i++ {
 		logger.Infof(ctx, "productService.GetProduct: start %d try for product %d", i, skuID)
 

@@ -5,4 +5,5 @@ const (
 	KafkaAddr             = "kafka0:29092"
 	KafkaConsumerGroupID  = "notifier_service"
 	KafkaOrderEventsTopic = "loms.order-events"
+	JaegerUrl             = "http://jaeger:14268/api/traces"
 )
