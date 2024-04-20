@@ -71,7 +71,6 @@ func (a *app) Run() error {
 			closer.CloseAll()
 			return
 		}
-		logger.Info(a.ctx, "consumer group started successfully")
 	}()
 
 	// logger

@@ -2,12 +2,10 @@ package kafka
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/IBM/sarama"
 	"go.opentelemetry.io/otel/trace"
 	"route256.ozon.ru/project/notifier/internal/pkg/logger"
-	"route256.ozon.ru/project/notifier/internal/pkg/tracer"
 )
 
 type Handler func(ctx context.Context, message *sarama.ConsumerMessage) (bool, error)
@@ -47,27 +45,28 @@ func (h *consumerGroupHandler) ConsumeClaim(session sarama.ConsumerGroupSession,
 			}
 
 			ctx := session.Context()
+			var traceID string
+			var spanID string
 
 			for _, header := range message.Headers {
-				key := string(header.Key)
-
-				if key == "x-trace-id" {
-					traceID := string(header.Value)
-					if traceID != "" {
-						fmt.Println("traceID", traceID)
-						traceIDHex, _ := trace.TraceIDFromHex(traceID)
-						spanContext := trace.NewSpanContext(trace.SpanContextConfig{
-							TraceID: traceIDHex,
-						})
-						ctx = trace.ContextWithSpanContext(ctx, spanContext)
-					}
+				switch string(header.Key) {
+				case "x-trace-id":
+					traceID = string(header.Value)
+				case "x-span-id":
+					spanID = string(header.Value)
 				}
-
 			}
 
-			var span trace.Span
-			ctx, span = tracer.StartSpanFromContext(ctx, "kafkaConsumerGroup.HandleMessage")
-			defer span.End()
+			if traceID != "" {
+				spanContext := trace.SpanContextConfig{
+					TraceFlags: trace.FlagsSampled,
+					Remote:     true,
+				}
+				spanContext.TraceID, _ = trace.TraceIDFromHex(traceID)
+				spanContext.SpanID, _ = trace.SpanIDFromHex(spanID)
+				ctx = trace.ContextWithSpanContext(ctx,
+					trace.NewSpanContext(spanContext))
+			}
 
 			ok, err := h.handler(ctx, message)
 			if err != nil {

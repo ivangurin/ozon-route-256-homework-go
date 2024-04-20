@@ -63,6 +63,10 @@ func (p *producer) SendMessageWithKey(ctx context.Context, topic string, key str
 				Key:   sarama.ByteEncoder("x-trace-id"),
 				Value: sarama.ByteEncoder(tracer.GetTraceID(ctx)),
 			},
+			{
+				Key:   sarama.ByteEncoder("x-span-id"),
+				Value: sarama.ByteEncoder(tracer.GetSpanID(ctx)),
+			},
 		},
 		Timestamp: time.Now(),
 		Topic:     topic,

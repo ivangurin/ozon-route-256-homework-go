@@ -11,22 +11,38 @@ import (
 
 func Tracer(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 	md, _ := metadata.FromIncomingContext(ctx)
+
 	var traceID string
 	if traceIDs, exists := md["x-trace-id"]; exists {
 		traceID = traceIDs[0]
 	}
 
-	if traceID != "" {
-		traceIDHex, _ := trace.TraceIDFromHex(traceID)
-		spanContext := trace.NewSpanContext(trace.SpanContextConfig{
-			TraceID: traceIDHex,
-		})
+	var spanID string
+	if spanIDs, exists := md["x-span-id"]; exists {
+		spanID = spanIDs[0]
+	}
 
-		ctx = trace.ContextWithSpanContext(ctx, spanContext)
+	if traceID != "" {
+		var err error
+		spanContext := trace.SpanContextConfig{
+			TraceFlags: trace.FlagsSampled,
+			Remote:     true,
+		}
+		spanContext.TraceID, err = trace.TraceIDFromHex(traceID)
+		if err != nil {
+			return nil, err
+		}
+		spanContext.SpanID, err = trace.SpanIDFromHex(spanID)
+		if err != nil {
+			return nil, err
+		}
+		ctx = trace.ContextWithSpanContext(ctx,
+			trace.NewSpanContext(spanContext))
 	}
 
 	var span trace.Span
-	ctx, span = tracer.StartSpanFromContext(ctx, info.FullMethod)
+	ctx, span = tracer.StartSpanFromContext(ctx, info.FullMethod,
+		trace.WithSpanKind(trace.SpanKindServer))
 	defer span.End()
 
 	return handler(ctx, req)

@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/IBM/sarama"
+	"go.opentelemetry.io/otel/trace"
 	orderservice "route256.ozon.ru/project/notifier/internal/model/order_service"
 	"route256.ozon.ru/project/notifier/internal/pkg/logger"
 	"route256.ozon.ru/project/notifier/internal/pkg/tracer"
@@ -29,7 +30,10 @@ func NewConsumer(
 }
 
 func (c *consumer) Handle(ctx context.Context, msg *sarama.ConsumerMessage) (bool, error) {
-	ctx, span := tracer.StartSpanFromContext(ctx, "orderStatusChangedConsumer.HandleMessage")
+
+	var span trace.Span
+	ctx, span = tracer.StartSpanFromContext(ctx, "orderStatusChangedConsumer.HandleMessage",
+		trace.WithSpanKind(trace.SpanKindConsumer))
 	defer span.End()
 
 	logger.Infof(ctx, "Got a new message. Offset: %d. Partition: %d", msg.Offset, msg.Partition)

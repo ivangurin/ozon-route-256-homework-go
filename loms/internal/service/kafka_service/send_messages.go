@@ -48,19 +48,30 @@ func (s *service) sendMessages(ctx context.Context) error {
 }
 
 func (s *service) sendMessage(ctx context.Context, message *sqlc.KafkaOutbox) error {
+	var err error
+
 	if message.TraceID.String != "" {
-		traceIDHex, _ := trace.TraceIDFromHex(message.TraceID.String)
-		spanContext := trace.NewSpanContext(trace.SpanContextConfig{
-			TraceID: traceIDHex,
-		})
-		ctx = trace.ContextWithSpanContext(ctx, spanContext)
+		spanContext := trace.SpanContextConfig{
+			TraceFlags: trace.FlagsSampled,
+			Remote:     true,
+		}
+		spanContext.TraceID, err = trace.TraceIDFromHex(message.TraceID.String)
+		if err != nil {
+			return err
+		}
+		spanContext.SpanID, err = trace.SpanIDFromHex(message.SpanID.String)
+		if err != nil {
+			return err
+		}
+		ctx = trace.ContextWithSpanContext(ctx,
+			trace.NewSpanContext(spanContext))
 	}
 
 	var span trace.Span
-	ctx, span = tracer.StartSpanFromContext(ctx, "kafkaService.sendMessage")
+	ctx, span = tracer.StartSpanFromContext(ctx, "kafkaService.sendMessage",
+		trace.WithSpanKind(trace.SpanKindProducer))
 	defer span.End()
 
-	var err error
 	switch message.Event.String {
 	case model.EventOrderStatusChanged:
 		err = s.sendOrderStatusChangedMessage(ctx, message)

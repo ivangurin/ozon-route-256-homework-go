@@ -41,8 +41,8 @@ func NewTracer() otel_trace.Tracer {
 	return tracer
 }
 
-func StartSpanFromContext(ctx context.Context, name string) (context.Context, otel_trace.Span) {
-	ctx, span := tracer.Start(ctx, name)
+func StartSpanFromContext(ctx context.Context, name string, opts ...trace.SpanStartOption) (context.Context, otel_trace.Span) {
+	ctx, span := tracer.Start(ctx, name, opts...)
 	return ctx, span
 }
 
