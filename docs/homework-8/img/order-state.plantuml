@@ -1,0 +1,27 @@
+@startuml
+
+New : Order created
+
+AwaitingPayment : Stocks enough and
+AwaitingPayment : reserved for order
+
+Failed : Stocks not enough
+
+Paid : Payment for the order
+Paid : has been received
+
+Cancelled : Payment waiting timeout
+Cancelled : reached.
+Cancelled : Stocks reserve canceled
+
+
+[*] --> New : OrderCreate
+New --> Failed : StockReserveFailed
+New --> AwaitingPayment : StockReserveSuccess
+AwaitingPayment --> Paid : OrderPay
+AwaitingPayment --> Cancelled : Pay wait timeout
+
+Failed --> [*]
+Paid --> [*]
+Cancelled --> [*]
+@enduml
