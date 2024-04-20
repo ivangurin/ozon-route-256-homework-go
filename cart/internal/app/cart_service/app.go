@@ -41,7 +41,7 @@ func (a *app) Run() error {
 	closer := a.sp.GetCloser()
 	defer closer.Wait()
 
-	cartAPI := a.sp.GetCartAPI()
+	cartAPI := a.sp.GetCartAPI(a.ctx)
 
 	// http server
 	httpServer := httpserver.NewServer(a.ctx, config.CartServiceHttpPort)

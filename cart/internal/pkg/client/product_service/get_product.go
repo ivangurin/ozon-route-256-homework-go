@@ -23,7 +23,12 @@ func (c *client) GetProduct(ctx context.Context, skuID int64) (*GetProductRespon
 	ctx, span := tracer.StartSpanFromContext(ctx, "productService.GetProduct")
 	defer span.End()
 
-	resp, exists := productStorage[skuID]
+	resp := &GetProductResponse{}
+
+	exists, err := c.redisClient.Get(ctx, fmt.Sprintf("productService.Product:%d", skuID), resp)
+	if err != nil {
+		logger.Errorf(ctx, "productService.GetProduct: failed to get product from redis: %v", err)
+	}
 	if exists {
 		return resp, nil
 	}
@@ -74,13 +79,13 @@ func (c *client) GetProduct(ctx context.Context, skuID int64) (*GetProductRespon
 			return nil, fmt.Errorf("failed to get product response body: %w", err)
 		}
 
-		resp = &GetProductResponse{}
-
 		err = json.Unmarshal(jsonResp, resp)
 		if err != nil {
 			logger.Errorf(ctx, "productService.getProduct: failed to unmarshal product response body: %v", err)
 			return nil, fmt.Errorf("failed to unmarshal product response body: %w", err)
 		}
+
+		c.redisClient.Set(ctx, fmt.Sprintf("productService.Product:%d", skuID), resp, time.Hour)
 
 		return resp, nil
 	} else if httpResp.StatusCode == http.StatusNotFound {

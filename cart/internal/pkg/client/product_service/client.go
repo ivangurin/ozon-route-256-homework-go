@@ -2,6 +2,8 @@ package productservice
 
 import (
 	"context"
+
+	"route256.ozon.ru/project/cart/internal/pkg/redis"
 )
 
 type Client interface {
@@ -9,14 +11,18 @@ type Client interface {
 	GetProductWithRetries(ctx context.Context, skuID int64) (*GetProductResponse, error)
 }
 
-type client struct{}
+type client struct {
+	redisClient redis.Client
+}
 
 const (
 	ServiceName = "product-service"
 )
 
-var productStorage map[int64]*GetProductResponse = map[int64]*GetProductResponse{}
-
-func NewClient() Client {
-	return &client{}
+func NewClient(
+	redisClient redis.Client,
+) Client {
+	return &client{
+		redisClient: redisClient,
+	}
 }

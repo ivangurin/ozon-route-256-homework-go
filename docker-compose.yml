@@ -159,6 +159,16 @@ services:
       prometheus:
         condition: service_healthy
 
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
   cart:
     image: cart
     build: ./cart/
@@ -166,6 +176,8 @@ services:
       - "8080:8080"
     depends_on:
       jaeger:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   loms:
