@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sync"
 	"time"
 
 	"route256.ozon.ru/project/cart/internal/config"
@@ -23,9 +24,26 @@ func (c *client) GetProduct(ctx context.Context, skuID int64) (*GetProductRespon
 	ctx, span := tracer.StartSpanFromContext(ctx, "productService.GetProduct")
 	defer span.End()
 
-	resp := &GetProductResponse{}
+	cacheID := fmt.Sprintf("productService.GetProduct:%d", skuID)
 
-	exists, err := c.redisClient.Get(ctx, fmt.Sprintf("productService.Product:%d", skuID), resp)
+	resp := &GetProductResponse{}
+	exists, err := c.redisClient.Get(ctx, cacheID, resp)
+	if err != nil {
+		logger.Errorf(ctx, "productService.GetProduct: failed to get product from redis: %v", err)
+	}
+	if exists {
+		return resp, nil
+	}
+
+	mutex, exists := c.locks[cacheID]
+	if !exists {
+		mutex = &sync.Mutex{}
+	}
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	// Если вдруг за время ожидания другой запрос уже обновил кэш
+	exists, err = c.redisClient.Get(ctx, cacheID, resp)
 	if err != nil {
 		logger.Errorf(ctx, "productService.GetProduct: failed to get product from redis: %v", err)
 	}
@@ -85,7 +103,7 @@ func (c *client) GetProduct(ctx context.Context, skuID int64) (*GetProductRespon
 			return nil, fmt.Errorf("failed to unmarshal product response body: %w", err)
 		}
 
-		c.redisClient.Set(ctx, fmt.Sprintf("productService.Product:%d", skuID), resp, time.Hour)
+		c.redisClient.Set(ctx, cacheID, resp, time.Hour)
 
 		return resp, nil
 	} else if httpResp.StatusCode == http.StatusNotFound {
