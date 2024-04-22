@@ -23,19 +23,27 @@ func (r *repository) Create(ctx context.Context, user int64, items []*OrderItem)
 	)
 	defer metrics.UpdateDatabaseResponseTime(time.Now().UTC())
 
-	pool := r.dbClient.GetWriterPool()
+	pool := r.dbClient.GetWriterPoolByUserID(user)
 	var orderID int64
 	err := pool.BeginFunc(ctx, func(tx pgx.Tx) error {
 		qtx := sqlc.New(pool).WithTx(tx)
 
 		var err error
-		orderID, err = qtx.CreateOrder(ctx, sqlc.CreateOrderParams{User: user, Status: model.OrderStatusNew})
+		orderID, err = qtx.CreateOrder(ctx, sqlc.CreateOrderParams{
+			Column1: r.dbClient.GetShardByUserID(user),
+			User:    user,
+			Status:  model.OrderStatusNew,
+		})
 		if err != nil {
 			return fmt.Errorf("failed add row to order table: %w", err)
 		}
 
 		for _, item := range items {
-			err = qtx.AddOrderItem(ctx, sqlc.AddOrderItemParams{OrderID: orderID, Sku: item.Sku, Quantity: int32(item.Quantity)})
+			err = qtx.AddOrderItem(ctx, sqlc.AddOrderItemParams{
+				OrderID:  orderID,
+				Sku:      item.Sku,
+				Quantity: int32(item.Quantity),
+			})
 			if err != nil {
 				return fmt.Errorf("failed to add row to order_item table for sku %d: %w", item.Sku, err)
 			}

@@ -4,63 +4,123 @@ import (
 	"context"
 	"fmt"
 	"sync/atomic"
+
+	"route256.ozon.ru/project/loms/internal/pkg/logger"
 )
 
 type Client interface {
-	GetReaderPool() Pool
-	GetWriterPool() Pool
-	GetMasterPool() Pool
-	GetSyncPool() Pool
+	AddShard(masterUrl, syncUrl string) error
+	GetShards() []*shard
+	GetShardByUserID(id int64) int64
+	GetShardByOrderID(id int64) int64
+	GetReaderPoolByShadID(id int64) Pool
+	GetReaderPoolByUserID(id int64) Pool
+	GetReaderPoolByOrderID(id int64) Pool
+	GetWriterPoolByShadID(id int64) Pool
+	GetWriterPoolByUserID(id int64) Pool
+	GetWriterPoolByOrderID(id int64) Pool
 	Close() error
+}
+
+type shard struct {
+	Master Pool
+	Sync   Pool
 }
 
 type client struct {
 	ctx               context.Context
-	masterPool        Pool
-	syncPool          Pool
+	shards            []*shard
 	readerPoolCounter atomic.Uint64
 }
 
-func NewClient(ctx context.Context, masterDBUrl, syncDBUrl string) (Client, error) {
-	masterPool, err := NewPool(ctx, masterDBUrl)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create master pool: %v", err)
-	}
-
-	syncPool, err := NewPool(ctx, syncDBUrl)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create sync pool: %v", err)
-	}
-
+func NewClient(ctx context.Context) Client {
 	return &client{
-		ctx:        ctx,
-		masterPool: masterPool,
-		syncPool:   syncPool,
-	}, nil
+		ctx: ctx,
+	}
 }
 
-func (c *client) GetReaderPool() Pool {
+func (c *client) AddShard(masterUrl, syncUrl string) error {
+
+	shard := &shard{}
+	c.shards = append(c.shards, shard)
+
+	var err error
+	shard.Master, err = NewPool(c.ctx, masterUrl)
+	if err != nil {
+		return fmt.Errorf("failed to create master pool: %v", err)
+	}
+
+	shard.Sync, err = NewPool(c.ctx, syncUrl)
+	if err != nil {
+		return fmt.Errorf("failed to create sync pool: %v", err)
+	}
+
+	return nil
+}
+
+func (c *client) GetShardByUserID(id int64) int64 {
+	return id % int64(len(c.shards))
+}
+
+func (c *client) GetShardByOrderID(id int64) int64 {
+	return id % 1000
+}
+
+func (c *client) GetShards() []*shard {
+	return c.shards
+}
+
+func (c *client) GetReaderPoolByShadID(id int64) Pool {
 	res := c.readerPoolCounter.Add(1)
 	if res%2 == 0 {
-		return c.masterPool
+		return c.GetMasterPoolByShardID(id)
 	}
-	return c.syncPool
+	return c.GetSyncPoolByShardID(id)
 }
 
-func (c *client) GetWriterPool() Pool {
-	return c.GetMasterPool()
+func (c *client) GetReaderPoolByUserID(id int64) Pool {
+	return c.GetReaderPoolByShadID(c.GetShardByUserID(id))
 }
 
-func (c *client) GetMasterPool() Pool {
-	return c.masterPool
+func (c *client) GetReaderPoolByOrderID(id int64) Pool {
+	return c.GetReaderPoolByShadID(c.GetShardByOrderID(id))
 }
 
-func (c *client) GetSyncPool() Pool {
-	return c.syncPool
+func (c *client) GetWriterPoolByShadID(id int64) Pool {
+	return c.GetMasterPoolByShardID(id)
+}
+
+func (c *client) GetWriterPoolByUserID(id int64) Pool {
+	return c.GetWriterPoolByShadID(c.GetShardByUserID(id))
+}
+
+func (c *client) GetWriterPoolByOrderID(id int64) Pool {
+	return c.GetWriterPoolByShadID(c.GetShardByOrderID(id))
+}
+
+func (c *client) GetMasterPoolByShardID(id int64) Pool {
+	return c.shards[id].Master
+}
+
+func (c *client) GetSyncPoolByShardID(id int64) Pool {
+	return c.shards[id].Sync
 }
 
 func (c *client) Close() error {
-	c.masterPool.Close()
-	c.syncPool.Close()
+	var err error
+	for _, shard := range c.shards {
+		if shard.Master != nil {
+			err = shard.Master.Close()
+			if err != nil {
+				logger.Errorf(c.ctx, "failed to close master pool: %v", err)
+			}
+		}
+		if shard.Sync != nil {
+			err = shard.Sync.Close()
+			if err != nil {
+				logger.Errorf(c.ctx, "failed to close sync pool: %v", err)
+			}
+		}
+	}
 	return nil
 }

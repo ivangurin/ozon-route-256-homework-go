@@ -1,6 +1,6 @@
 -- name: CreateOrder :one
-insert into "order" ("user", status, created_at, updated_at) 
-    values ($1, $2, now(), now())
+insert into "order" ("id", "user", status, created_at, updated_at) 
+    values (nextval('order_id_manual_seq') + $1, $2, $3, now(), now())
     returning id;
 
 -- name: AddOrderItem :exec

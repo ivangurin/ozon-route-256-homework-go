@@ -1,17 +1,18 @@
 volumes:
   prometheus_data: {}
   grafana-data: {}
-  postgres-data: {}
+  postgres-data-1: {}
+  postgres-data-2: {}
 
 services:
-  loms-service-master:
+  loms-service-master-1:
     image: bitnami/postgresql:latest
     ports:
-      - 5432:5432
+      - 54321:5432
     environment:
       - POSTGRESQL_USERNAME=postgres
       - POSTGRESQL_PASSWORD=postgres
-      - POSTGRESQL_DATABASE=loms-service
+      - POSTGRESQL_DATABASE=loms-service-1
       - POSTGRESQL_REPLICATION_MODE=master
       - POSTGRESQL_REPLICATION_USER=repl_postgres
       - POSTGRESQL_REPLICATION_PASSWORD=repl_postgres
@@ -20,24 +21,45 @@ services:
       - POSTGRESQL_PGAUDIT_LOG=READ,WRITE
       - POSTGRESQL_LOG_HOSTNAME=true
     volumes:
-      - postgres-data:/bitnami/postgresql
+      - postgres-data-1:/bitnami/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 1s
       timeout: 5s
       retries: 5
 
-  loms-service-sync:
+  loms-service-master-2:
     image: bitnami/postgresql:latest
     ports:
-      - 5433:5432
-    depends_on:
-      - loms-service-master
+      - 54322:5432
     environment:
       - POSTGRESQL_USERNAME=postgres
       - POSTGRESQL_PASSWORD=postgres
-      - POSTGRESQL_DATABASE=loms-service
-      - POSTGRESQL_MASTER_HOST=loms-service-master
+      - POSTGRESQL_DATABASE=loms-service-2
+      - POSTGRESQL_REPLICATION_MODE=master
+      - POSTGRESQL_REPLICATION_USER=repl_postgres
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_postgres
+      - POSTGRESQL_SYNCHRONOUS_COMMIT_MODE=on
+      - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=1
+      - POSTGRESQL_PGAUDIT_LOG=READ,WRITE
+      - POSTGRESQL_LOG_HOSTNAME=true
+    volumes:
+      - postgres-data-2:/bitnami/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+
+  loms-service-sync-1:
+    image: bitnami/postgresql:latest
+    ports:
+      - 54331:5432
+    environment:
+      - POSTGRESQL_USERNAME=postgres
+      - POSTGRESQL_PASSWORD=postgres
+      - POSTGRESQL_DATABASE=loms-service-1
+      - POSTGRESQL_MASTER_HOST=loms-service-master-1
       - POSTGRESQL_MASTER_PORT_NUMBER=5432
       - POSTGRESQL_REPLICATION_MODE=slave
       - POSTGRESQL_REPLICATION_USER=repl_postgres
@@ -49,6 +71,33 @@ services:
       interval: 1s
       timeout: 5s
       retries: 10
+    depends_on:
+      loms-service-master-1:
+        condition: service_healthy
+
+  loms-service-sync-2:
+    image: bitnami/postgresql:latest
+    ports:
+      - 54332:5432
+    environment:
+      - POSTGRESQL_USERNAME=postgres
+      - POSTGRESQL_PASSWORD=postgres
+      - POSTGRESQL_DATABASE=loms-service-2
+      - POSTGRESQL_MASTER_HOST=loms-service-master-2
+      - POSTGRESQL_MASTER_PORT_NUMBER=5432
+      - POSTGRESQL_REPLICATION_MODE=slave
+      - POSTGRESQL_REPLICATION_USER=repl_postgres
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_postgres
+      - POSTGRESQL_PGAUDIT_LOG=READ,WRITE
+      - POSTGRESQL_LOG_HOSTNAME=true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      loms-service-master-2:
+        condition: service_healthy
 
   # loms-service-migrate:
   #   image: golang:latest
@@ -187,9 +236,13 @@ services:
       - "8180:8080"
       - "8182:8082"
     depends_on:
-      loms-service-master:
+      loms-service-master-1:
         condition: service_healthy
-      loms-service-sync:
+      loms-service-master-2:
+        condition: service_healthy
+      loms-service-sync-1:
+        condition: service_healthy
+      loms-service-sync-2:
         condition: service_healthy
       kafka-init-topics:
         condition: service_completed_successfully

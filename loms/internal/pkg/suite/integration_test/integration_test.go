@@ -36,8 +36,10 @@ func TestIntegrationTest(t *testing.T) {
 func (s *Suite) SetupSuite() {
 	s.ctx = context.Background()
 
+	s.dbClient = db.NewClient(s.ctx)
+
 	var err error
-	s.dbClient, err = db.NewClient(s.ctx, config.TestDBUrl, config.TestDBUrl)
+	err = s.dbClient.AddShard(config.PostgresTestUrl, config.PostgresTestUrl)
 	if err != nil {
 		logger.Errorf(s.ctx, "failed to create db client: %v", err)
 		return

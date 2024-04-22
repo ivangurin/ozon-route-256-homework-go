@@ -24,7 +24,7 @@ func (r *repository) GetByID(ctx context.Context, orderID int64) (*Order, error)
 	)
 	defer metrics.UpdateDatabaseResponseTime(time.Now().UTC())
 
-	queries := sqlc.New(r.dbClient.GetReaderPool())
+	queries := sqlc.New(r.dbClient.GetReaderPoolByOrderID(orderID))
 	order, err := queries.GetOrderByID(ctx, orderID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {

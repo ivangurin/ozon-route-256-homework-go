@@ -20,12 +20,17 @@ type repositories struct {
 
 func (sp *ServiceProvider) GetDBClient(ctx context.Context) db.Client {
 	if sp.repositories.dbClient == nil {
-		dbc, err := db.NewClient(ctx, config.MasterDBUrl, config.SyncDBUrl)
+		client := db.NewClient(ctx)
+		err := client.AddShard(config.PostgresMaster1Url, config.PostgresSync1Url)
 		if err != nil {
 			logger.Fatalf(ctx, "failed to create db client: %v", err)
 		}
-		sp.repositories.dbClient = dbc
-		sp.GetCloser().Add(dbc.Close)
+		err = client.AddShard(config.PostgresMaster2Url, config.PostgresSync2Url)
+		if err != nil {
+			logger.Fatalf(ctx, "failed to create db client: %v", err)
+		}
+		sp.repositories.dbClient = client
+		sp.GetCloser().Add(client.Close)
 	}
 	return sp.repositories.dbClient
 }

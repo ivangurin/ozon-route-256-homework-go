@@ -26,18 +26,19 @@ func (q *Queries) AddOrderItem(ctx context.Context, arg AddOrderItemParams) erro
 }
 
 const createOrder = `-- name: CreateOrder :one
-insert into "order" ("user", status, created_at, updated_at) 
-    values ($1, $2, now(), now())
+insert into "order" ("id", "user", status, created_at, updated_at) 
+    values (nextval('order_id_manual_seq') + $1, $2, $3, now(), now())
     returning id
 `
 
 type CreateOrderParams struct {
-	User   int64
-	Status OrderStatusType
+	Column1 interface{}
+	User    int64
+	Status  OrderStatusType
 }
 
 func (q *Queries) CreateOrder(ctx context.Context, arg CreateOrderParams) (int64, error) {
-	row := q.db.QueryRow(ctx, createOrder, arg.User, arg.Status)
+	row := q.db.QueryRow(ctx, createOrder, arg.Column1, arg.User, arg.Status)
 	var id int64
 	err := row.Scan(&id)
 	return id, err
