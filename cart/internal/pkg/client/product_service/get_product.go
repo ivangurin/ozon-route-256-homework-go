@@ -20,6 +20,7 @@ import (
 
 const StatusEnhanceYourCalm = 420
 
+//nolint:gocognit, gocyclo
 func (c *client) GetProduct(ctx context.Context, skuID int64) (*GetProductResponse, error) {
 	ctx, span := tracer.StartSpanFromContext(ctx, "productService.GetProduct")
 	defer span.End()
@@ -103,7 +104,11 @@ func (c *client) GetProduct(ctx context.Context, skuID int64) (*GetProductRespon
 			return nil, fmt.Errorf("failed to unmarshal product response body: %w", err)
 		}
 
-		c.redisClient.Set(ctx, cacheID, resp, time.Hour)
+		err = c.redisClient.Set(ctx, cacheID, resp, time.Hour)
+		if err != nil {
+			logger.Errorf(ctx, "productService.getProduct: productService.getProduct: failed to set cache value: %v", err)
+			return nil, fmt.Errorf("failed to set cache value: %w", err)
+		}
 
 		return resp, nil
 	} else if httpResp.StatusCode == http.StatusNotFound {

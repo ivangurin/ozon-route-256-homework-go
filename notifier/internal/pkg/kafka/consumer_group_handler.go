@@ -36,6 +36,8 @@ func (h *consumerGroupHandler) Cleanup(_ sarama.ConsumerGroupSession) error {
 }
 
 // ConsumeClaim читаем до тех пор пока сессия не завершилась
+//
+//nolint:gocognit
 func (h *consumerGroupHandler) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	for {
 		select {

@@ -17,7 +17,8 @@ type ServiceProvider struct {
 	closer       closer.ICloser
 	syncProducer kafka.Producer
 
-	api          api
+	api api
+	//nolint:unused
 	clients      clients
 	services     services
 	repositories repositories

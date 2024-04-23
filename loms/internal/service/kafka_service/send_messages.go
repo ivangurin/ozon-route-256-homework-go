@@ -29,7 +29,7 @@ func (s *service) StopSendMessages() error {
 	return nil
 }
 
-func (s *service) sendMessages(ctx context.Context) error {
+func (s *service) sendMessages(ctx context.Context) {
 	ticker := time.NewTicker(config.KafkaOutboxSenderTimeout * time.Second)
 	defer ticker.Stop()
 	for {
@@ -37,7 +37,6 @@ func (s *service) sendMessages(ctx context.Context) error {
 		case <-s.sendMessageDone:
 			s.sendMessagesWG.Done()
 			logger.Info(ctx, "kafka outbox sender is stopped successfully")
-			return nil
 		case <-ticker.C:
 			err := s.kafkaStorage.SendMessages(ctx, s.sendMessage)
 			if err != nil {

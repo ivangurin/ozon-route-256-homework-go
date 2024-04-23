@@ -17,9 +17,8 @@ func UpdateOutboxMessageStatusTx(ctx context.Context, tx pgx.Tx, id string, stat
 		"UpdateOutboxMessageStatusTx",
 		"update",
 	)
-
 	defer metrics.UpdateDatabaseResponseTime(time.Now().UTC())
-	
+
 	builder := squirrel.
 		Update(KafkaOutboxTable).
 		Set("status", status).

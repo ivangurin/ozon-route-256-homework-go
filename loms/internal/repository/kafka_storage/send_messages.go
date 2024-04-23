@@ -13,6 +13,7 @@ import (
 	"route256.ozon.ru/project/loms/internal/repository/kafka_storage/sqlc"
 )
 
+// nolint: gocognit
 func (r *repository) SendMessages(ctx context.Context, callback func(ctx context.Context, message *sqlc.KafkaOutbox) error) error {
 	ctx, span := tracer.StartSpanFromContext(ctx, "kafkaStorage:SendMessages")
 	defer span.End()
@@ -37,6 +38,7 @@ func (r *repository) SendMessages(ctx context.Context, callback func(ctx context
 			}
 
 			for _, message := range messages {
+				message := message
 
 				err = callback(ctx, &message)
 				if err == nil {
