@@ -30,7 +30,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
     }
 };
 
-service Order {
+service OrderAPI {
     rpc Create (OrderCreateRequest) returns (OrderCreateResponse) {
         option (google.api.http) = {
             post: "/v1/order/create"
@@ -57,6 +57,25 @@ service Order {
             body: "*"
         };
     }
+
+    rpc GetByIDs (GetOrdersByIDsRequest) returns (GetOrdersByIDsResponse) {
+        option (google.api.http) = {
+            post: "/v1/order/get-by-ids"
+            body: "*"
+        };
+    }
+}
+
+message Order{
+    int64 id = 1 [json_name = "id"];
+    string status = 2 [json_name = "status"];
+    int64 user = 3 [json_name = "user"];
+    repeated OrderItem items = 4 [json_name = "items"];
+}
+
+message OrderItem{
+    int64 sku = 1 [json_name = "sku"];
+    uint64 count = 2 [json_name = "count"];
 }
 
 message OrderCreateRequest {
@@ -78,14 +97,7 @@ message OrderInfoRequest {
 }
 
 message OrderInfoResponse {
-    message Item{
-        int64 sku = 1 [json_name = "sku"];
-        uint64 count = 2 [json_name = "count"];
-    }
-
-    string status = 1 [json_name = "status"];
-    int64 user = 2 [json_name = "user"];
-    repeated Item items = 3 [json_name = "items"];
+    Order order = 1 [json_name = "order"];
 }
 
 message OrderPayRequest{
@@ -94,4 +106,12 @@ message OrderPayRequest{
 
 message OrderCancelRequest{
     int64 order_id = 1 [json_name = "order_id", (validate.rules).int64.gt = 0];
+}
+
+message GetOrdersByIDsRequest{
+    repeated int64 id = 1 [json_name = "id", (validate.rules).repeated = {min_items:1}];
+}
+
+message GetOrdersByIDsResponse{
+    repeated Order orders = 1 [json_name = "orders"];
 }

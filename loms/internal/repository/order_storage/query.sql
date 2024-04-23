@@ -18,10 +18,16 @@ select id, "user" as user, status, created_at, updated_at
     where id = $1 limit 1;
 
 -- name: GetOrderItemsByOrderID :many
-select id, sku, quantity
+select id,  order_id, sku, quantity
     from order_item
     where order_id = $1;
 
+-- name: GetOrderByIDs :many
+select id, "user" as user, status, created_at, updated_at 
+    from "order" 
+    where id = ANY($1::bigint[]);
 
-
-
+-- name: GetOrderItemsByOrderIDs :many
+select id, order_id, sku, quantity
+    from order_item
+    where order_id = ANY($1::bigint[]);

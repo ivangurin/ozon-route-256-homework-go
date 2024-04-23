@@ -11,7 +11,7 @@ import (
 )
 
 type API struct {
-	order.UnimplementedOrderServer
+	order.UnimplementedOrderAPIServer
 	orderService orderservice.Service
 }
 
@@ -24,11 +24,11 @@ func NewAPI(
 }
 
 func (a *API) RegisterGrpcServer(server *grpc.Server) {
-	order.RegisterOrderServer(server, a)
+	order.RegisterOrderAPIServer(server, a)
 }
 
 func (a *API) RegisterHttpHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	err := order.RegisterOrderHandler(ctx, mux, conn)
+	err := order.RegisterOrderAPIHandler(ctx, mux, conn)
 	if err != nil {
 		return fmt.Errorf("failed to register gateway: %w", err)
 	}

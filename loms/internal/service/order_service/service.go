@@ -14,6 +14,7 @@ type Service interface {
 	Info(ctx context.Context, orderID int64) (*model.Order, error)
 	Pay(ctx context.Context, orderID int64) error
 	Cancel(ctx context.Context, orderID int64) error
+	GetByIDs(ctx context.Context, orderIDs []int64) ([]*model.Order, error)
 }
 
 type service struct {

@@ -18,86 +18,86 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// StockClient is the client API for Stock service.
+// StockAPIClient is the client API for StockAPI service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type StockClient interface {
+type StockAPIClient interface {
 	Info(ctx context.Context, in *StockInfoRequest, opts ...grpc.CallOption) (*StockInfoResponse, error)
 }
 
-type stockClient struct {
+type stockAPIClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewStockClient(cc grpc.ClientConnInterface) StockClient {
-	return &stockClient{cc}
+func NewStockAPIClient(cc grpc.ClientConnInterface) StockAPIClient {
+	return &stockAPIClient{cc}
 }
 
-func (c *stockClient) Info(ctx context.Context, in *StockInfoRequest, opts ...grpc.CallOption) (*StockInfoResponse, error) {
+func (c *stockAPIClient) Info(ctx context.Context, in *StockInfoRequest, opts ...grpc.CallOption) (*StockInfoResponse, error) {
 	out := new(StockInfoResponse)
-	err := c.cc.Invoke(ctx, "/route256.ozon.ru.project.loms.pkg.api.stock.v1.Stock/Info", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/route256.ozon.ru.project.loms.pkg.api.stock.v1.StockAPI/Info", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// StockServer is the server API for Stock service.
-// All implementations must embed UnimplementedStockServer
+// StockAPIServer is the server API for StockAPI service.
+// All implementations must embed UnimplementedStockAPIServer
 // for forward compatibility
-type StockServer interface {
+type StockAPIServer interface {
 	Info(context.Context, *StockInfoRequest) (*StockInfoResponse, error)
-	mustEmbedUnimplementedStockServer()
+	mustEmbedUnimplementedStockAPIServer()
 }
 
-// UnimplementedStockServer must be embedded to have forward compatible implementations.
-type UnimplementedStockServer struct {
+// UnimplementedStockAPIServer must be embedded to have forward compatible implementations.
+type UnimplementedStockAPIServer struct {
 }
 
-func (UnimplementedStockServer) Info(context.Context, *StockInfoRequest) (*StockInfoResponse, error) {
+func (UnimplementedStockAPIServer) Info(context.Context, *StockInfoRequest) (*StockInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Info not implemented")
 }
-func (UnimplementedStockServer) mustEmbedUnimplementedStockServer() {}
+func (UnimplementedStockAPIServer) mustEmbedUnimplementedStockAPIServer() {}
 
-// UnsafeStockServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to StockServer will
+// UnsafeStockAPIServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to StockAPIServer will
 // result in compilation errors.
-type UnsafeStockServer interface {
-	mustEmbedUnimplementedStockServer()
+type UnsafeStockAPIServer interface {
+	mustEmbedUnimplementedStockAPIServer()
 }
 
-func RegisterStockServer(s grpc.ServiceRegistrar, srv StockServer) {
-	s.RegisterService(&Stock_ServiceDesc, srv)
+func RegisterStockAPIServer(s grpc.ServiceRegistrar, srv StockAPIServer) {
+	s.RegisterService(&StockAPI_ServiceDesc, srv)
 }
 
-func _Stock_Info_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _StockAPI_Info_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StockInfoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(StockServer).Info(ctx, in)
+		return srv.(StockAPIServer).Info(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/route256.ozon.ru.project.loms.pkg.api.stock.v1.Stock/Info",
+		FullMethod: "/route256.ozon.ru.project.loms.pkg.api.stock.v1.StockAPI/Info",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(StockServer).Info(ctx, req.(*StockInfoRequest))
+		return srv.(StockAPIServer).Info(ctx, req.(*StockInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Stock_ServiceDesc is the grpc.ServiceDesc for Stock service.
+// StockAPI_ServiceDesc is the grpc.ServiceDesc for StockAPI service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Stock_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "route256.ozon.ru.project.loms.pkg.api.stock.v1.Stock",
-	HandlerType: (*StockServer)(nil),
+var StockAPI_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "route256.ozon.ru.project.loms.pkg.api.stock.v1.StockAPI",
+	HandlerType: (*StockAPIServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Info",
-			Handler:    _Stock_Info_Handler,
+			Handler:    _StockAPI_Info_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

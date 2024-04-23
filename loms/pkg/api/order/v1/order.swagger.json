@@ -6,7 +6,7 @@
   },
   "tags": [
     {
-      "name": "Order"
+      "name": "OrderAPI"
     }
   ],
   "schemes": [
@@ -22,7 +22,7 @@
   "paths": {
     "/v1/order/cancel": {
       "post": {
-        "operationId": "Order_Cancel",
+        "operationId": "OrderAPI_Cancel",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -49,13 +49,13 @@
           }
         ],
         "tags": [
-          "Order"
+          "OrderAPI"
         ]
       }
     },
     "/v1/order/create": {
       "post": {
-        "operationId": "Order_Create",
+        "operationId": "OrderAPI_Create",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -81,13 +81,45 @@
           }
         ],
         "tags": [
-          "Order"
+          "OrderAPI"
+        ]
+      }
+    },
+    "/v1/order/get-by-ids": {
+      "post": {
+        "operationId": "OrderAPI_GetByIDs",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetOrdersByIDsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetOrdersByIDsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "OrderAPI"
         ]
       }
     },
     "/v1/order/info/{order_id}": {
       "get": {
-        "operationId": "Order_Info",
+        "operationId": "OrderAPI_Info",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -112,13 +144,13 @@
           }
         ],
         "tags": [
-          "Order"
+          "OrderAPI"
         ]
       }
     },
     "/v1/order/pay": {
       "post": {
-        "operationId": "Order_Pay",
+        "operationId": "OrderAPI_Pay",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -145,12 +177,25 @@
           }
         ],
         "tags": [
-          "Order"
+          "OrderAPI"
         ]
       }
     }
   },
   "definitions": {
+    "OrderCreateRequestItem": {
+      "type": "object",
+      "properties": {
+        "sku": {
+          "type": "string",
+          "format": "int64"
+        },
+        "count": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -179,6 +224,53 @@
         }
       }
     },
+    "v1GetOrdersByIDsRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "int64"
+          }
+        }
+      }
+    },
+    "v1GetOrdersByIDsResponse": {
+      "type": "object",
+      "properties": {
+        "orders": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Order"
+          }
+        }
+      }
+    },
+    "v1Order": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "status": {
+          "type": "string"
+        },
+        "user": {
+          "type": "string",
+          "format": "int64"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1OrderItem"
+          }
+        }
+      }
+    },
     "v1OrderCancelRequest": {
       "type": "object",
       "properties": {
@@ -199,21 +291,8 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/v1OrderCreateRequestItem"
+            "$ref": "#/definitions/OrderCreateRequestItem"
           }
-        }
-      }
-    },
-    "v1OrderCreateRequestItem": {
-      "type": "object",
-      "properties": {
-        "sku": {
-          "type": "string",
-          "format": "int64"
-        },
-        "count": {
-          "type": "string",
-          "format": "uint64"
         }
       }
     },
@@ -229,23 +308,12 @@
     "v1OrderInfoResponse": {
       "type": "object",
       "properties": {
-        "status": {
-          "type": "string"
-        },
-        "user": {
-          "type": "string",
-          "format": "int64"
-        },
-        "items": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1OrderInfoResponseItem"
-          }
+        "order": {
+          "$ref": "#/definitions/v1Order"
         }
       }
     },
-    "v1OrderInfoResponseItem": {
+    "v1OrderItem": {
       "type": "object",
       "properties": {
         "sku": {

@@ -139,6 +139,65 @@ func (_c *RepositoryMock_GetByID_Call) RunAndReturn(run func(context.Context, in
 	return _c
 }
 
+// GetByIDs provides a mock function with given fields: ctx, orderID
+func (_m *RepositoryMock) GetByIDs(ctx context.Context, orderID []int64) ([]*orderstorage.Order, error) {
+	ret := _m.Called(ctx, orderID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByIDs")
+	}
+
+	var r0 []*orderstorage.Order
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, []int64) ([]*orderstorage.Order, error)); ok {
+		return rf(ctx, orderID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, []int64) []*orderstorage.Order); ok {
+		r0 = rf(ctx, orderID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*orderstorage.Order)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, []int64) error); ok {
+		r1 = rf(ctx, orderID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// RepositoryMock_GetByIDs_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByIDs'
+type RepositoryMock_GetByIDs_Call struct {
+	*mock.Call
+}
+
+// GetByIDs is a helper method to define mock.On call
+//   - ctx context.Context
+//   - orderID []int64
+func (_e *RepositoryMock_Expecter) GetByIDs(ctx interface{}, orderID interface{}) *RepositoryMock_GetByIDs_Call {
+	return &RepositoryMock_GetByIDs_Call{Call: _e.mock.On("GetByIDs", ctx, orderID)}
+}
+
+func (_c *RepositoryMock_GetByIDs_Call) Run(run func(ctx context.Context, orderID []int64)) *RepositoryMock_GetByIDs_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].([]int64))
+	})
+	return _c
+}
+
+func (_c *RepositoryMock_GetByIDs_Call) Return(_a0 []*orderstorage.Order, _a1 error) *RepositoryMock_GetByIDs_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *RepositoryMock_GetByIDs_Call) RunAndReturn(run func(context.Context, []int64) ([]*orderstorage.Order, error)) *RepositoryMock_GetByIDs_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SetStatus provides a mock function with given fields: ctx, orderID, status
 func (_m *RepositoryMock) SetStatus(ctx context.Context, orderID int64, status string) error {
 	ret := _m.Called(ctx, orderID, status)

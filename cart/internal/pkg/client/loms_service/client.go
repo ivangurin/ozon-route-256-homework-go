@@ -7,8 +7,8 @@ import (
 )
 
 type Client struct {
-	StockAPI stock_api.StockClient
-	OrderAPI order_api.OrderClient
+	StockAPI stock_api.StockAPIClient
+	OrderAPI order_api.OrderAPIClient
 }
 
 const (
@@ -17,7 +17,7 @@ const (
 
 func NewClient(conn *grpc.ClientConn) *Client {
 	return &Client{
-		StockAPI: stock_api.NewStockClient(conn),
-		OrderAPI: order_api.NewOrderClient(conn),
+		StockAPI: stock_api.NewStockAPIClient(conn),
+		OrderAPI: order_api.NewOrderAPIClient(conn),
 	}
 }

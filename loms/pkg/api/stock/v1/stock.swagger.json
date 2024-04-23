@@ -6,7 +6,7 @@
   },
   "tags": [
     {
-      "name": "Stock"
+      "name": "StockAPI"
     }
   ],
   "schemes": [
@@ -22,7 +22,7 @@
   "paths": {
     "/v1/stock/info/{sku}": {
       "get": {
-        "operationId": "Stock_Info",
+        "operationId": "StockAPI_Info",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -47,7 +47,7 @@
           }
         ],
         "tags": [
-          "Stock"
+          "StockAPI"
         ]
       }
     }
