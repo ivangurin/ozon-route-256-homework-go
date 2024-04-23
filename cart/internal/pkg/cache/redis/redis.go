@@ -7,22 +7,16 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
-	"route256.ozon.ru/project/cart/internal/config"
+	"route256.ozon.ru/project/cart/internal/pkg/cache"
 	"route256.ozon.ru/project/cart/internal/pkg/tracer"
 )
-
-type Client interface {
-	Set(ctx context.Context, key string, value interface{}, ttl time.Duration) error
-	Get(ctx context.Context, key string, value interface{}) (bool, error)
-	Close() error
-}
 
 type client struct {
 	client *redis.Client
 }
 
-func NewClient() (Client, error) {
-	opts, err := redis.ParseURL(config.RedisUrl)
+func NewCache(url string) (cache.Cache, error) {
+	opts, err := redis.ParseURL(url)
 	if err != nil {
 		return nil, err
 	}
@@ -51,6 +45,7 @@ func (c *client) Get(ctx context.Context, key string, value interface{}) (bool, 
 	str, err := c.client.Get(ctx, key).Result()
 	if err != nil {
 		if err == redis.Nil {
+			cache.UpdateCacheMissTotal(key)
 			return false, nil
 		} else {
 			return false, err
@@ -61,6 +56,8 @@ func (c *client) Get(ctx context.Context, key string, value interface{}) (bool, 
 	if err != nil {
 		return false, err
 	}
+
+	cache.UpdateCacheHitTotal(key)
 
 	return true, nil
 }

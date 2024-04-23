@@ -1,7 +1,7 @@
 //go:generate mockery --name=(.+)Mock --case=underscore  --with-expecter
-package redis
+package cache
 
-// ClientMock ...
-type ClientMock interface {
-	Client
+// CacheMock ...
+type CacheMock interface {
+	Cache
 }

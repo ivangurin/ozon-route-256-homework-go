@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"route256.ozon.ru/project/cart/internal/pkg/redis"
+	"route256.ozon.ru/project/cart/internal/pkg/cache"
 )
 
 type Client interface {
@@ -13,7 +13,7 @@ type Client interface {
 }
 
 type client struct {
-	redisClient redis.Client
+	redisClient cache.Cache
 	locks       map[string]*sync.Mutex
 }
 
@@ -22,7 +22,7 @@ const (
 )
 
 func NewClient(
-	redisClient redis.Client,
+	redisClient cache.Cache,
 ) Client {
 	return &client{
 		redisClient: redisClient,
