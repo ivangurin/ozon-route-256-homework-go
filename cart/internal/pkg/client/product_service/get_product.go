@@ -8,12 +8,11 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"time"
 
 	"route256.ozon.ru/project/cart/internal/config"
 	"route256.ozon.ru/project/cart/internal/model"
+	"route256.ozon.ru/project/cart/internal/pkg/client/middleware"
 	"route256.ozon.ru/project/cart/internal/pkg/logger"
-	"route256.ozon.ru/project/cart/internal/pkg/metrics"
 	"route256.ozon.ru/project/cart/internal/pkg/tracer"
 )
 
@@ -27,12 +26,6 @@ func (c *client) GetProduct(ctx context.Context, skuID int64) (*GetProductRespon
 	if exists {
 		return resp, nil
 	}
-
-	metrics.UpdateExternalRequestsTotal(
-		ServiceName,
-		"GetProduct",
-	)
-	defer metrics.UpdateExternalResponseTime(time.Now().UTC())
 
 	req := &GetProductRequest{
 		Token: config.ProductServiceToken,
@@ -52,19 +45,15 @@ func (c *client) GetProduct(ctx context.Context, skuID int64) (*GetProductRespon
 	}
 
 	httpReq = httpReq.WithContext(ctx)
-	client := http.DefaultClient
+	client := &http.Client{
+		Transport: middleware.NewHttpMiddleware(ServiceName),
+	}
 	httpResp, err := client.Do(httpReq)
 	if err != nil {
 		logger.Errorf(ctx, "productService.getProduct: failed to do product request: %v", err)
 		return nil, fmt.Errorf("failed to do product request: %w", err)
 	}
 	defer httpResp.Body.Close()
-
-	metrics.UpdateExternalResponseCode(
-		ServiceName,
-		"GetProduct",
-		http.StatusText(httpResp.StatusCode),
-	)
 
 	if httpResp.StatusCode == http.StatusOK {
 
