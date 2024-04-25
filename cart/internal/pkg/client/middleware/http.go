@@ -49,7 +49,7 @@ type MetricRoundTripper struct {
 	serviceName string
 }
 
-func NewHttpMiddleware(serviceName string) *MetricRoundTripper {
+func NewHTTPMiddleware(serviceName string) *MetricRoundTripper {
 	return &MetricRoundTripper{
 		Proxied:     http.DefaultTransport,
 		serviceName: serviceName,

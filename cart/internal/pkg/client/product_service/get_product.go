@@ -46,7 +46,7 @@ func (c *client) GetProduct(ctx context.Context, skuID int64) (*GetProductRespon
 
 	httpReq = httpReq.WithContext(ctx)
 	client := &http.Client{
-		Transport: middleware.NewHttpMiddleware(ServiceName),
+		Transport: middleware.NewHTTPMiddleware(ServiceName),
 	}
 	httpResp, err := client.Do(httpReq)
 	if err != nil {
