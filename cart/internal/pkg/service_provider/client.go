@@ -41,7 +41,10 @@ func (sp *ServiceProvider) GetProductService(ctx context.Context) productservice
 func (sp *ServiceProvider) GetLomsService(ctx context.Context) *lomsservice.Client {
 	if sp.clients.lomsService == nil {
 		sp.clients.lomsService = lomsservice.NewClient(
-			client.GetClientConn(ctx, config.LomsServiceGrpcHost))
+			client.GetClientConn(
+				sp.ctx,
+				lomsservice.ServiceName,
+				config.LomsServiceGrpcHost))
 	}
 	return sp.clients.lomsService
 }
