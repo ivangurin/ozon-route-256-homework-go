@@ -11,6 +11,10 @@ type Client interface {
 
 type client struct{}
 
+const (
+	ServiceName = "product-service"
+)
+
 var productStorage map[int64]*GetProductResponse = map[int64]*GetProductResponse{}
 
 func NewClient() Client {

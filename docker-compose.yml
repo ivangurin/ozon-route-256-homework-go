@@ -1,4 +1,6 @@
 volumes:
+  prometheus_data: {}
+  grafana-data: {}
   postgres-data: {}
 
 services:
@@ -46,7 +48,7 @@ services:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 1s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   # loms-service-migrate:
   #   image: golang:latest
@@ -103,11 +105,68 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka0:29092
       DYNAMIC_CONFIG_ENABLED: "true"
 
+  jaeger:
+    image: jaegertracing/all-in-one:${JAEGER_VERSION:-latest}
+    ports:
+      - "16686:16686"
+    healthcheck:
+      test: [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://jaeger:14269 || exit 1",
+        ] # jaeger collector health check ping
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  prometheus:
+    image: prom/prometheus:v2.51.2
+    ports:
+      - 9090:9090
+    volumes:
+      - ./config/prometheus/:/etc/prometheus/
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+    depends_on:
+      cart:
+        condition: service_started
+      loms:
+        condition: service_started
+      notifier:
+        condition: service_started
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://prometheus:9090 || exit 1",
+        ]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    environment:
+      - GF_INSTALL_PLUGINS=prometheus
+    depends_on:
+      prometheus:
+        condition: service_healthy
+
   cart:
     image: cart
     build: ./cart/
     ports:
       - "8080:8080"
+    depends_on:
+      jaeger:
+        condition: service_healthy
 
   loms:
     image: loms
@@ -121,7 +180,9 @@ services:
       loms-service-sync:
         condition: service_healthy
       kafka-init-topics:
-        condition: service_started
+        condition: service_completed_successfully
+      jaeger:
+        condition: service_healthy
       # loms-service-migrate:
       #   condition: service_completed_successfully
 
@@ -131,3 +192,5 @@ services:
     depends_on:
       kafka-init-topics:
         condition: service_completed_successfully
+      jaeger:
+        condition: service_healthy

@@ -7,11 +7,9 @@ import (
 )
 
 func (c *Client) StockInfo(ctx context.Context, sku int64) (uint16, error) {
-	req := &stock_api.StockInfoRequest{
+	resp, err := c.StockAPI.Info(ctx, &stock_api.StockInfoRequest{
 		Sku: sku,
-	}
-
-	resp, err := c.StockAPI.Info(ctx, req)
+	})
 	if err != nil {
 		return 0, err
 	}

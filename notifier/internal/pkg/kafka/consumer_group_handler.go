@@ -4,19 +4,23 @@ import (
 	"context"
 
 	"github.com/IBM/sarama"
+	"go.opentelemetry.io/otel/trace"
 	"route256.ozon.ru/project/notifier/internal/pkg/logger"
 )
 
 type Handler func(ctx context.Context, message *sarama.ConsumerMessage) (bool, error)
 
 type consumerGroupHandler struct {
+	ctx     context.Context
 	handler Handler
 }
 
 func NewConsumerGroupHandler(
+	ctx context.Context,
 	handler Handler,
 ) *consumerGroupHandler {
 	return &consumerGroupHandler{
+		ctx:     ctx,
 		handler: handler,
 	}
 }
@@ -40,9 +44,33 @@ func (h *consumerGroupHandler) ConsumeClaim(session sarama.ConsumerGroupSession,
 				return nil
 			}
 
-			ok, err := h.handler(session.Context(), message)
+			ctx := session.Context()
+			var traceID string
+			var spanID string
+
+			for _, header := range message.Headers {
+				switch string(header.Key) {
+				case "x-trace-id":
+					traceID = string(header.Value)
+				case "x-span-id":
+					spanID = string(header.Value)
+				}
+			}
+
+			if traceID != "" {
+				spanContext := trace.SpanContextConfig{
+					TraceFlags: trace.FlagsSampled,
+					Remote:     true,
+				}
+				spanContext.TraceID, _ = trace.TraceIDFromHex(traceID)
+				spanContext.SpanID, _ = trace.SpanIDFromHex(spanID)
+				ctx = trace.ContextWithSpanContext(ctx,
+					trace.NewSpanContext(spanContext))
+			}
+
+			ok, err := h.handler(ctx, message)
 			if err != nil {
-				logger.Errorf("failed to handle message: %v", err)
+				logger.Errorf(h.ctx, "failed to handle message: %v", err)
 				continue
 			}
 

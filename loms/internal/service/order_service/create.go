@@ -6,20 +6,26 @@ import (
 
 	"route256.ozon.ru/project/loms/internal/model"
 	"route256.ozon.ru/project/loms/internal/pkg/logger"
+	"route256.ozon.ru/project/loms/internal/pkg/metrics"
+	"route256.ozon.ru/project/loms/internal/pkg/tracer"
 )
 
 func (s *service) Create(ctx context.Context, user int64, items model.OrderItems) (int64, error) {
+	ctx, span := tracer.StartSpanFromContext(ctx, "orderService.Create")
+	defer span.End()
 
 	orderID, err := s.orderStorage.Create(ctx, user, ToOrderStorageItems(items))
 	if err != nil {
-		logger.Errorf("failed to create order: %v", err)
+		logger.Errorf(ctx, "failed to create order: %v", err)
 		return 0, fmt.Errorf("failed to create order: %w", err)
 	}
+
+	metrics.UpdateOrdersCreated()
 
 	reserved := false
 	reserveErr := s.stockStorage.Reserve(ctx, ToStockItems(items))
 	if reserveErr != nil {
-		logger.Errorf("failed to reserve quantity for items: %v", reserveErr)
+		logger.Errorf(ctx, "failed to reserve quantity for items: %v", reserveErr)
 	} else {
 		reserved = true
 	}
@@ -33,9 +39,11 @@ func (s *service) Create(ctx context.Context, user int64, items model.OrderItems
 
 	err = s.orderStorage.SetStatus(ctx, orderID, status)
 	if err != nil {
-		logger.Errorf("failed to change status: %w", err)
+		logger.Errorf(ctx, "failed to change status: %v", err)
 		return 0, fmt.Errorf("failed to change status: %w", err)
 	}
+
+	metrics.UpdateOrderStatusChanged(model.OrderStatusNew, status)
 
 	if !reserved {
 		return 0, fmt.Errorf("failed to reserve quantity for items, %w", reserveErr)

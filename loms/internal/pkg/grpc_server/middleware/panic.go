@@ -12,10 +12,9 @@ import (
 func Panic(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 	defer func() {
 		if e := recover(); e != nil {
-			logger.Errorf("panic: %v", e)
+			logger.Errorf(ctx, "panic: %v", e)
 			err = status.Errorf(codes.Internal, "panic: %v", e)
 		}
 	}()
-	resp, err = handler(ctx, req)
-	return resp, err
+	return handler(ctx, req)
 }

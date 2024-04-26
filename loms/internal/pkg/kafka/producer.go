@@ -9,6 +9,7 @@ import (
 	"github.com/IBM/sarama"
 	"route256.ozon.ru/project/loms/internal/config"
 	"route256.ozon.ru/project/loms/internal/pkg/logger"
+	"route256.ozon.ru/project/loms/internal/pkg/tracer"
 )
 
 const (
@@ -55,8 +56,16 @@ func (p *producer) SendMessageWithKey(ctx context.Context, topic string, key str
 	pm := &sarama.ProducerMessage{
 		Headers: []sarama.RecordHeader{
 			{
-				Key:   []byte(appParam),
-				Value: []byte(config.AppName),
+				Key:   sarama.ByteEncoder(appParam),
+				Value: sarama.ByteEncoder(config.AppName),
+			},
+			{
+				Key:   sarama.ByteEncoder("x-trace-id"),
+				Value: sarama.ByteEncoder(tracer.GetTraceID(ctx)),
+			},
+			{
+				Key:   sarama.ByteEncoder("x-span-id"),
+				Value: sarama.ByteEncoder(tracer.GetSpanID(ctx)),
 			},
 		},
 		Timestamp: time.Now(),
@@ -74,11 +83,12 @@ func (p *producer) SendMessageWithKey(ctx context.Context, topic string, key str
 }
 
 func (p *producer) Close() error {
+	ctx := context.Background()
 	err := p.syncProducer.Close()
 	if err != nil {
-		logger.Errorf("failed to close kafka producer: %v", err)
+		logger.Errorf(ctx, "failed to close kafka producer: %v", err)
 		return fmt.Errorf("failed to close kafka producer: %w", err)
 	}
-	logger.Info("kafka producer is closed successfully")
+	logger.Info(ctx, "kafka producer is closed successfully")
 	return nil
 }

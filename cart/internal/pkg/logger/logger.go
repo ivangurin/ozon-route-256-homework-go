@@ -1,95 +1,148 @@
 package logger
 
 import (
-	"bufio"
-	"log"
-	"os"
+	"context"
+	"fmt"
+
+	"go.opentelemetry.io/otel/trace"
+	"go.uber.org/zap"
+	"route256.ozon.ru/project/cart/internal/config"
 )
 
 type Logger struct {
-	out *bufio.Writer
+	logger *zap.Logger
 }
 
-var logger = Logger{
-	out: bufio.NewWriter(os.Stdout),
+var logger = NewLogger(WithDebugLevel(), WithOutputStdout())
+
+func NewLogger(opts ...ConfigOption) *Logger {
+	logger, err := NewConfig().Build()
+	if err != nil {
+		panic(err)
+	}
+
+	logger = logger.With(zap.String("app", config.AppName))
+
+	return &Logger{
+		logger: logger,
+	}
 }
 
-func (l *Logger) Info(m string) {
-	log.Printf("[info]: %s", m)
+func Close() error {
+	if logger != nil && logger.logger != nil {
+		err := logger.logger.Sync()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
-func (l *Logger) Infof(m string, args ...any) {
-	log.Printf("[info]:"+m, args...)
+func (l *Logger) Info(ctx context.Context, m string) {
+	l.logger.Info(m, getFields(ctx)...)
 }
 
-func (l *Logger) Warn(m string) {
-	log.Printf("[warn]: %s", m)
+func (l *Logger) Infof(ctx context.Context, m string, args ...any) {
+	l.logger.Info(fmt.Sprintf(m, args...), getFields(ctx)...)
 }
 
-func (l *Logger) Warnf(m string, args ...any) {
-	log.Printf("[warn]:"+m, args...)
+func (l *Logger) Warn(ctx context.Context, m string) {
+	l.logger.Warn(m, getFields(ctx)...)
 }
 
-func (l *Logger) Error(m string) {
-	log.Printf("[error] %s", m)
+func (l *Logger) Warnf(ctx context.Context, m string, args ...any) {
+	l.logger.Warn(fmt.Sprintf(m, args...), getFields(ctx)...)
 }
 
-func (l *Logger) Errorf(m string, args ...any) {
-	log.Printf("[error] "+m, args...)
+func (l *Logger) Error(ctx context.Context, m string) {
+	l.logger.Error(m, getFields(ctx)...)
 }
 
-func (l *Logger) Panic(m string) {
-	log.Panicf("[panic] %s", m)
+func (l *Logger) Errorf(ctx context.Context, m string, args ...any) {
+	l.logger.Warn(fmt.Sprintf(m, args...), getFields(ctx)...)
 }
 
-func (l *Logger) Panicf(m string, args ...any) {
-	log.Panicf("[panic] "+m, args...)
+func (l *Logger) Panic(ctx context.Context, m string) {
+	l.logger.Panic(m, getFields(ctx)...)
 }
 
-func (l *Logger) Fatal(m string) {
-	log.Fatalf("[fatal] %s", m)
+func (l *Logger) Panicf(ctx context.Context, m string, args ...any) {
+	l.logger.Panic(fmt.Sprintf(m, args...), getFields(ctx)...)
 }
 
-func (l *Logger) Fatalf(m string, args ...any) {
-	log.Fatalf("[fatal] "+m, args...)
+func (l *Logger) Fatal(ctx context.Context, m string) {
+	l.logger.Fatal(m, getFields(ctx)...)
 }
 
-func Info(m string) {
-	logger.Info(m)
+func (l *Logger) Fatalf(ctx context.Context, m string, args ...any) {
+	l.logger.Fatal(fmt.Sprintf(m, args...), getFields(ctx)...)
 }
 
-func Infof(m string, args ...any) {
-	logger.Infof(m, args...)
+func Info(ctx context.Context, m string) {
+	logger.Info(ctx, m)
 }
 
-func Warn(m string) {
-	logger.Info(m)
+func Infof(ctx context.Context, m string, args ...any) {
+	logger.Infof(ctx, m, args...)
 }
 
-func Warnf(m string, args ...any) {
-	logger.Warnf(m, args...)
+func Warn(ctx context.Context, m string) {
+	logger.Info(ctx, m)
 }
 
-func Error(m string) {
-	logger.Error(m)
+func Warnf(ctx context.Context, m string, args ...any) {
+	logger.Warnf(ctx, m, args...)
 }
 
-func Errorf(m string, args ...any) {
-	logger.Errorf(m, args...)
+func Error(ctx context.Context, m string) {
+	logger.Error(ctx, m)
 }
 
-func Panic(m string) {
-	logger.Panic(m)
+func Errorf(ctx context.Context, m string, args ...any) {
+	logger.Errorf(ctx, m, args...)
 }
 
-func Panicf(m string, args ...any) {
-	logger.Panicf(m, args...)
+func Panic(ctx context.Context, m string) {
+	logger.Panic(ctx, m)
 }
 
-func Fatal(m string) {
-	logger.Fatal(m)
+func Panicf(ctx context.Context, m string, args ...any) {
+	logger.Panicf(ctx, m, args...)
 }
 
-func Fatalf(m string, args ...any) {
-	logger.Fatalf(m, args...)
+func Fatal(ctx context.Context, m string) {
+	logger.Fatal(ctx, m)
+}
+
+func Fatalf(ctx context.Context, m string, args ...any) {
+	logger.Fatalf(ctx, m, args...)
+}
+
+func getFields(ctx context.Context) []zap.Field {
+	fields := make([]zap.Field, 0, 2)
+	traceID := getTraceID(ctx)
+	if traceID != "" {
+		fields = append(fields, zap.String("trace_id", traceID))
+	}
+	spanID := getSpanID(ctx)
+	if spanID != "" {
+		fields = append(fields, zap.String("span_id", spanID))
+	}
+	return fields
+}
+
+func getTraceID(ctx context.Context) string {
+	spanCtx := trace.SpanContextFromContext(ctx)
+	if spanCtx.HasTraceID() {
+		return spanCtx.TraceID().String()
+	}
+	return ""
+}
+
+func getSpanID(ctx context.Context) string {
+	spanCtx := trace.SpanContextFromContext(ctx)
+	if spanCtx.HasSpanID() {
+		return spanCtx.SpanID().String()
+	}
+	return ""
 }

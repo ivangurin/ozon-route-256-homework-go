@@ -6,14 +6,17 @@ import (
 	"fmt"
 	"time"
 
+	"go.opentelemetry.io/otel/trace"
 	"route256.ozon.ru/project/loms/internal/config"
 	"route256.ozon.ru/project/loms/internal/model"
 	"route256.ozon.ru/project/loms/internal/pkg/logger"
+	"route256.ozon.ru/project/loms/internal/pkg/tracer"
 	"route256.ozon.ru/project/loms/internal/repository/kafka_storage/sqlc"
 )
 
 func (s *service) SendMessages(ctx context.Context) {
-	logger.Info("kafka outbox sender is starting...")
+
+	logger.Info(ctx, "kafka outbox sender is starting...")
 	s.sendMessagesWG.Add(1)
 	go func() {
 		s.sendMessages(ctx)
@@ -33,12 +36,12 @@ func (s *service) sendMessages(ctx context.Context) error {
 		select {
 		case <-s.sendMessageDone:
 			s.sendMessagesWG.Done()
-			logger.Info("kafka outbox sender is stopped successfully")
+			logger.Info(ctx, "kafka outbox sender is stopped successfully")
 			return nil
 		case <-ticker.C:
 			err := s.kafkaStorage.SendMessages(ctx, s.sendMessage)
 			if err != nil {
-				logger.Errorf("failed to send messages: %v", err)
+				logger.Errorf(ctx, "failed to send messages: %v", err)
 			}
 		}
 	}
@@ -46,12 +49,36 @@ func (s *service) sendMessages(ctx context.Context) error {
 
 func (s *service) sendMessage(ctx context.Context, message *sqlc.KafkaOutbox) error {
 	var err error
+
+	if message.TraceID.String != "" {
+		spanContext := trace.SpanContextConfig{
+			TraceFlags: trace.FlagsSampled,
+			Remote:     true,
+		}
+		spanContext.TraceID, err = trace.TraceIDFromHex(message.TraceID.String)
+		if err != nil {
+			return err
+		}
+		spanContext.SpanID, err = trace.SpanIDFromHex(message.SpanID.String)
+		if err != nil {
+			return err
+		}
+		ctx = trace.ContextWithSpanContext(ctx,
+			trace.NewSpanContext(spanContext))
+	}
+
+	var span trace.Span
+	ctx, span = tracer.StartSpanFromContext(ctx, "kafkaService.sendMessage",
+		trace.WithSpanKind(trace.SpanKindProducer))
+	defer span.End()
+
 	switch message.Event.String {
 	case model.EventOrderStatusChanged:
 		err = s.sendOrderStatusChangedMessage(ctx, message)
 	default:
-		logger.Errorf("failed to send message: %v", err)
+		logger.Errorf(ctx, "failed to send message: %v", err)
 	}
+
 	return err
 }
 
@@ -79,7 +106,7 @@ func (s *service) sendOrderStatusChangedMessage(ctx context.Context, message *sq
 		message.EntityID.String,
 		orderStatusChangedMessage)
 	if err != nil {
-		logger.Errorf("failed to send OrderChangeStatusMessage: %v", err)
+		logger.Errorf(ctx, "failed to send OrderChangeStatusMessage: %v", err)
 		return fmt.Errorf("failed to send OrderChangeStatusMessage: %w", err)
 	}
 

@@ -6,6 +6,10 @@ import (
 	"route256.ozon.ru/project/loms/internal/db"
 )
 
+const (
+	RepositoryName = "OrderStorage"
+)
+
 type Repository interface {
 	Create(ctx context.Context, user int64, items []*OrderItem) (int64, error)
 	SetStatus(ctx context.Context, orderID int64, status string) error

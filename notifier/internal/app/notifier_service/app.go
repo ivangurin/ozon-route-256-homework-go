@@ -9,6 +9,7 @@ import (
 	"route256.ozon.ru/project/notifier/internal/pkg/kafka"
 	"route256.ozon.ru/project/notifier/internal/pkg/logger"
 	serviceprovider "route256.ozon.ru/project/notifier/internal/pkg/service_provider"
+	"route256.ozon.ru/project/notifier/internal/pkg/tracer"
 )
 
 type App interface {
@@ -38,8 +39,8 @@ func NewApp(ctx context.Context) App {
 func (a *app) Run() error {
 	var err error
 
-	logger.Info("app is starting...")
-	defer logger.Info("app finished")
+	logger.Info(a.ctx, "app is starting...")
+	defer logger.Info(a.ctx, "app finished")
 
 	closer := a.sp.GetCloser()
 	defer closer.Wait()
@@ -56,22 +57,27 @@ func (a *app) Run() error {
 		consumer.Handle,
 	)
 	if err != nil {
-		logger.Errorf("failed to create consumer group: %v", err)
+		logger.Errorf(a.ctx, "failed to create consumer group: %v", err)
 		closer.CloseAll()
 		return fmt.Errorf("failed to create consumer group: %w", err)
 	}
 	closer.Add(consumerGroup.Close)
 
 	go func() {
-		logger.Info("consumer group is starting...")
+		logger.Info(a.ctx, "consumer group is starting...")
 		err := consumerGroup.Run()
 		if err != nil {
-			logger.Errorf("failed to start consumer group: %v", err)
+			logger.Errorf(a.ctx, "failed to start consumer group: %v", err)
 			closer.CloseAll()
 			return
 		}
-		logger.Info("consumer group started successfully")
 	}()
+
+	// logger
+	closer.Add(logger.Close)
+
+	// tracer
+	closer.Add(tracer.Close)
 
 	return err
 }

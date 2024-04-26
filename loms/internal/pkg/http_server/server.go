@@ -11,10 +11,10 @@ import (
 	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"route256.ozon.ru/project/loms/internal/pkg/logger"
-	"route256.ozon.ru/project/loms/internal/pkg/middleware"
 )
 
 type API interface {
@@ -59,14 +59,20 @@ func NewServer(ctx context.Context, httpPort, grpcPort string) (Server, error) {
 		Addr:              fmt.Sprintf(":%s", httpPort),
 		ReadHeaderTimeout: 10 * time.Second,
 		ReadTimeout:       10 * time.Second,
-		Handler:           middleware.WithHTTPLoggingMiddleware(s.mux),
+		Handler:           s.mux,
 	}
 
+	// swagger
 	s.mux.HandleFunc("/swagger.json", s.handleSwagger)
 
+	// swagger-ui
 	fs := http.FileServer(http.Dir("pkg/swagger-ui"))
 	s.mux.Handle("/docs/", http.StripPrefix("/docs/", fs))
 
+	// metrics
+	s.mux.Handle("/metrics", promhttp.Handler())
+
+	// grpc-gateway
 	s.mux.Handle("/", s.gwmux)
 
 	return s, nil
@@ -87,10 +93,10 @@ func (s *server) Stop() error {
 	defer cancel()
 	err := s.httpServer.Shutdown(ctx)
 	if err != nil {
-		logger.Errorf("failed to stop http server: +v", err)
+		logger.Errorf(ctx, "failed to stop http server: %v", err)
 		return fmt.Errorf("failed to stop http server: %w", err)
 	}
-	logger.Info("http server is stopped successfully")
+	logger.Info(ctx, "http server is stopped successfully")
 	return nil
 }
 

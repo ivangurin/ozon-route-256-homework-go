@@ -1,6 +1,7 @@
 package closer
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"sync"
@@ -58,8 +59,9 @@ func (c *closer) Signal() {
 
 func (c *closer) CloseAll() {
 	c.once.Do(func() {
-		logger.Info("graceful shutdown started...")
-		defer logger.Info("graceful shutdown finished")
+		ctx := context.Background()
+		logger.Info(ctx, "graceful shutdown started...")
+		defer logger.Info(ctx, "graceful shutdown finished")
 
 		defer close(c.done)
 
@@ -70,7 +72,7 @@ func (c *closer) CloseAll() {
 		for i := len(funcs) - 1; i >= 0; i-- {
 			err := c.funcs[i]()
 			if err != nil {
-				logger.Errorf("failed to close some func from shutdown: %v", err)
+				logger.Errorf(ctx, "failed to close some func from shutdown: %v", err)
 			}
 		}
 	})

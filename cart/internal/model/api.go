@@ -8,7 +8,7 @@ type HttpAPIDescription struct {
 
 type HttpAPIHandler struct {
 	Pattern string
-	Handler func(http.ResponseWriter, *http.Request)
+	Handler http.HandlerFunc
 }
 
 type HttpApiHandlers []*HttpAPIHandler

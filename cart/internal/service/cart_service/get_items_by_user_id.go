@@ -8,12 +8,16 @@ import (
 	productservice "route256.ozon.ru/project/cart/internal/pkg/client/product_service"
 	"route256.ozon.ru/project/cart/internal/pkg/errgroup"
 	"route256.ozon.ru/project/cart/internal/pkg/logger"
+	"route256.ozon.ru/project/cart/internal/pkg/tracer"
 )
 
 func (s *service) GetItemsByUserID(ctx context.Context, userID int64) (*Cart, error) {
+	ctx, span := tracer.StartSpanFromContext(ctx, "cartService.GetItemsByUserID")
+	defer span.End()
+
 	cart, err := s.cartStorage.GetItemsByUserID(ctx, userID)
 	if err != nil {
-		logger.Errorf("cartService.GetItemsByUserID: failed to get items by user id: %v", err)
+		logger.Errorf(ctx, "cartService.GetItemsByUserID: failed to get items by user id: %v", err)
 		return nil, fmt.Errorf("failed to get items by user id: %w", err)
 	}
 
@@ -41,7 +45,7 @@ func (s *service) GetItemsByUserID(ctx context.Context, userID int64) (*Cart, er
 
 	resp, err := s.toGetCartResponse(ctx, cart, products)
 	if err != nil {
-		logger.Errorf("cartService.GetItemsByUserID: failed to make response: %v", err)
+		logger.Errorf(ctx, "cartService.GetItemsByUserID: failed to make response: %v", err)
 		return nil, fmt.Errorf("failed to make response: %w", err)
 	}
 

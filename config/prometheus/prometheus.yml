@@ -1,0 +1,18 @@
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: "prometheus - self-scrape"
+    scrape_interval: 5s
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: "cart-service"
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - "cart:8080"
+
+  - job_name: "loms-service"
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - "loms:8080"

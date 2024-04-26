@@ -7,8 +7,8 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"route256.ozon.ru/project/loms/internal/pkg/grpc_server/middleware"
 	"route256.ozon.ru/project/loms/internal/pkg/logger"
-	"route256.ozon.ru/project/loms/internal/pkg/middleware"
 )
 
 type API interface {
@@ -30,9 +30,12 @@ type server struct {
 func NewServer(ctx context.Context, port string) Server {
 
 	grpcServer := grpc.NewServer(
+		// grpc.StatsHandler(otelgrpc.NewServerHandler()),
 		grpc.ChainUnaryInterceptor(
 			middleware.Panic,
+			middleware.Tracer,
 			middleware.Logger,
+			middleware.Metrics,
 			middleware.Validate,
 		),
 	)
@@ -47,12 +50,12 @@ func NewServer(ctx context.Context, port string) Server {
 }
 
 func (s *server) Start() error {
-	listner, err := net.Listen("tcp", fmt.Sprintf(":%s", s.port))
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", s.port))
 	if err != nil {
-		return fmt.Errorf("failed to create listner on port %s: %w", s.port, err)
+		return fmt.Errorf("failed to create listener on port %s: %w", s.port, err)
 	}
 
-	err = s.grpcServer.Serve(listner)
+	err = s.grpcServer.Serve(listener)
 	if err != nil {
 		return fmt.Errorf("failed to start grpc server: %w", err)
 	}
@@ -61,8 +64,9 @@ func (s *server) Start() error {
 }
 
 func (s *server) Stop() error {
+	ctx := context.Background()
 	s.grpcServer.GracefulStop()
-	logger.Info("grpc server is stopped successfully")
+	logger.Info(ctx, "grpc server is stopped successfully")
 	return nil
 }
 

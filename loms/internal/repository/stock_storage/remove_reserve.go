@@ -3,14 +3,26 @@ package stockstorage
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5"
+	"route256.ozon.ru/project/loms/internal/pkg/metrics"
+	"route256.ozon.ru/project/loms/internal/pkg/tracer"
 	"route256.ozon.ru/project/loms/internal/repository/stock_storage/sqlc"
 )
 
 func (r *repository) RemoveReserve(ctx context.Context, items ReserveItems) error {
-	pool := r.dbClient.GetWriterPool()
+	ctx, span := tracer.StartSpanFromContext(ctx, "stockRepository:RemoveReserve")
+	defer span.End()
 
+	metrics.UpdateDatabaseRequestsTotal(
+		RepositoryName,
+		"RemoveReserve",
+		"update",
+	)
+	defer metrics.UpdateDatabaseResponseTime(time.Now().UTC())
+
+	pool := r.dbClient.GetWriterPool()
 	err := pool.BeginFunc(ctx, func(tx pgx.Tx) error {
 		qtx := sqlc.New(pool).WithTx(tx)
 
@@ -33,12 +45,25 @@ func (r *repository) RemoveReserve(ctx context.Context, items ReserveItems) erro
 				return fmt.Errorf("failed to remove reserve for sku %d: %w", item.Sku, err)
 			}
 		}
-		
+
 		return nil
 	})
 	if err != nil {
+		metrics.UpdateDatabaseResponseCode(
+			RepositoryName,
+			"RemoveReserve",
+			"update",
+			"error",
+		)
 		return fmt.Errorf("failed to remove reserve: %w", err)
 	}
+
+	metrics.UpdateDatabaseResponseCode(
+		RepositoryName,
+		"RemoveReserve",
+		"update",
+		"ok",
+	)
 
 	return nil
 }

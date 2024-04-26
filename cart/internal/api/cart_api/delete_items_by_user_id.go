@@ -11,19 +11,17 @@ import (
 
 func (a *api) DeleteItemsByUserID() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		logger.Infof("handleDeleteItemsByUserID: start handle request: %s", r.RequestURI)
-		defer logger.Infof("handleDeleteItemsByUserID: finish handle request: %s", r.RequestURI)
-
+		ctx := r.Context()
 		req, err := toDeleteItemsByUserIDRequest(r)
 		if err != nil {
-			logger.Errorf("handleDeleteItemsByUserID: request is not valid: %v", err)
+			logger.Errorf(ctx, "handleDeleteItemsByUserID: request is not valid: %v", err)
 			http.Error(w, fmt.Sprintf("request is not valid: %s", err), http.StatusBadRequest)
 			return
 		}
 
 		err = a.cartService.DeleteItemsByUserID(r.Context(), req.UserID)
 		if err != nil {
-			logger.Errorf("handleDeleteItemsByUserID: failed to delete items: %v", err)
+			logger.Errorf(ctx, "handleDeleteItemsByUserID: failed to delete items: %v", err)
 			http.Error(w, "internal error", http.StatusInternalServerError)
 			return
 		}

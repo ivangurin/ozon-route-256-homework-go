@@ -11,6 +11,6 @@ func main() {
 	ctx := context.Background()
 	app := lomsservice.NewApp(ctx)
 	if err := app.Run(); err != nil {
-		logger.Fatalf("can't run app: %w", err)
+		logger.Fatalf(ctx, "can't run app: %v", err)
 	}
 }

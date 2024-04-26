@@ -1,12 +1,28 @@
 package cartstorage
 
-import "context"
+import (
+	"context"
+	"time"
+
+	"route256.ozon.ru/project/cart/internal/pkg/metrics"
+	"route256.ozon.ru/project/cart/internal/pkg/tracer"
+)
 
 func (s *storage) DeleteItem(
 	ctx context.Context,
 	userID int64,
 	skuID int64,
 ) error {
+	_, span := tracer.StartSpanFromContext(ctx, "cartStorage.DeleteItem")
+	defer span.End()
+
+	metrics.UpdateDatabaseRequestsTotal(
+		RepositoryName,
+		"DeleteItem",
+		"delete",
+	)
+	defer metrics.UpdateDatabaseResponseTime(time.Now().UTC())
+
 	s.Lock()
 	defer s.Unlock()
 
@@ -26,5 +42,11 @@ func (s *storage) DeleteItem(
 		delete(cartStorage, userID)
 	}
 
+	metrics.UpdateDatabaseResponseCode(
+		RepositoryName,
+		"DeleteItem",
+		"delete",
+		"ok",
+	)
 	return nil
 }

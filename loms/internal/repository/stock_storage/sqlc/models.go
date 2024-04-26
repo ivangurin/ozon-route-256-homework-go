@@ -66,6 +66,8 @@ type KafkaOutbox struct {
 	EntityType pgtype.Text
 	EntityID   pgtype.Text
 	Data       pgtype.Text
+	TraceID    pgtype.Text
+	SpanID     pgtype.Text
 }
 
 type Order struct {

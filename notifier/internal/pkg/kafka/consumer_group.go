@@ -39,7 +39,7 @@ func NewConsumerGroup(
 	return &consumerGroup{
 		ctx:                  ctx,
 		consumerGroup:        cg,
-		consumerGroupHandler: NewConsumerGroupHandler(handler),
+		consumerGroupHandler: NewConsumerGroupHandler(ctx, handler),
 		topics:               topics,
 	}, nil
 }
@@ -48,7 +48,7 @@ func (cg *consumerGroup) Run() error {
 	for {
 		if err := cg.consumerGroup.Consume(cg.ctx, cg.topics, cg.consumerGroupHandler); err != nil {
 			if err != sarama.ErrClosedConsumerGroup {
-				logger.Errorf("error consume topics %v: %v", strings.Join(cg.topics, ", "), err)
+				logger.Errorf(cg.ctx, "error consume topics %v: %v", strings.Join(cg.topics, ", "), err)
 				return fmt.Errorf("error consume topics %v: %w", strings.Join(cg.topics, ", "), err)
 			}
 		}
@@ -58,9 +58,9 @@ func (cg *consumerGroup) Run() error {
 func (cg *consumerGroup) Close() error {
 	err := cg.consumerGroup.Close()
 	if err != nil {
-		logger.Errorf("failed to close consumer group: %v", err)
+		logger.Errorf(cg.ctx, "failed to close consumer group: %v", err)
 		return fmt.Errorf("failed to close consumer group: %w", err)
 	}
-	logger.Info("consumer group closed successfully")
+	logger.Info(cg.ctx, "consumer group closed successfully")
 	return nil
 }

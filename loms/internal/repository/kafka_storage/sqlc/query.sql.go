@@ -37,7 +37,7 @@ func (q *Queries) InsertOutbox(ctx context.Context, arg InsertOutboxParams) (str
 }
 
 const selectOutboxMessages = `-- name: SelectOutboxMessages :many
-select id, created_at, updated_at, status, error, event, entity_type, entity_id, data 
+select id, created_at, updated_at, status, error, event, entity_type, entity_id, data, trace_id, span_id 
     from "kafka_outbox"
     where status = $1
     for update skip locked
@@ -62,6 +62,8 @@ func (q *Queries) SelectOutboxMessages(ctx context.Context, status pgtype.Text) 
 			&i.EntityType,
 			&i.EntityID,
 			&i.Data,
+			&i.TraceID,
+			&i.SpanID,
 		); err != nil {
 			return nil, err
 		}

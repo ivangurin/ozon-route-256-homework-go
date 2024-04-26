@@ -6,8 +6,10 @@ import (
 	"fmt"
 
 	"github.com/IBM/sarama"
-	orderservice "route256.ozon.ru/project/notifier/internal/app/notifier_service/model/order_service"
+	"go.opentelemetry.io/otel/trace"
+	orderservice "route256.ozon.ru/project/notifier/internal/model/order_service"
 	"route256.ozon.ru/project/notifier/internal/pkg/logger"
+	"route256.ozon.ru/project/notifier/internal/pkg/tracer"
 	notifierservice "route256.ozon.ru/project/notifier/internal/service/notifier_service"
 )
 
@@ -28,13 +30,19 @@ func NewConsumer(
 }
 
 func (c *consumer) Handle(ctx context.Context, msg *sarama.ConsumerMessage) (bool, error) {
-	logger.Infof("Got a new message. Offset: %d. Partition: %d", msg.Offset, msg.Partition)
-	defer logger.Infof("The message is handled. Offset: %d. Partition: %d", msg.Offset, msg.Partition)
+
+	var span trace.Span
+	ctx, span = tracer.StartSpanFromContext(ctx, "orderStatusChangedConsumer.HandleMessage",
+		trace.WithSpanKind(trace.SpanKindConsumer))
+	defer span.End()
+
+	logger.Infof(ctx, "Got a new message. Offset: %d. Partition: %d", msg.Offset, msg.Partition)
+	defer logger.Infof(ctx, "The message is handled. Offset: %d. Partition: %d", msg.Offset, msg.Partition)
 
 	genericMessage := &orderservice.GenericMessage{}
 	err := json.Unmarshal(msg.Value, genericMessage)
 	if err != nil {
-		logger.Errorf("failed to unmarshal the message: %v", err)
+		logger.Errorf(ctx, "failed to unmarshal the message: %v", err)
 		return false, fmt.Errorf("failed to unmarshal the message: %w", err)
 	}
 
@@ -42,16 +50,19 @@ func (c *consumer) Handle(ctx context.Context, msg *sarama.ConsumerMessage) (boo
 	case orderservice.OrderEventStatusChanged:
 		return c.handleOrderStatusChanged(ctx, msg)
 	default:
-		logger.Errorf("unknown event: %s", genericMessage.Event)
+		logger.Errorf(ctx, "unknown event: %s", genericMessage.Event)
 		return false, fmt.Errorf("unknown event: %s", genericMessage.Event)
 	}
 }
 
 func (c *consumer) handleOrderStatusChanged(ctx context.Context, msg *sarama.ConsumerMessage) (bool, error) {
+	ctx, span := tracer.StartSpanFromContext(ctx, "orderStatusChangedConsumer.handleOrderStatusChanged")
+	defer span.End()
+
 	orderStatusChangedMessage := &orderservice.OrderChangeStatusMessage{}
 	err := json.Unmarshal(msg.Value, orderStatusChangedMessage)
 	if err != nil {
-		logger.Errorf("failed to unmarshal the message: %v", err)
+		logger.Errorf(ctx, "failed to unmarshal the message: %v", err)
 		return false, fmt.Errorf("failed to unmarshal the message: %w", err)
 	}
 
