@@ -22,7 +22,7 @@ func (r *repository) CancelReserve(ctx context.Context, items ReserveItems) erro
 	)
 	defer metrics.UpdateDatabaseResponseTime(time.Now().UTC())
 
-	pool := r.dbClient.GetWriterPoolByShadID(0)
+	pool := r.dbClient.GetWriterPoolByShardID(0)
 	err := pool.BeginFunc(ctx, func(tx pgx.Tx) error {
 		qtx := sqlc.New(pool).WithTx(tx)
 

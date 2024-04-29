@@ -13,10 +13,10 @@ type Client interface {
 	GetShards() []*shard
 	GetShardByUserID(id int64) int64
 	GetShardByOrderID(id int64) int64
-	GetReaderPoolByShadID(id int64) Pool
+	GetReaderPoolByShardID(id int64) Pool
 	GetReaderPoolByUserID(id int64) Pool
 	GetReaderPoolByOrderID(id int64) Pool
-	GetWriterPoolByShadID(id int64) Pool
+	GetWriterPoolByShardID(id int64) Pool
 	GetWriterPoolByUserID(id int64) Pool
 	GetWriterPoolByOrderID(id int64) Pool
 	Close() error
@@ -63,14 +63,14 @@ func (c *client) GetShardByUserID(id int64) int64 {
 }
 
 func (c *client) GetShardByOrderID(id int64) int64 {
-	return id % 1000
+	return id % 10
 }
 
 func (c *client) GetShards() []*shard {
 	return c.shards
 }
 
-func (c *client) GetReaderPoolByShadID(id int64) Pool {
+func (c *client) GetReaderPoolByShardID(id int64) Pool {
 	res := c.readerPoolCounter.Add(1)
 	if res%2 == 0 {
 		return c.GetMasterPoolByShardID(id)
@@ -79,23 +79,23 @@ func (c *client) GetReaderPoolByShadID(id int64) Pool {
 }
 
 func (c *client) GetReaderPoolByUserID(id int64) Pool {
-	return c.GetReaderPoolByShadID(c.GetShardByUserID(id))
+	return c.GetReaderPoolByShardID(c.GetShardByUserID(id))
 }
 
 func (c *client) GetReaderPoolByOrderID(id int64) Pool {
-	return c.GetReaderPoolByShadID(c.GetShardByOrderID(id))
+	return c.GetReaderPoolByShardID(c.GetShardByOrderID(id))
 }
 
-func (c *client) GetWriterPoolByShadID(id int64) Pool {
+func (c *client) GetWriterPoolByShardID(id int64) Pool {
 	return c.GetMasterPoolByShardID(id)
 }
 
 func (c *client) GetWriterPoolByUserID(id int64) Pool {
-	return c.GetWriterPoolByShadID(c.GetShardByUserID(id))
+	return c.GetWriterPoolByShardID(c.GetShardByUserID(id))
 }
 
 func (c *client) GetWriterPoolByOrderID(id int64) Pool {
-	return c.GetWriterPoolByShadID(c.GetShardByOrderID(id))
+	return c.GetWriterPoolByShardID(c.GetShardByOrderID(id))
 }
 
 func (c *client) GetMasterPoolByShardID(id int64) Pool {

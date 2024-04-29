@@ -32,7 +32,7 @@ func (r *repository) GetByIDs(ctx context.Context, orderIDs []int64) ([]*Order, 
 	res := make([]*Order, 0, len(orderIDs))
 	for shardID, orderIDs := range shardIDs {
 
-		pool := r.dbClient.GetReaderPoolByShadID(shardID)
+		pool := r.dbClient.GetReaderPoolByShardID(shardID)
 		queries := sqlc.New(pool)
 		orders, err := queries.GetOrderByIDs(ctx, orderIDs)
 		if err != nil {
