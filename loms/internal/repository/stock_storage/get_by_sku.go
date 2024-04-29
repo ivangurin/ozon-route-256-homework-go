@@ -24,7 +24,7 @@ func (r *repository) GetBySku(ctx context.Context, sku int64) (uint16, error) {
 	)
 	defer metrics.UpdateDatabaseResponseTime(time.Now().UTC())
 
-	pool := r.dbClient.GetReaderPool()
+	pool := r.dbClient.GetWriterPoolByShardID(0)
 	queries := sqlc.New(pool)
 	stock, err := queries.GetBySKU(ctx, sku)
 	if err != nil {

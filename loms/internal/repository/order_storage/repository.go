@@ -14,6 +14,7 @@ type Repository interface {
 	Create(ctx context.Context, user int64, items []*OrderItem) (int64, error)
 	SetStatus(ctx context.Context, orderID int64, status string) error
 	GetByID(ctx context.Context, orderID int64) (*Order, error)
+	GetByIDs(ctx context.Context, orderID []int64) ([]*Order, error)
 }
 
 type repository struct {

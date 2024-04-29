@@ -2,6 +2,9 @@ package productservice
 
 import (
 	"context"
+	"sync"
+
+	"route256.ozon.ru/project/cart/internal/pkg/cache"
 )
 
 type Client interface {
@@ -9,14 +12,20 @@ type Client interface {
 	GetProductWithRetries(ctx context.Context, skuID int64) (*GetProductResponse, error)
 }
 
-type client struct{}
+type client struct {
+	redisClient cache.Cache
+	locks       map[string]*sync.Mutex
+}
 
 const (
 	ServiceName = "product-service"
 )
 
-var productStorage map[int64]*GetProductResponse = map[int64]*GetProductResponse{}
-
-func NewClient() Client {
-	return &client{}
+func NewClient(
+	redisClient cache.Cache,
+) Client {
+	return &client{
+		redisClient: redisClient,
+		locks:       make(map[string]*sync.Mutex),
+	}
 }

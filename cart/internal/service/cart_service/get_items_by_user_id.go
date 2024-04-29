@@ -26,7 +26,7 @@ func (s *service) GetItemsByUserID(ctx context.Context, userID int64) (*Cart, er
 
 	eg, ctx := errgroup.NewErrGroup(ctx, 10)
 
-	for sku, _ := range cart.Items {
+	for sku := range cart.Items {
 		eg.Go(func() error {
 			product, err := s.productService.GetProductWithRetries(ctx, sku)
 			if err != nil {
@@ -43,7 +43,7 @@ func (s *service) GetItemsByUserID(ctx context.Context, userID int64) (*Cart, er
 		return nil, err
 	}
 
-	resp, err := s.toGetCartResponse(ctx, cart, products)
+	resp, err := s.toGetCartResponse(cart, products)
 	if err != nil {
 		logger.Errorf(ctx, "cartService.GetItemsByUserID: failed to make response: %v", err)
 		return nil, fmt.Errorf("failed to make response: %w", err)

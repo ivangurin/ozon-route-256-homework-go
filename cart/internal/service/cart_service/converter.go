@@ -1,7 +1,6 @@
 package cartservice
 
 import (
-	"context"
 	"fmt"
 	"sort"
 
@@ -10,7 +9,7 @@ import (
 	productservice "route256.ozon.ru/project/cart/internal/pkg/client/product_service"
 )
 
-func (s *service) toGetCartResponse(ctx context.Context, cart *cartstorage.Cart, products map[int64]*productservice.GetProductResponse) (*Cart, error) {
+func (s *service) toGetCartResponse(cart *cartstorage.Cart, products map[int64]*productservice.GetProductResponse) (*Cart, error) {
 	var resp *Cart = &Cart{}
 	resp.Items = make([]*CartItem, 0, len(cart.Items))
 	for sku, cartItem := range cart.Items {

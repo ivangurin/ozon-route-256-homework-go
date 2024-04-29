@@ -9,7 +9,7 @@ import (
 	"route256.ozon.ru/project/cart/internal/pkg/logger"
 )
 
-type ICloser interface {
+type Closer interface {
 	Add(f ...func() error)
 	Wait()
 	Signal()
@@ -25,7 +25,7 @@ type closer struct {
 }
 
 // os.Interrupt, syscall.SIGINT, syscall.SIGTERM
-func NewCloser(sig ...os.Signal) ICloser {
+func NewCloser(sig ...os.Signal) Closer {
 	c := &closer{
 		done:     make(chan struct{}),
 		shutdown: make(chan os.Signal, 1),

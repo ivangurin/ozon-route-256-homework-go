@@ -11,7 +11,7 @@ import (
 )
 
 type API struct {
-	stock.UnimplementedStockServer
+	stock.UnimplementedStockAPIServer
 	stockService stockservice.Service
 }
 
@@ -24,11 +24,11 @@ func NewAPI(
 }
 
 func (a *API) RegisterGrpcServer(server *grpc.Server) {
-	stock.RegisterStockServer(server, a)
+	stock.RegisterStockAPIServer(server, a)
 }
 
 func (a *API) RegisterHttpHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	err := stock.RegisterStockHandler(ctx, mux, conn)
+	err := stock.RegisterStockAPIHandler(ctx, mux, conn)
 	if err != nil {
 		return fmt.Errorf("failed to register gateway: %w", err)
 	}

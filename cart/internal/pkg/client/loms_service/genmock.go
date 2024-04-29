@@ -8,10 +8,10 @@ import (
 
 // StockClientMock ...
 type StockClientMock interface {
-	stock.StockClient
+	stock.StockAPIClient
 }
 
 // OrderClientMock ...
 type OrderClientMock interface {
-	order.OrderClient
+	order.OrderAPIClient
 }

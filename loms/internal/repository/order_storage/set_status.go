@@ -22,7 +22,7 @@ func (r *repository) SetStatus(ctx context.Context, orderID int64, status string
 	)
 	defer metrics.UpdateDatabaseResponseTime(time.Now().UTC())
 
-	pool := r.dbClient.GetWriterPool()
+	pool := r.dbClient.GetWriterPoolByOrderID(orderID)
 	err := pool.BeginFunc(ctx, func(tx pgx.Tx) error {
 		qtx := sqlc.New(pool).WithTx(tx)
 

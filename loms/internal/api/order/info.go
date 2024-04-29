@@ -7,10 +7,10 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"route256.ozon.ru/project/loms/internal/model"
-	"route256.ozon.ru/project/loms/pkg/api/order/v1"
+	order_api "route256.ozon.ru/project/loms/pkg/api/order/v1"
 )
 
-func (a *API) Info(ctx context.Context, req *order.OrderInfoRequest) (*order.OrderInfoResponse, error) {
+func (a *API) Info(ctx context.Context, req *order_api.OrderInfoRequest) (*order_api.OrderInfoResponse, error) {
 	order, err := a.orderService.Info(ctx, req.GetOrderId())
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
@@ -20,5 +20,6 @@ func (a *API) Info(ctx context.Context, req *order.OrderInfoRequest) (*order.Ord
 		}
 	}
 
-	return toRespOrder(order), nil
+	return &order_api.OrderInfoResponse{
+		Order: toRespOrder(order)}, nil
 }

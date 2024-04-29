@@ -31,7 +31,7 @@ var _ = runtime.String
 var _ = utilities.NewDoubleArray
 var _ = metadata.Join
 
-func request_Order_Create_0(ctx context.Context, marshaler runtime.Marshaler, client OrderClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_OrderAPI_Create_0(ctx context.Context, marshaler runtime.Marshaler, client OrderAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq OrderCreateRequest
 	var metadata runtime.ServerMetadata
 
@@ -44,7 +44,7 @@ func request_Order_Create_0(ctx context.Context, marshaler runtime.Marshaler, cl
 
 }
 
-func local_request_Order_Create_0(ctx context.Context, marshaler runtime.Marshaler, server OrderServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_OrderAPI_Create_0(ctx context.Context, marshaler runtime.Marshaler, server OrderAPIServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq OrderCreateRequest
 	var metadata runtime.ServerMetadata
 
@@ -57,7 +57,7 @@ func local_request_Order_Create_0(ctx context.Context, marshaler runtime.Marshal
 
 }
 
-func request_Order_Info_0(ctx context.Context, marshaler runtime.Marshaler, client OrderClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_OrderAPI_Info_0(ctx context.Context, marshaler runtime.Marshaler, client OrderAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq OrderInfoRequest
 	var metadata runtime.ServerMetadata
 
@@ -83,7 +83,7 @@ func request_Order_Info_0(ctx context.Context, marshaler runtime.Marshaler, clie
 
 }
 
-func local_request_Order_Info_0(ctx context.Context, marshaler runtime.Marshaler, server OrderServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_OrderAPI_Info_0(ctx context.Context, marshaler runtime.Marshaler, server OrderAPIServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq OrderInfoRequest
 	var metadata runtime.ServerMetadata
 
@@ -109,7 +109,7 @@ func local_request_Order_Info_0(ctx context.Context, marshaler runtime.Marshaler
 
 }
 
-func request_Order_Pay_0(ctx context.Context, marshaler runtime.Marshaler, client OrderClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_OrderAPI_Pay_0(ctx context.Context, marshaler runtime.Marshaler, client OrderAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq OrderPayRequest
 	var metadata runtime.ServerMetadata
 
@@ -122,7 +122,7 @@ func request_Order_Pay_0(ctx context.Context, marshaler runtime.Marshaler, clien
 
 }
 
-func local_request_Order_Pay_0(ctx context.Context, marshaler runtime.Marshaler, server OrderServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_OrderAPI_Pay_0(ctx context.Context, marshaler runtime.Marshaler, server OrderAPIServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq OrderPayRequest
 	var metadata runtime.ServerMetadata
 
@@ -135,7 +135,7 @@ func local_request_Order_Pay_0(ctx context.Context, marshaler runtime.Marshaler,
 
 }
 
-func request_Order_Cancel_0(ctx context.Context, marshaler runtime.Marshaler, client OrderClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_OrderAPI_Cancel_0(ctx context.Context, marshaler runtime.Marshaler, client OrderAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq OrderCancelRequest
 	var metadata runtime.ServerMetadata
 
@@ -148,7 +148,7 @@ func request_Order_Cancel_0(ctx context.Context, marshaler runtime.Marshaler, cl
 
 }
 
-func local_request_Order_Cancel_0(ctx context.Context, marshaler runtime.Marshaler, server OrderServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_OrderAPI_Cancel_0(ctx context.Context, marshaler runtime.Marshaler, server OrderAPIServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq OrderCancelRequest
 	var metadata runtime.ServerMetadata
 
@@ -161,13 +161,39 @@ func local_request_Order_Cancel_0(ctx context.Context, marshaler runtime.Marshal
 
 }
 
-// RegisterOrderHandlerServer registers the http handlers for service Order to "mux".
-// UnaryRPC     :call OrderServer directly.
+func request_OrderAPI_GetByIDs_0(ctx context.Context, marshaler runtime.Marshaler, client OrderAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetOrdersByIDsRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.GetByIDs(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_OrderAPI_GetByIDs_0(ctx context.Context, marshaler runtime.Marshaler, server OrderAPIServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetOrdersByIDsRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.GetByIDs(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+// RegisterOrderAPIHandlerServer registers the http handlers for service OrderAPI to "mux".
+// UnaryRPC     :call OrderAPIServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterOrderHandlerFromEndpoint instead.
-func RegisterOrderHandlerServer(ctx context.Context, mux *runtime.ServeMux, server OrderServer) error {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterOrderAPIHandlerFromEndpoint instead.
+func RegisterOrderAPIHandlerServer(ctx context.Context, mux *runtime.ServeMux, server OrderAPIServer) error {
 
-	mux.Handle("POST", pattern_Order_Create_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_OrderAPI_Create_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -175,12 +201,12 @@ func RegisterOrderHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/route256.ozon.ru.project.loms.pkg.api.order.v1.Order/Create", runtime.WithHTTPPathPattern("/v1/order/create"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/route256.ozon.ru.project.loms.pkg.api.order.v1.OrderAPI/Create", runtime.WithHTTPPathPattern("/v1/order/create"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Order_Create_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_OrderAPI_Create_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -188,11 +214,11 @@ func RegisterOrderHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 			return
 		}
 
-		forward_Order_Create_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_OrderAPI_Create_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_Order_Info_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_OrderAPI_Info_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -200,12 +226,12 @@ func RegisterOrderHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/route256.ozon.ru.project.loms.pkg.api.order.v1.Order/Info", runtime.WithHTTPPathPattern("/v1/order/info/{order_id}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/route256.ozon.ru.project.loms.pkg.api.order.v1.OrderAPI/Info", runtime.WithHTTPPathPattern("/v1/order/info/{order_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Order_Info_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_OrderAPI_Info_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -213,11 +239,11 @@ func RegisterOrderHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 			return
 		}
 
-		forward_Order_Info_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_OrderAPI_Info_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_Order_Pay_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_OrderAPI_Pay_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -225,12 +251,12 @@ func RegisterOrderHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/route256.ozon.ru.project.loms.pkg.api.order.v1.Order/Pay", runtime.WithHTTPPathPattern("/v1/order/pay"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/route256.ozon.ru.project.loms.pkg.api.order.v1.OrderAPI/Pay", runtime.WithHTTPPathPattern("/v1/order/pay"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Order_Pay_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_OrderAPI_Pay_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -238,11 +264,11 @@ func RegisterOrderHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 			return
 		}
 
-		forward_Order_Pay_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_OrderAPI_Pay_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_Order_Cancel_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_OrderAPI_Cancel_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -250,12 +276,12 @@ func RegisterOrderHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/route256.ozon.ru.project.loms.pkg.api.order.v1.Order/Cancel", runtime.WithHTTPPathPattern("/v1/order/cancel"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/route256.ozon.ru.project.loms.pkg.api.order.v1.OrderAPI/Cancel", runtime.WithHTTPPathPattern("/v1/order/cancel"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Order_Cancel_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_OrderAPI_Cancel_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -263,16 +289,41 @@ func RegisterOrderHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 			return
 		}
 
-		forward_Order_Cancel_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_OrderAPI_Cancel_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_OrderAPI_GetByIDs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/route256.ozon.ru.project.loms.pkg.api.order.v1.OrderAPI/GetByIDs", runtime.WithHTTPPathPattern("/v1/order/get-by-ids"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_OrderAPI_GetByIDs_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_OrderAPI_GetByIDs_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
 	return nil
 }
 
-// RegisterOrderHandlerFromEndpoint is same as RegisterOrderHandler but
+// RegisterOrderAPIHandlerFromEndpoint is same as RegisterOrderAPIHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterOrderHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterOrderAPIHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.DialContext(ctx, endpoint, opts...)
 	if err != nil {
 		return err
@@ -292,107 +343,129 @@ func RegisterOrderHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux
 		}()
 	}()
 
-	return RegisterOrderHandler(ctx, mux, conn)
+	return RegisterOrderAPIHandler(ctx, mux, conn)
 }
 
-// RegisterOrderHandler registers the http handlers for service Order to "mux".
+// RegisterOrderAPIHandler registers the http handlers for service OrderAPI to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterOrderHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterOrderHandlerClient(ctx, mux, NewOrderClient(conn))
+func RegisterOrderAPIHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterOrderAPIHandlerClient(ctx, mux, NewOrderAPIClient(conn))
 }
 
-// RegisterOrderHandlerClient registers the http handlers for service Order
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "OrderClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "OrderClient"
+// RegisterOrderAPIHandlerClient registers the http handlers for service OrderAPI
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "OrderAPIClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "OrderAPIClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "OrderClient" to call the correct interceptors.
-func RegisterOrderHandlerClient(ctx context.Context, mux *runtime.ServeMux, client OrderClient) error {
+// "OrderAPIClient" to call the correct interceptors.
+func RegisterOrderAPIHandlerClient(ctx context.Context, mux *runtime.ServeMux, client OrderAPIClient) error {
 
-	mux.Handle("POST", pattern_Order_Create_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_OrderAPI_Create_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/route256.ozon.ru.project.loms.pkg.api.order.v1.Order/Create", runtime.WithHTTPPathPattern("/v1/order/create"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/route256.ozon.ru.project.loms.pkg.api.order.v1.OrderAPI/Create", runtime.WithHTTPPathPattern("/v1/order/create"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Order_Create_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_OrderAPI_Create_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Order_Create_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_OrderAPI_Create_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_Order_Info_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_OrderAPI_Info_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/route256.ozon.ru.project.loms.pkg.api.order.v1.Order/Info", runtime.WithHTTPPathPattern("/v1/order/info/{order_id}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/route256.ozon.ru.project.loms.pkg.api.order.v1.OrderAPI/Info", runtime.WithHTTPPathPattern("/v1/order/info/{order_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Order_Info_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_OrderAPI_Info_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Order_Info_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_OrderAPI_Info_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_Order_Pay_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_OrderAPI_Pay_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/route256.ozon.ru.project.loms.pkg.api.order.v1.Order/Pay", runtime.WithHTTPPathPattern("/v1/order/pay"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/route256.ozon.ru.project.loms.pkg.api.order.v1.OrderAPI/Pay", runtime.WithHTTPPathPattern("/v1/order/pay"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Order_Pay_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_OrderAPI_Pay_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Order_Pay_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_OrderAPI_Pay_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_Order_Cancel_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_OrderAPI_Cancel_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/route256.ozon.ru.project.loms.pkg.api.order.v1.Order/Cancel", runtime.WithHTTPPathPattern("/v1/order/cancel"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/route256.ozon.ru.project.loms.pkg.api.order.v1.OrderAPI/Cancel", runtime.WithHTTPPathPattern("/v1/order/cancel"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Order_Cancel_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_OrderAPI_Cancel_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Order_Cancel_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_OrderAPI_Cancel_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_OrderAPI_GetByIDs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/route256.ozon.ru.project.loms.pkg.api.order.v1.OrderAPI/GetByIDs", runtime.WithHTTPPathPattern("/v1/order/get-by-ids"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_OrderAPI_GetByIDs_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_OrderAPI_GetByIDs_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -400,21 +473,25 @@ func RegisterOrderHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 }
 
 var (
-	pattern_Order_Create_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "order", "create"}, ""))
+	pattern_OrderAPI_Create_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "order", "create"}, ""))
 
-	pattern_Order_Info_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "order", "info", "order_id"}, ""))
+	pattern_OrderAPI_Info_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "order", "info", "order_id"}, ""))
 
-	pattern_Order_Pay_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "order", "pay"}, ""))
+	pattern_OrderAPI_Pay_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "order", "pay"}, ""))
 
-	pattern_Order_Cancel_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "order", "cancel"}, ""))
+	pattern_OrderAPI_Cancel_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "order", "cancel"}, ""))
+
+	pattern_OrderAPI_GetByIDs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "order", "get-by-ids"}, ""))
 )
 
 var (
-	forward_Order_Create_0 = runtime.ForwardResponseMessage
+	forward_OrderAPI_Create_0 = runtime.ForwardResponseMessage
 
-	forward_Order_Info_0 = runtime.ForwardResponseMessage
+	forward_OrderAPI_Info_0 = runtime.ForwardResponseMessage
 
-	forward_Order_Pay_0 = runtime.ForwardResponseMessage
+	forward_OrderAPI_Pay_0 = runtime.ForwardResponseMessage
 
-	forward_Order_Cancel_0 = runtime.ForwardResponseMessage
+	forward_OrderAPI_Cancel_0 = runtime.ForwardResponseMessage
+
+	forward_OrderAPI_GetByIDs_0 = runtime.ForwardResponseMessage
 )

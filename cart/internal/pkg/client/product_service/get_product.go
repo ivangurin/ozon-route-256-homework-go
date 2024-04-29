@@ -8,21 +8,46 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sync"
+	"time"
 
 	"route256.ozon.ru/project/cart/internal/config"
 	"route256.ozon.ru/project/cart/internal/model"
-	"route256.ozon.ru/project/cart/internal/pkg/client/middleware"
+	"route256.ozon.ru/project/cart/internal/pkg/grpc_client/middleware"
 	"route256.ozon.ru/project/cart/internal/pkg/logger"
 	"route256.ozon.ru/project/cart/internal/pkg/tracer"
 )
 
 const StatusEnhanceYourCalm = 420
 
+//nolint:gocognit, gocyclo
 func (c *client) GetProduct(ctx context.Context, skuID int64) (*GetProductResponse, error) {
 	ctx, span := tracer.StartSpanFromContext(ctx, "productService.GetProduct")
 	defer span.End()
 
-	resp, exists := productStorage[skuID]
+	cacheID := fmt.Sprintf("productService.GetProduct:%d", skuID)
+
+	resp := &GetProductResponse{}
+	exists, err := c.redisClient.Get(ctx, cacheID, resp)
+	if err != nil {
+		logger.Errorf(ctx, "productService.GetProduct: failed to get product from redis: %v", err)
+	}
+	if exists {
+		return resp, nil
+	}
+
+	mutex, exists := c.locks[cacheID]
+	if !exists {
+		mutex = &sync.Mutex{}
+	}
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	// Если вдруг за время ожидания другой запрос уже обновил кэш
+	exists, err = c.redisClient.Get(ctx, cacheID, resp)
+	if err != nil {
+		logger.Errorf(ctx, "productService.GetProduct: failed to get product from redis: %v", err)
+	}
 	if exists {
 		return resp, nil
 	}
@@ -63,12 +88,16 @@ func (c *client) GetProduct(ctx context.Context, skuID int64) (*GetProductRespon
 			return nil, fmt.Errorf("failed to get product response body: %w", err)
 		}
 
-		resp = &GetProductResponse{}
-
 		err = json.Unmarshal(jsonResp, resp)
 		if err != nil {
 			logger.Errorf(ctx, "productService.getProduct: failed to unmarshal product response body: %v", err)
 			return nil, fmt.Errorf("failed to unmarshal product response body: %w", err)
+		}
+
+		err = c.redisClient.Set(ctx, cacheID, resp, time.Hour)
+		if err != nil {
+			logger.Errorf(ctx, "productService.getProduct: productService.getProduct: failed to set cache value: %v", err)
+			return nil, fmt.Errorf("failed to set cache value: %w", err)
 		}
 
 		return resp, nil

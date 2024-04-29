@@ -1,6 +1,8 @@
 package orderservice
 
 import (
+	"sort"
+
 	"route256.ozon.ru/project/loms/internal/model"
 	orderstorage "route256.ozon.ru/project/loms/internal/repository/order_storage"
 	stockstorage "route256.ozon.ru/project/loms/internal/repository/stock_storage"
@@ -40,6 +42,19 @@ func toStockItem(item *model.OrderItem) *stockstorage.ReserveItem {
 		Sku:      item.Sku,
 		Quantity: item.Quantity,
 	}
+}
+
+func ToModelOrders(orders []*orderstorage.Order) []*model.Order {
+	res := make([]*model.Order, 0, len(orders))
+	for _, order := range orders {
+		res = append(res, ToModelOrder(order))
+	}
+
+	sort.Slice(res, func(i, j int) bool {
+		return res[i].ID < res[j].ID
+	})
+
+	return res
 }
 
 func ToModelOrder(order *orderstorage.Order) *model.Order {

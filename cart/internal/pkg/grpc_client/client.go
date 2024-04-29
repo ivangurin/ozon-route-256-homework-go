@@ -5,7 +5,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"route256.ozon.ru/project/cart/internal/pkg/client/middleware"
+	"route256.ozon.ru/project/cart/internal/pkg/grpc_client/middleware"
 	"route256.ozon.ru/project/cart/internal/pkg/logger"
 )
 

@@ -174,6 +174,80 @@ func (_c *OrderClientMock_Create_Call) RunAndReturn(run func(context.Context, *o
 	return _c
 }
 
+// GetByIDs provides a mock function with given fields: ctx, in, opts
+func (_m *OrderClientMock) GetByIDs(ctx context.Context, in *order.GetOrdersByIDsRequest, opts ...grpc.CallOption) (*order.GetOrdersByIDsResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByIDs")
+	}
+
+	var r0 *order.GetOrdersByIDsResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *order.GetOrdersByIDsRequest, ...grpc.CallOption) (*order.GetOrdersByIDsResponse, error)); ok {
+		return rf(ctx, in, opts...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *order.GetOrdersByIDsRequest, ...grpc.CallOption) *order.GetOrdersByIDsResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*order.GetOrdersByIDsResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *order.GetOrdersByIDsRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// OrderClientMock_GetByIDs_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByIDs'
+type OrderClientMock_GetByIDs_Call struct {
+	*mock.Call
+}
+
+// GetByIDs is a helper method to define mock.On call
+//   - ctx context.Context
+//   - in *order.GetOrdersByIDsRequest
+//   - opts ...grpc.CallOption
+func (_e *OrderClientMock_Expecter) GetByIDs(ctx interface{}, in interface{}, opts ...interface{}) *OrderClientMock_GetByIDs_Call {
+	return &OrderClientMock_GetByIDs_Call{Call: _e.mock.On("GetByIDs",
+		append([]interface{}{ctx, in}, opts...)...)}
+}
+
+func (_c *OrderClientMock_GetByIDs_Call) Run(run func(ctx context.Context, in *order.GetOrdersByIDsRequest, opts ...grpc.CallOption)) *OrderClientMock_GetByIDs_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]grpc.CallOption, len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(grpc.CallOption)
+			}
+		}
+		run(args[0].(context.Context), args[1].(*order.GetOrdersByIDsRequest), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *OrderClientMock_GetByIDs_Call) Return(_a0 *order.GetOrdersByIDsResponse, _a1 error) *OrderClientMock_GetByIDs_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *OrderClientMock_GetByIDs_Call) RunAndReturn(run func(context.Context, *order.GetOrdersByIDsRequest, ...grpc.CallOption) (*order.GetOrdersByIDsResponse, error)) *OrderClientMock_GetByIDs_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Info provides a mock function with given fields: ctx, in, opts
 func (_m *OrderClientMock) Info(ctx context.Context, in *order.OrderInfoRequest, opts ...grpc.CallOption) (*order.OrderInfoResponse, error) {
 	_va := make([]interface{}, len(opts))

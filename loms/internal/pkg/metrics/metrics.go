@@ -1,7 +1,6 @@
 package metrics
 
 import (
-	_ "net/http/pprof"
 	"strings"
 	"time"
 

@@ -19,194 +19,230 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// OrderClient is the client API for Order service.
+// OrderAPIClient is the client API for OrderAPI service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type OrderClient interface {
+type OrderAPIClient interface {
 	Create(ctx context.Context, in *OrderCreateRequest, opts ...grpc.CallOption) (*OrderCreateResponse, error)
 	Info(ctx context.Context, in *OrderInfoRequest, opts ...grpc.CallOption) (*OrderInfoResponse, error)
 	Pay(ctx context.Context, in *OrderPayRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Cancel(ctx context.Context, in *OrderCancelRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetByIDs(ctx context.Context, in *GetOrdersByIDsRequest, opts ...grpc.CallOption) (*GetOrdersByIDsResponse, error)
 }
 
-type orderClient struct {
+type orderAPIClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewOrderClient(cc grpc.ClientConnInterface) OrderClient {
-	return &orderClient{cc}
+func NewOrderAPIClient(cc grpc.ClientConnInterface) OrderAPIClient {
+	return &orderAPIClient{cc}
 }
 
-func (c *orderClient) Create(ctx context.Context, in *OrderCreateRequest, opts ...grpc.CallOption) (*OrderCreateResponse, error) {
+func (c *orderAPIClient) Create(ctx context.Context, in *OrderCreateRequest, opts ...grpc.CallOption) (*OrderCreateResponse, error) {
 	out := new(OrderCreateResponse)
-	err := c.cc.Invoke(ctx, "/route256.ozon.ru.project.loms.pkg.api.order.v1.Order/Create", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/route256.ozon.ru.project.loms.pkg.api.order.v1.OrderAPI/Create", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *orderClient) Info(ctx context.Context, in *OrderInfoRequest, opts ...grpc.CallOption) (*OrderInfoResponse, error) {
+func (c *orderAPIClient) Info(ctx context.Context, in *OrderInfoRequest, opts ...grpc.CallOption) (*OrderInfoResponse, error) {
 	out := new(OrderInfoResponse)
-	err := c.cc.Invoke(ctx, "/route256.ozon.ru.project.loms.pkg.api.order.v1.Order/Info", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/route256.ozon.ru.project.loms.pkg.api.order.v1.OrderAPI/Info", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *orderClient) Pay(ctx context.Context, in *OrderPayRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *orderAPIClient) Pay(ctx context.Context, in *OrderPayRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/route256.ozon.ru.project.loms.pkg.api.order.v1.Order/Pay", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/route256.ozon.ru.project.loms.pkg.api.order.v1.OrderAPI/Pay", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *orderClient) Cancel(ctx context.Context, in *OrderCancelRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *orderAPIClient) Cancel(ctx context.Context, in *OrderCancelRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/route256.ozon.ru.project.loms.pkg.api.order.v1.Order/Cancel", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/route256.ozon.ru.project.loms.pkg.api.order.v1.OrderAPI/Cancel", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// OrderServer is the server API for Order service.
-// All implementations must embed UnimplementedOrderServer
+func (c *orderAPIClient) GetByIDs(ctx context.Context, in *GetOrdersByIDsRequest, opts ...grpc.CallOption) (*GetOrdersByIDsResponse, error) {
+	out := new(GetOrdersByIDsResponse)
+	err := c.cc.Invoke(ctx, "/route256.ozon.ru.project.loms.pkg.api.order.v1.OrderAPI/GetByIDs", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// OrderAPIServer is the server API for OrderAPI service.
+// All implementations must embed UnimplementedOrderAPIServer
 // for forward compatibility
-type OrderServer interface {
+type OrderAPIServer interface {
 	Create(context.Context, *OrderCreateRequest) (*OrderCreateResponse, error)
 	Info(context.Context, *OrderInfoRequest) (*OrderInfoResponse, error)
 	Pay(context.Context, *OrderPayRequest) (*emptypb.Empty, error)
 	Cancel(context.Context, *OrderCancelRequest) (*emptypb.Empty, error)
-	mustEmbedUnimplementedOrderServer()
+	GetByIDs(context.Context, *GetOrdersByIDsRequest) (*GetOrdersByIDsResponse, error)
+	mustEmbedUnimplementedOrderAPIServer()
 }
 
-// UnimplementedOrderServer must be embedded to have forward compatible implementations.
-type UnimplementedOrderServer struct {
+// UnimplementedOrderAPIServer must be embedded to have forward compatible implementations.
+type UnimplementedOrderAPIServer struct {
 }
 
-func (UnimplementedOrderServer) Create(context.Context, *OrderCreateRequest) (*OrderCreateResponse, error) {
+func (UnimplementedOrderAPIServer) Create(context.Context, *OrderCreateRequest) (*OrderCreateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (UnimplementedOrderServer) Info(context.Context, *OrderInfoRequest) (*OrderInfoResponse, error) {
+func (UnimplementedOrderAPIServer) Info(context.Context, *OrderInfoRequest) (*OrderInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Info not implemented")
 }
-func (UnimplementedOrderServer) Pay(context.Context, *OrderPayRequest) (*emptypb.Empty, error) {
+func (UnimplementedOrderAPIServer) Pay(context.Context, *OrderPayRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Pay not implemented")
 }
-func (UnimplementedOrderServer) Cancel(context.Context, *OrderCancelRequest) (*emptypb.Empty, error) {
+func (UnimplementedOrderAPIServer) Cancel(context.Context, *OrderCancelRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Cancel not implemented")
 }
-func (UnimplementedOrderServer) mustEmbedUnimplementedOrderServer() {}
+func (UnimplementedOrderAPIServer) GetByIDs(context.Context, *GetOrdersByIDsRequest) (*GetOrdersByIDsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetByIDs not implemented")
+}
+func (UnimplementedOrderAPIServer) mustEmbedUnimplementedOrderAPIServer() {}
 
-// UnsafeOrderServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to OrderServer will
+// UnsafeOrderAPIServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to OrderAPIServer will
 // result in compilation errors.
-type UnsafeOrderServer interface {
-	mustEmbedUnimplementedOrderServer()
+type UnsafeOrderAPIServer interface {
+	mustEmbedUnimplementedOrderAPIServer()
 }
 
-func RegisterOrderServer(s grpc.ServiceRegistrar, srv OrderServer) {
-	s.RegisterService(&Order_ServiceDesc, srv)
+func RegisterOrderAPIServer(s grpc.ServiceRegistrar, srv OrderAPIServer) {
+	s.RegisterService(&OrderAPI_ServiceDesc, srv)
 }
 
-func _Order_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _OrderAPI_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(OrderCreateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderServer).Create(ctx, in)
+		return srv.(OrderAPIServer).Create(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/route256.ozon.ru.project.loms.pkg.api.order.v1.Order/Create",
+		FullMethod: "/route256.ozon.ru.project.loms.pkg.api.order.v1.OrderAPI/Create",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServer).Create(ctx, req.(*OrderCreateRequest))
+		return srv.(OrderAPIServer).Create(ctx, req.(*OrderCreateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Order_Info_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _OrderAPI_Info_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(OrderInfoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderServer).Info(ctx, in)
+		return srv.(OrderAPIServer).Info(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/route256.ozon.ru.project.loms.pkg.api.order.v1.Order/Info",
+		FullMethod: "/route256.ozon.ru.project.loms.pkg.api.order.v1.OrderAPI/Info",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServer).Info(ctx, req.(*OrderInfoRequest))
+		return srv.(OrderAPIServer).Info(ctx, req.(*OrderInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Order_Pay_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _OrderAPI_Pay_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(OrderPayRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderServer).Pay(ctx, in)
+		return srv.(OrderAPIServer).Pay(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/route256.ozon.ru.project.loms.pkg.api.order.v1.Order/Pay",
+		FullMethod: "/route256.ozon.ru.project.loms.pkg.api.order.v1.OrderAPI/Pay",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServer).Pay(ctx, req.(*OrderPayRequest))
+		return srv.(OrderAPIServer).Pay(ctx, req.(*OrderPayRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Order_Cancel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _OrderAPI_Cancel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(OrderCancelRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderServer).Cancel(ctx, in)
+		return srv.(OrderAPIServer).Cancel(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/route256.ozon.ru.project.loms.pkg.api.order.v1.Order/Cancel",
+		FullMethod: "/route256.ozon.ru.project.loms.pkg.api.order.v1.OrderAPI/Cancel",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServer).Cancel(ctx, req.(*OrderCancelRequest))
+		return srv.(OrderAPIServer).Cancel(ctx, req.(*OrderCancelRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Order_ServiceDesc is the grpc.ServiceDesc for Order service.
+func _OrderAPI_GetByIDs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetOrdersByIDsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderAPIServer).GetByIDs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/route256.ozon.ru.project.loms.pkg.api.order.v1.OrderAPI/GetByIDs",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderAPIServer).GetByIDs(ctx, req.(*GetOrdersByIDsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// OrderAPI_ServiceDesc is the grpc.ServiceDesc for OrderAPI service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Order_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "route256.ozon.ru.project.loms.pkg.api.order.v1.Order",
-	HandlerType: (*OrderServer)(nil),
+var OrderAPI_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "route256.ozon.ru.project.loms.pkg.api.order.v1.OrderAPI",
+	HandlerType: (*OrderAPIServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Create",
-			Handler:    _Order_Create_Handler,
+			Handler:    _OrderAPI_Create_Handler,
 		},
 		{
 			MethodName: "Info",
-			Handler:    _Order_Info_Handler,
+			Handler:    _OrderAPI_Info_Handler,
 		},
 		{
 			MethodName: "Pay",
-			Handler:    _Order_Pay_Handler,
+			Handler:    _OrderAPI_Pay_Handler,
 		},
 		{
 			MethodName: "Cancel",
-			Handler:    _Order_Cancel_Handler,
+			Handler:    _OrderAPI_Cancel_Handler,
+		},
+		{
+			MethodName: "GetByIDs",
+			Handler:    _OrderAPI_GetByIDs_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

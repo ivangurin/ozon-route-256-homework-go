@@ -10,7 +10,7 @@ import (
 
 type ServiceProvider struct {
 	ctx          context.Context
-	closer       closer.ICloser
+	closer       closer.Closer
 	api          api
 	clients      clients
 	repositories repositories
@@ -28,7 +28,7 @@ func GetServiceProvider(ctx context.Context) *ServiceProvider {
 	return serviceProvider
 }
 
-func (sp *ServiceProvider) GetCloser() closer.ICloser {
+func (sp *ServiceProvider) GetCloser() closer.Closer {
 	if sp.closer == nil {
 		sp.closer = closer.NewCloser(os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	}

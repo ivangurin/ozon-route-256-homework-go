@@ -26,18 +26,19 @@ func (q *Queries) AddOrderItem(ctx context.Context, arg AddOrderItemParams) erro
 }
 
 const createOrder = `-- name: CreateOrder :one
-insert into "order" ("user", status, created_at, updated_at) 
-    values ($1, $2, now(), now())
+insert into "order" ("id", "user", status, created_at, updated_at) 
+    values (nextval('order_id_manual_seq') + $1, $2, $3, now(), now())
     returning id
 `
 
 type CreateOrderParams struct {
-	User   int64
-	Status OrderStatusType
+	Column1 interface{}
+	User    int64
+	Status  OrderStatusType
 }
 
 func (q *Queries) CreateOrder(ctx context.Context, arg CreateOrderParams) (int64, error) {
-	row := q.db.QueryRow(ctx, createOrder, arg.User, arg.Status)
+	row := q.db.QueryRow(ctx, createOrder, arg.Column1, arg.User, arg.Status)
 	var id int64
 	err := row.Scan(&id)
 	return id, err
@@ -62,28 +63,90 @@ func (q *Queries) GetOrderByID(ctx context.Context, id int64) (Order, error) {
 	return i, err
 }
 
+const getOrderByIDs = `-- name: GetOrderByIDs :many
+select id, "user" as user, status, created_at, updated_at 
+    from "order" 
+    where id = ANY($1::bigint[])
+`
+
+func (q *Queries) GetOrderByIDs(ctx context.Context, dollar_1 []int64) ([]Order, error) {
+	rows, err := q.db.Query(ctx, getOrderByIDs, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Order
+	for rows.Next() {
+		var i Order
+		if err := rows.Scan(
+			&i.ID,
+			&i.User,
+			&i.Status,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getOrderItemsByOrderID = `-- name: GetOrderItemsByOrderID :many
-select id, sku, quantity
+select id,  order_id, sku, quantity
     from order_item
     where order_id = $1
 `
 
-type GetOrderItemsByOrderIDRow struct {
-	ID       int64
-	Sku      int64
-	Quantity int32
-}
-
-func (q *Queries) GetOrderItemsByOrderID(ctx context.Context, orderID int64) ([]GetOrderItemsByOrderIDRow, error) {
+func (q *Queries) GetOrderItemsByOrderID(ctx context.Context, orderID int64) ([]OrderItem, error) {
 	rows, err := q.db.Query(ctx, getOrderItemsByOrderID, orderID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetOrderItemsByOrderIDRow
+	var items []OrderItem
 	for rows.Next() {
-		var i GetOrderItemsByOrderIDRow
-		if err := rows.Scan(&i.ID, &i.Sku, &i.Quantity); err != nil {
+		var i OrderItem
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrderID,
+			&i.Sku,
+			&i.Quantity,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getOrderItemsByOrderIDs = `-- name: GetOrderItemsByOrderIDs :many
+select id, order_id, sku, quantity
+    from order_item
+    where order_id = ANY($1::bigint[])
+`
+
+func (q *Queries) GetOrderItemsByOrderIDs(ctx context.Context, dollar_1 []int64) ([]OrderItem, error) {
+	rows, err := q.db.Query(ctx, getOrderItemsByOrderIDs, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []OrderItem
+	for rows.Next() {
+		var i OrderItem
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrderID,
+			&i.Sku,
+			&i.Quantity,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

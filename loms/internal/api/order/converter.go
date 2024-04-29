@@ -20,24 +20,32 @@ func toItem(item *order.OrderCreateRequest_Item) *model.OrderItem {
 	}
 }
 
-func toRespOrder(ord *model.Order) *order.OrderInfoResponse {
-	return &order.OrderInfoResponse{
+func toRespOrders(orders []*model.Order) []*order.Order {
+	res := make([]*order.Order, 0, len(orders))
+	for _, order := range orders {
+		res = append(res, toRespOrder(order))
+	}
+	return res
+}
+
+func toRespOrder(ord *model.Order) *order.Order {
+	return &order.Order{
 		User:   ord.User,
 		Status: ord.Status,
 		Items:  toRespItems(ord.Items),
 	}
 }
 
-func toRespItems(items model.OrderItems) []*order.OrderInfoResponse_Item {
-	res := make([]*order.OrderInfoResponse_Item, 0, len(items))
+func toRespItems(items model.OrderItems) []*order.OrderItem {
+	res := make([]*order.OrderItem, 0, len(items))
 	for _, item := range items {
 		res = append(res, toRespItem(item))
 	}
 	return res
 }
 
-func toRespItem(item *model.OrderItem) *order.OrderInfoResponse_Item {
-	return &order.OrderInfoResponse_Item{
+func toRespItem(item *model.OrderItem) *order.OrderItem {
+	return &order.OrderItem{
 		Sku:   item.Sku,
 		Count: uint64(item.Quantity),
 	}

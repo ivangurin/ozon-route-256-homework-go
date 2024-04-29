@@ -127,6 +127,65 @@ func (_c *ServiceMock_Create_Call) RunAndReturn(run func(context.Context, int64,
 	return _c
 }
 
+// GetByIDs provides a mock function with given fields: ctx, orderIDs
+func (_m *ServiceMock) GetByIDs(ctx context.Context, orderIDs []int64) ([]*model.Order, error) {
+	ret := _m.Called(ctx, orderIDs)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByIDs")
+	}
+
+	var r0 []*model.Order
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, []int64) ([]*model.Order, error)); ok {
+		return rf(ctx, orderIDs)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, []int64) []*model.Order); ok {
+		r0 = rf(ctx, orderIDs)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*model.Order)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, []int64) error); ok {
+		r1 = rf(ctx, orderIDs)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ServiceMock_GetByIDs_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByIDs'
+type ServiceMock_GetByIDs_Call struct {
+	*mock.Call
+}
+
+// GetByIDs is a helper method to define mock.On call
+//   - ctx context.Context
+//   - orderIDs []int64
+func (_e *ServiceMock_Expecter) GetByIDs(ctx interface{}, orderIDs interface{}) *ServiceMock_GetByIDs_Call {
+	return &ServiceMock_GetByIDs_Call{Call: _e.mock.On("GetByIDs", ctx, orderIDs)}
+}
+
+func (_c *ServiceMock_GetByIDs_Call) Run(run func(ctx context.Context, orderIDs []int64)) *ServiceMock_GetByIDs_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].([]int64))
+	})
+	return _c
+}
+
+func (_c *ServiceMock_GetByIDs_Call) Return(_a0 []*model.Order, _a1 error) *ServiceMock_GetByIDs_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ServiceMock_GetByIDs_Call) RunAndReturn(run func(context.Context, []int64) ([]*model.Order, error)) *ServiceMock_GetByIDs_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Info provides a mock function with given fields: ctx, orderID
 func (_m *ServiceMock) Info(ctx context.Context, orderID int64) (*model.Order, error) {
 	ret := _m.Called(ctx, orderID)
